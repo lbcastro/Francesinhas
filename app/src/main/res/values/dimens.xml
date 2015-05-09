@@ -1,0 +1,7 @@
+<resources>
+    <dimen name="margin_m">16dp</dimen>
+
+    <dimen name="row_details_height">72dp</dimen>
+    <dimen name="row_main_apps">144dp</dimen>
+    <dimen name="icon_size">32dp</dimen>
+</resources>

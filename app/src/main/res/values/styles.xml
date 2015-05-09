@@ -1,0 +1,20 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/blue</item>
+        <item name="colorPrimaryDark">@color/blue_dark</item>
+    </style>
+
+    <style name="Text.Default" parent="AppTheme">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="Text.Header.1" parent="Text.Default">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="Text.Header.2" parent="Text.Default">
+        <item name="android:textSize">15sp</item>
+    </style>
+
+</resources>
