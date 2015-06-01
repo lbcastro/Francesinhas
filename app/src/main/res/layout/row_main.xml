@@ -11,8 +11,11 @@
         android:scaleType="centerCrop" />
 
     <View
+        android:id="@+id/custom_row_clickable"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginEnd="65dp"
+        android:layout_marginRight="65dp"
         android:background="@drawable/selector"
         android:clickable="true"
         android:focusable="true" />
@@ -54,5 +57,37 @@
         android:layout_marginStart="72dp"
         android:gravity="center_vertical"
         android:paddingTop="32dp" />
+
+    <LinearLayout
+        style="@style/Base.Widget.AppCompat.ButtonBar"
+        android:layout_width="64dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/custom_row_votes_up"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="1dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:textColor="@android:color/holo_green_light" />
+
+        <TextView
+            android:id="@+id/custom_row_votes_down"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:textColor="@android:color/holo_red_light" />
+    </LinearLayout>
 
 </RelativeLayout>

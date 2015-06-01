@@ -12,23 +12,16 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.list.CustomRecyclerViewAdapter;
 import pt.castro.francesinhas.list.DividerItemDecoration;
-import pt.castro.francesinhas.list.ItemHolder;
 
-
-/**
- * A placeholder fragment containing a simple view.
- */
 public class MainActivityFragment extends Fragment {
 
     @InjectView(R.id.fragment_main_recycler_view) RecyclerView mRecyclerView;
 
     private View mFragmentView;
     private CustomRecyclerViewAdapter mCustomRecyclerViewAdapter;
-
-    public MainActivityFragment() {
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,6 +32,12 @@ public class MainActivityFragment extends Fragment {
         mRecyclerView.setAdapter(mCustomRecyclerViewAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+        mRecyclerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         return mFragmentView;
     }
 
