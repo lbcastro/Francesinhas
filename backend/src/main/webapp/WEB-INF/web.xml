@@ -5,7 +5,7 @@
         <servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
         <init-param>
             <param-name>services</param-name>
-            <param-value>pt.castro.francesinhas.backend.MyEndpoint</param-value>
+            <param-value>pt.castro.francesinhas.backend.Endpoint</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>

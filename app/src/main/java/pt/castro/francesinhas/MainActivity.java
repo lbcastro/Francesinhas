@@ -1,25 +1,31 @@
 package pt.castro.francesinhas;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 
 import de.greenrobot.event.EventBus;
 import icepick.Icepick;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.communication.EndpointGetItems;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
+import pt.castro.francesinhas.events.ListRefreshEvent;
 import pt.castro.francesinhas.events.ListRetrievedEvent;
-import pt.castro.francesinhas.events.ScoreChangeEvent;
-
+import pt.castro.francesinhas.events.PlaceAlreadyExistsEvent;
+import pt.castro.francesinhas.events.PlacePickerEvent;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int PLACE_PICKER_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,23 +33,22 @@ public class MainActivity extends AppCompatActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
         setContentView(R.layout.activity_main);
         new EndpointGetItems().execute();
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
-        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
     @Override
@@ -54,54 +59,63 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        return item.getItemId() == R.id.action_settings || super.onOptionsItemSelected(item);
+    }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    @EventBusHook
+    public void onEvent(final ListRetrievedEvent listRetrievedEvent) {
+        final MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment);
+        for (ItemHolder itemHolder : listRetrievedEvent.list) {
+            itemHolder.setBackgroundColor(getResources().getColor(R.color.blue_best));
         }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    private List<ItemHolder> generateDummyList() {
-        int[] images = {R.drawable.francesinha1, R.drawable.francesinha2, R.drawable.francesinha3, R.drawable.francesinha4, R.drawable.francesinha5, R.drawable.francesinha6, R.drawable.francesinha7, R.drawable.francesinha8, R.drawable.francesinha9};
-        String[] names = {"Alicantina", "Cufra", "Cunha", "Santiago", "Capa Negra", "Paquete", "Galiza", "Porto Beer", "Rio de Janeiro"};
-        String[] locations = {"Porto", "Vila do Conde", "Matosinhos", "Gaia", "Maia", "Povoa do Varzim", "Baixa", "Ribeira", "Antas"};
-        final List<ItemHolder> items = new ArrayList<>();
-        for (int x = 0; x < names.length; x++) {
-            ItemHolder itemHolder = new ItemHolder();
-            itemHolder.setName(names[x]);
-            itemHolder.setLocation(locations[x]);
-            itemHolder.setImageResource(images[x]);
-            itemHolder.setId(new Long(x + 1));
-
-            items.add(itemHolder);
-            EndpointsAsyncTask task = new EndpointsAsyncTask(EndpointsAsyncTask.ADD);
-            task.execute(itemHolder);
-        }
-        return items;
-    }
-
-    public void onEvent(ScoreChangeEvent scoreChangeEvent) {
-//        Toast.makeText(this, "Score for " + scoreChangeEvent.itemHolder.getName() + " is " +
-//                scoreChangeEvent.itemHolder.getRanking(), Toast.LENGTH_LONG).show();
-    }
-
-    public void onEvent(ListRetrievedEvent listRetrievedEvent) {
-        final MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
         fragment.setItems(listRetrievedEvent.list);
     }
 
+    @EventBusHook
+    public void onEvent(final ListRefreshEvent listRefreshEvent) {
+        if (!listRefreshEvent.isRefreshed()) {
+            new EndpointGetItems().execute();
+        }
+    }
+
+    @EventBusHook
+    public void onEvent(final PlacePickerEvent placePickerEvent) {
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        Context context = getApplicationContext();
+        try {
+            startActivityForResult(builder.build(context), PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException
+                e) {
+            // TODO
+            e.printStackTrace();
+        }
+    }
+
+    @EventBusHook
+    public void onEventMainThread(final PlaceAlreadyExistsEvent placeAlreadyExistsEvent) {
+        Toast.makeText(this, R.string.place_exists, Toast.LENGTH_LONG).show();
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
+            final Place place = PlacePicker.getPlace(data, this);
+            if (!place.getPlaceTypes().contains(Place.TYPE_RESTAURANT) && !place.getPlaceTypes()
+                    .contains(Place.TYPE_CAFE) && !place.getPlaceTypes().contains(Place
+                    .TYPE_FOOD)) {
+                Toast.makeText(this, R.string.invalid_place, Toast.LENGTH_SHORT).show();
+            } else {
+                final EndpointsAsyncTask task = new EndpointsAsyncTask(EndpointsAsyncTask.ADD);
+                ItemHolder itemHolder = PlaceUtils.placeToItem(this, place);
+                itemHolder.setBackgroundColor(LayoutUtils.getRandomColor(this));
+                task.execute(itemHolder);
+            }
+        }
+    }
 }

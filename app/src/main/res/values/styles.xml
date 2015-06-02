@@ -1,20 +1,35 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blue_dark</item>
+        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+
+    <style name="MyActionBar" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="android:windowActionBarOverlay">true</item>
     </style>
 
     <style name="Text.Default" parent="AppTheme">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:gravity">center_vertical|start</item>
+        <item name="android:layout_gravity">center_vertical|start</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="Text.Header.1" parent="Text.Default">
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">@dimen/text_size_m</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Text.Header.2" parent="Text.Default">
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">@dimen/text_size_s</item>
     </style>
-
 </resources>

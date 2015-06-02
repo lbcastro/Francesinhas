@@ -1,7 +1,17 @@
 <resources>
+    <dimen name="margin_xlarge">72dp</dimen>
     <dimen name="margin_m">16dp</dimen>
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_xsmall">4dp</dimen>
 
+    <dimen name="row_main_height">112dp</dimen>
     <dimen name="row_details_height">72dp</dimen>
-    <dimen name="row_main_apps">144dp</dimen>
+
     <dimen name="icon_size">32dp</dimen>
+    <dimen name="ranking_size">48dp</dimen>
+    <dimen name="button_size">64dp</dimen>
+
+    <dimen name="text_size_s">15sp</dimen>
+    <dimen name="text_size_m">20sp</dimen>
+    <dimen name="text_size_l">34sp</dimen>
 </resources>

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
 
 android {
     compileSdkVersion 22
@@ -21,8 +22,12 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.android.support:recyclerview-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
+    compile 'com.android.support:cardview-v7:22.2.0'
+    compile 'com.android.support:design:22.2.0'
+    compile 'com.malinskiy:superrecyclerview:1.1.0'
+    compile 'com.google.android.gms:play-services-location:7.5.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.1'
     compile 'com.jakewharton:butterknife:5.1.2'
     compile 'frankiesardo:icepick:3.0.2'

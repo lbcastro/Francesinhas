@@ -6,6 +6,7 @@ import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -22,14 +23,14 @@ public class EndpointGetItems extends AsyncTask<Void, Void, List<ItemHolder>> {
     @Override
     protected List<ItemHolder> doInBackground(Void... params) {
         if (myApiService == null) {  // Only do this once
-            MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
+            MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(), new
+                    AndroidJsonFactory(), null)
                     .setRootUrl("https://castro-francesinhas.appspot.com/_ah/api/");
             // end options for devappserver
-
             myApiService = builder.build();
         }
         try {
-            return myApiService.listQuote().execute().getItems();
+            return myApiService.listItems().execute().getItems();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -39,6 +40,9 @@ public class EndpointGetItems extends AsyncTask<Void, Void, List<ItemHolder>> {
 
     @Override
     protected void onPostExecute(List<ItemHolder> list) {
+        if (list == null) {
+            list = Collections.emptyList();
+        }
         ListRetrievedEvent listRetrievedEvent = new ListRetrievedEvent();
         listRetrievedEvent.list = list;
         EventBus.getDefault().post(listRetrievedEvent);

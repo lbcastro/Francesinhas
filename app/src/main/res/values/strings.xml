@@ -2,4 +2,7 @@
     <string name="app_name">Francesinhas</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="add_new">New</string>
+    <string name="invalid_place">Invalid place\nYou must select a restaurant</string>
+    <string name="place_exists">Place already exists</string>
 </resources>

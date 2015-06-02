@@ -1,0 +1,75 @@
+package pt.castro.francesinhas;
+
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+
+import com.google.android.gms.location.places.Place;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
+import pt.castro.francesinhas.communication.EndpointsAsyncTask;
+
+/**
+ * Created by lourenco.castro on 02-06-2015.
+ */
+public class PlaceUtils {
+    static ItemHolder placeToItem(final Context context, final Place place) {
+        ItemHolder itemHolder = new ItemHolder();
+        itemHolder.setName(place.getName().toString());
+        itemHolder.setId(place.getId());
+        itemHolder.setAddress(place.getAddress().toString());
+        itemHolder.setPhone(place.getPhoneNumber().toString());
+        itemHolder.setPriceRange(place.getPriceLevel());
+        itemHolder.setLocation(cityName(context, place));
+        return itemHolder;
+    }
+
+    private static String cityName(Context context, Place place) {
+        Location location = new Location(place.getName().toString());
+        location.setLatitude(place.getLatLng().latitude);
+        location.setLongitude(place.getLatLng().longitude);
+        location.setTime(new Date().getTime());
+        StringBuilder address = new StringBuilder();
+        Geocoder gcd = new Geocoder(context, Locale.getDefault());
+        List<Address> addresses;
+        try {
+            addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addresses.size() > 0)
+                address.append(addresses.get(0).getAddressLine(1));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address.toString().replaceAll("\\d", "").replaceAll("^-+", "").trim();
+    }
+
+    public static List<ItemHolder> generateDummyList(final Context context) {
+        int[] images = {R.drawable.francesinha1, R.drawable.francesinha2, R.drawable
+                .francesinha3, R.drawable.francesinha4, R.drawable.francesinha5, R.drawable
+                .francesinha6, R.drawable.francesinha7, R.drawable.francesinha8, R.drawable
+                .francesinha9};
+        String[] names = {"Alicantina", "Cufra", "Cunha", "Santiago", "Capa Negra", "Paquete",
+                "Galiza", "Porto Beer", "Rio de Janeiro"};
+        String[] locations = {"Porto", "Vila do Conde", "Matosinhos", "Gaia", "Maia", "Povoa do " +
+                "Varzim", "Baixa", "Ribeira", "Antas"};
+        final List<ItemHolder> items = new ArrayList<>();
+        for (int x = 0; x < names.length; x++) {
+            ItemHolder itemHolder = new ItemHolder();
+            itemHolder.setName(names[x]);
+            itemHolder.setLocation(locations[x]);
+            itemHolder.setImageResource(images[x]);
+            itemHolder.setBackgroundColor(LayoutUtils.getRandomColor(context));
+            itemHolder.setId(names[x]);
+            items.add(itemHolder);
+            EndpointsAsyncTask task = new EndpointsAsyncTask(EndpointsAsyncTask.ADD);
+            task.execute(itemHolder);
+        }
+        return items;
+    }
+}

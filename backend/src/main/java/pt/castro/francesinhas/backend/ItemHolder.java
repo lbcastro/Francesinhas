@@ -12,13 +12,17 @@ import com.googlecode.objectify.annotation.Id;
 public class ItemHolder {
 
     @Id
-    private long id;
+    private String id;
     private String name;
     private int ranking;
     private int votesUp;
     private int votesDown;
     private String location;
+    private String address;
+    private String phone;
+    private int priceRange;
     private int imageResource;
+    private int backgroundColor;
     private BlobKey key;
     private Blob image;
 
@@ -46,7 +50,7 @@ public class ItemHolder {
         return votesDown;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
@@ -72,5 +76,37 @@ public class ItemHolder {
 
     public void setImageResource(int imageResource) {
         this.imageResource = imageResource;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(final String address) {
+        this.address = address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(final String phone) {
+        this.phone = phone;
+    }
+
+    public int getPriceRange() {
+        return priceRange;
+    }
+
+    public void setPriceRange(int priceRange) {
+        this.priceRange = priceRange;
+    }
+
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(int backgroundColor) {
+        this.backgroundColor = backgroundColor;
     }
 }

@@ -1,93 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="144dp"
-    android:descendantFocusability="blocksDescendants">
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+                                    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="@dimen/row_main_height"
+                                    android:layout_marginLeft="@dimen/margin_xsmall"
+                                    android:layout_marginRight="@dimen/margin_xsmall"
+                                    android:layout_marginTop="@dimen/margin_xsmall"
+                                    android:descendantFocusability="blocksDescendants"
+                                    card_view:cardCornerRadius="@dimen/margin_xsmall">
 
-    <ImageView
-        android:id="@+id/custom_row_image"
+    <RelativeLayout
+        android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+        android:layout_gravity="center">
 
-    <View
-        android:id="@+id/custom_row_clickable"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="65dp"
-        android:layout_marginRight="65dp"
-        android:background="@drawable/selector"
-        android:clickable="true"
-        android:focusable="true" />
-
-    <TextView
-        android:id="@+id/custom_row_ranking"
-        style="@style/Text.Header.1"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_centerVertical="true"
-        android:layout_gravity="center"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:alpha="0.3"
-        android:gravity="center"
-        android:textSize="34sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/custom_row_name"
-        style="@style/Text.Header.1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_gravity="center_vertical|start"
-        android:layout_marginEnd="72dp"
-        android:layout_marginStart="72dp"
-        android:gravity="center_vertical|start"
-        android:paddingBottom="32dp" />
-
-    <TextView
-        android:id="@+id/custom_row_location"
-        style="@style/Text.Header.2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_gravity="center_vertical|start"
-        android:layout_marginEnd="72dp"
-        android:layout_marginStart="72dp"
-        android:gravity="center_vertical"
-        android:paddingTop="32dp" />
-
-    <LinearLayout
-        style="@style/Base.Widget.AppCompat.ButtonBar"
-        android:layout_width="64dp"
-        android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/custom_row_votes_up"
+        <ImageView
+            android:id="@+id/custom_row_image"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginBottom="1dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"/>
+
+        <View
+            android:id="@+id/custom_row_clickable"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="65dp"
+            android:layout_marginRight="65dp"
             android:background="@drawable/selector"
             android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:textColor="@android:color/holo_green_light" />
+            android:focusable="true"/>
 
         <TextView
-            android:id="@+id/custom_row_votes_down"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@drawable/selector"
-            android:clickable="true"
-            android:focusable="true"
+            android:id="@+id/custom_row_ranking"
+            style="@style/Text.Header.1"
+            android:layout_width="@dimen/ranking_size"
+            android:layout_height="@dimen/ranking_size"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginStart="@dimen/margin_small"
+            android:alpha="0.3"
             android:gravity="center"
-            android:textColor="@android:color/holo_red_light" />
-    </LinearLayout>
+            android:textSize="@dimen/text_size_l"
+            android:textStyle="bold"/>
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/custom_row_name"
+            style="@style/Text.Header.1"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/margin_xlarge"
+            android:layout_marginStart="@dimen/margin_xlarge"
+            android:paddingBottom="24dp"/>
+
+        <TextView
+            android:id="@+id/custom_row_location"
+            style="@style/Text.Header.2"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/margin_xlarge"
+            android:layout_marginStart="@dimen/margin_xlarge"
+            android:paddingTop="24dp"/>
+
+        <LinearLayout
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/custom_row_votes_up"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="1dp"
+                android:layout_weight="1"
+                android:background="@drawable/selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:textColor="@color/green_bright"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/custom_row_votes_down"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:textColor="@color/red_faded"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
