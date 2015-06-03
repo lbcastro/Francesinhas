@@ -20,18 +20,16 @@ import pt.castro.francesinhas.communication.EndpointsAsyncTask;
  * Created by lourenco.castro on 02-06-2015.
  */
 public class PlaceUtils {
-    static ItemHolder placeToItem(final Context context, final Place place) {
-        ItemHolder itemHolder = new ItemHolder();
-        itemHolder.setName(place.getName().toString());
-        itemHolder.setId(place.getId());
-        itemHolder.setAddress(place.getAddress().toString());
-        itemHolder.setPhone(place.getPhoneNumber().toString());
-        itemHolder.setPriceRange(place.getPriceLevel());
-        itemHolder.setLocation(cityName(context, place));
-        return itemHolder;
+
+    public static ItemHolder getItemFromPlace(final Context context, final Place place) {
+        return new ItemHolder().setName(place.getName().toString()).setId(place.getId())
+                .setAddress(place.getAddress().toString()).setPhone(place.getPhoneNumber()
+                        .toString()).setPriceRange(place.getPriceLevel()).setLocation(getCityName
+                        (context, place)).setUrl(place.getWebsiteUri().toString())
+                .setGoogleRating(place.getRating());
     }
 
-    private static String cityName(Context context, Place place) {
+    private static String getCityName(Context context, Place place) {
         Location location = new Location(place.getName().toString());
         location.setLatitude(place.getLatLng().latitude);
         location.setLongitude(place.getLatLng().longitude);
@@ -46,6 +44,7 @@ public class PlaceUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // TODO: Figure out if this works consistently
         return address.toString().replaceAll("\\d", "").replaceAll("^-+", "").trim();
     }
 
@@ -63,7 +62,6 @@ public class PlaceUtils {
             ItemHolder itemHolder = new ItemHolder();
             itemHolder.setName(names[x]);
             itemHolder.setLocation(locations[x]);
-            itemHolder.setImageResource(images[x]);
             itemHolder.setBackgroundColor(LayoutUtils.getRandomColor(context));
             itemHolder.setId(names[x]);
             items.add(itemHolder);

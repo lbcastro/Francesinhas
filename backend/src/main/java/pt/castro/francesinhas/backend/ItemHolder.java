@@ -14,20 +14,25 @@ public class ItemHolder {
     @Id
     private String id;
     private String name;
+
     private int ranking;
     private int votesUp;
     private int votesDown;
+    private int priceRange;
+    private float googleRating;
+
     private String location;
     private String address;
     private String phone;
-    private int priceRange;
-    private int imageResource;
+    private String url;
+
     private int backgroundColor;
     private BlobKey key;
     private Blob image;
 
-    public void increaseRanking() {
+    public ItemHolder increaseRanking() {
         this.votesUp++;
+        return this;
     }
 
     public void decreaseRanking() {
@@ -38,8 +43,9 @@ public class ItemHolder {
         return ranking;
     }
 
-    public void setRanking(int ranking) {
+    public ItemHolder setRanking(int ranking) {
         this.ranking = ranking;
+        return this;
     }
 
     public int getVotesUp() {
@@ -58,55 +64,71 @@ public class ItemHolder {
         return name;
     }
 
-    public void setName(String name) {
+    public ItemHolder setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public ItemHolder setLocation(String location) {
         this.location = location;
-    }
-
-    public int getImageResource() {
-        return imageResource;
-    }
-
-    public void setImageResource(int imageResource) {
-        this.imageResource = imageResource;
+        return this;
     }
 
     public String getAddress() {
         return address;
     }
 
-    public void setAddress(final String address) {
+    public ItemHolder setAddress(final String address) {
         this.address = address;
+        return this;
     }
 
     public String getPhone() {
         return phone;
     }
 
-    public void setPhone(final String phone) {
+    public ItemHolder setPhone(final String phone) {
         this.phone = phone;
+        return this;
     }
 
     public int getPriceRange() {
         return priceRange;
     }
 
-    public void setPriceRange(int priceRange) {
+    public ItemHolder setPriceRange(int priceRange) {
         this.priceRange = priceRange;
+        return this;
     }
 
     public int getBackgroundColor() {
         return backgroundColor;
     }
 
-    public void setBackgroundColor(int backgroundColor) {
+    public ItemHolder setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
+        return this;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public ItemHolder setUrl(String url) {
+        this.url = url;
+        return this;
+    }
+
+    public float getGoogleRating() {
+        return googleRating;
+    }
+
+    public ItemHolder setGoogleRating(float googleRating) {
+        this.googleRating = googleRating;
+        return this;
     }
 }

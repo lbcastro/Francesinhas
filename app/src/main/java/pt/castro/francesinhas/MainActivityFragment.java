@@ -8,7 +8,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +31,9 @@ public class MainActivityFragment extends Fragment {
     private CustomRecyclerViewAdapter recyclerViewAdapter;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+            savedInstanceState) {
+        final View fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
         ButterKnife.inject(this, fragmentView);
         recyclerViewAdapter = new CustomRecyclerViewAdapter();
         mainRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -60,8 +59,7 @@ public class MainActivityFragment extends Fragment {
         return fragmentView;
     }
 
-    public void setItems(List<ItemHolder> items) {
-        Log.d("MainFragment", "Items size is: " + items.size());
+    public void setItems(final List<ItemHolder> items) {
         recyclerViewAdapter.setItems(items);
         if (mainRecyclerView.getAdapter() == null) {
             mainRecyclerView.setAdapter(recyclerViewAdapter);

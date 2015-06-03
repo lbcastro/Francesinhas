@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
         setContentView(R.layout.activity_main);
         new EndpointGetItems().execute();
+
     }
 
     @Override
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         final MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment);
         for (ItemHolder itemHolder : listRetrievedEvent.list) {
-            itemHolder.setBackgroundColor(getResources().getColor(R.color.blue_best));
+            itemHolder.setBackgroundColor(getResources().getColor(R.color.row_color));
         }
         fragment.setItems(listRetrievedEvent.list);
     }
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.invalid_place, Toast.LENGTH_SHORT).show();
             } else {
                 final EndpointsAsyncTask task = new EndpointsAsyncTask(EndpointsAsyncTask.ADD);
-                ItemHolder itemHolder = PlaceUtils.placeToItem(this, place);
+                final ItemHolder itemHolder = PlaceUtils.getItemFromPlace(this, place);
                 itemHolder.setBackgroundColor(LayoutUtils.getRandomColor(this));
                 task.execute(itemHolder);
             }

@@ -36,7 +36,7 @@
         android:layout_margin="16dp"
         android:clickable="true"
         android:src="@drawable/ic_add_white_24dp"
-        app:backgroundTint="@color/purple_bright"
+        app:backgroundTint="@color/fab_color"
         app:layout_anchor="@id/fragment_recycler_view"
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_behavior="pt.castro.francesinhas.ScrollAwareFABBehavior"

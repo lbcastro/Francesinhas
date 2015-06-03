@@ -63,7 +63,6 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private final static float EXPANSION = 1.5f;
         @InjectView(R.id.custom_row_ranking) TextView rankingTextView;
         @InjectView(R.id.custom_row_name) TextView titleTextView;
         @InjectView(R.id.custom_row_location) TextView subtitleTextView;
@@ -72,14 +71,11 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         @InjectView(R.id.custom_row_votes_up) TextView votesUp;
         @InjectView(R.id.custom_row_votes_down) TextView votesDown;
         private boolean clicking;
-        private int originalHeight = 0;
-        private boolean isViewExpanded = false;
 
         public ViewHolder(View itemView) {
             super(itemView);
             EventBus.getDefault().register(this);
             ButterKnife.inject(this, itemView);
-//            itemView.setOnClickListener(this);
             clickable.setOnClickListener(this);
             votesUp.setOnClickListener(this);
             votesDown.setOnClickListener(this);

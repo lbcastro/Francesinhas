@@ -12,6 +12,6 @@
     <dimen name="button_size">64dp</dimen>
 
     <dimen name="text_size_s">15sp</dimen>
-    <dimen name="text_size_m">20sp</dimen>
+    <dimen name="text_size_m">18sp</dimen>
     <dimen name="text_size_l">34sp</dimen>
 </resources>
