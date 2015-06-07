@@ -34,6 +34,5 @@ dependencies {
     provided 'frankiesardo:icepick-processor:3.0.2'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile project(path: ':backend', configuration: 'android-endpoints')
-    compile files('libs/socialauth-4.4.jar')
-    compile files('libs/socialauth-android-3.2.jar')
+    compile 'com.facebook.android:facebook-android-sdk:4.1.0'
 }

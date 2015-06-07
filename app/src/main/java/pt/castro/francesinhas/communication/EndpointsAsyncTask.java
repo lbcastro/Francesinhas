@@ -32,6 +32,7 @@ public class EndpointsAsyncTask extends AsyncTask<ItemHolder, Void, ItemHolder> 
             MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(), new
                     AndroidJsonFactory(), null)
                     .setRootUrl("https://castro-francesinhas.appspot.com/_ah/api/");
+            builder.setApplicationName("Francesinhas");
             myApiService = builder.build();
         }
         ItemHolder itemHolder = params[0];

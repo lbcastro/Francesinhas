@@ -5,4 +5,6 @@
     <string name="add_new">New</string>
     <string name="invalid_place">Invalid place\nYou must select a restaurant</string>
     <string name="place_exists">Place already exists</string>
+    <string name="facebook_app_id">1621207514793575</string>
+    <string name="google_app_id">AIzaSyBAXEPiAIg24HddA1tgOVlY8Ne-dRuajxk</string>
 </resources>

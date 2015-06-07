@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
@@ -33,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
         setContentView(R.layout.activity_main);
         new EndpointGetItems().execute();
-
     }
 
     @Override
@@ -42,6 +43,13 @@ public class MainActivity extends AppCompatActivity {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        AppEventsLogger.activateApp(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppEventsLogger.deactivateApp(this);
     }
 
     @Override
@@ -105,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("ActivityResult", "Request code: " + requestCode + "\tResult code: " + resultCode);
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
             final Place place = PlacePicker.getPlace(data, this);
             if (!place.getPlaceTypes().contains(Place.TYPE_RESTAURANT) && !place.getPlaceTypes()
