@@ -1,4 +1,4 @@
-package pt.castro.francesinhas;
+package pt.castro.francesinhas.list;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,15 +17,19 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 
 import de.greenrobot.event.EventBus;
 import icepick.Icepick;
+import pt.castro.francesinhas.LayoutUtils;
+import pt.castro.francesinhas.PlaceUtils;
+import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.communication.EndpointGetItems;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
+import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.ListRefreshEvent;
 import pt.castro.francesinhas.events.ListRetrievedEvent;
 import pt.castro.francesinhas.events.PlaceAlreadyExistsEvent;
 import pt.castro.francesinhas.events.PlacePickerEvent;
 
-public class MainActivity extends AppCompatActivity {
+public class ListActivity extends AppCompatActivity {
 
     private static final int PLACE_PICKER_REQUEST = 1;
 
@@ -79,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
     @EventBusHook
     public void onEvent(final ListRetrievedEvent listRetrievedEvent) {
-        final MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager()
+        final ListFragment fragment = (ListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment);
         for (ItemHolder itemHolder : listRetrievedEvent.list) {
             itemHolder.setBackgroundColor(getResources().getColor(R.color.row_color));
@@ -127,5 +131,11 @@ public class MainActivity extends AppCompatActivity {
                 task.execute(itemHolder);
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

@@ -1,4 +1,4 @@
-package pt.castro.francesinhas;
+package pt.castro.francesinhas.events;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;

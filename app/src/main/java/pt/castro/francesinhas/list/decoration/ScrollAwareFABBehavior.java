@@ -1,4 +1,4 @@
-package pt.castro.francesinhas;
+package pt.castro.francesinhas.list.decoration;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+
+import pt.castro.francesinhas.R;
 
 public class ScrollAwareFABBehavior extends FloatingActionButton.Behavior {
     private static final Interpolator INTERPOLATOR = new FastOutSlowInInterpolator();

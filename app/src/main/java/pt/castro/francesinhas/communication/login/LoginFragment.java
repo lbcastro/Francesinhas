@@ -1,4 +1,4 @@
-package pt.castro.francesinhas.communication;
+package pt.castro.francesinhas.communication.login;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

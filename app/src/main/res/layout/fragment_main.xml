@@ -1,5 +1,4 @@
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,7 +14,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:layout_scrollFlags="scroll|enterAlways"/>
+            app:layout_scrollFlags="scroll|enterAlways" />
     </android.support.design.widget.AppBarLayout>
 
     <com.malinskiy.superrecyclerview.SuperRecyclerView
@@ -27,7 +26,7 @@
         app:layout_empty="@layout/empty_list"
         app:layout_moreProgress="@layout/view_more_progress"
         app:recyclerClipToPadding="false"
-        app:recyclerPaddingBottom="4dp"/>
+        app:recyclerPaddingBottom="4dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floating_action_button"
@@ -39,6 +38,6 @@
         app:backgroundTint="@color/fab_color"
         app:layout_anchor="@id/fragment_recycler_view"
         app:layout_anchorGravity="bottom|center_horizontal"
-        app:layout_behavior="pt.castro.francesinhas.ScrollAwareFABBehavior"
-        app:layout_scrollFlags="scroll|enterAlways"/>
+        app:layout_behavior="pt.castro.francesinhas.list.decoration.ScrollAwareFABBehavior"
+        app:layout_scrollFlags="scroll|enterAlways" />
 </android.support.design.widget.CoordinatorLayout>

@@ -13,10 +13,10 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
-import pt.castro.francesinhas.EventBusHook;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
+import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.ScoreChangeEvent;
 
 /**
@@ -63,13 +63,20 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @InjectView(R.id.custom_row_ranking) TextView rankingTextView;
-        @InjectView(R.id.custom_row_name) TextView titleTextView;
-        @InjectView(R.id.custom_row_location) TextView subtitleTextView;
-        @InjectView(R.id.custom_row_image) ImageView imageView;
-        @InjectView(R.id.custom_row_clickable) View clickable;
-        @InjectView(R.id.custom_row_votes_up) TextView votesUp;
-        @InjectView(R.id.custom_row_votes_down) TextView votesDown;
+        @InjectView(R.id.custom_row_ranking)
+        TextView rankingTextView;
+        @InjectView(R.id.custom_row_name)
+        TextView titleTextView;
+        @InjectView(R.id.custom_row_location)
+        TextView subtitleTextView;
+        @InjectView(R.id.custom_row_image)
+        ImageView imageView;
+        @InjectView(R.id.custom_row_clickable)
+        View clickable;
+        @InjectView(R.id.custom_row_votes_up)
+        TextView votesUp;
+        @InjectView(R.id.custom_row_votes_down)
+        TextView votesDown;
         private boolean clicking;
 
         public ViewHolder(View itemView) {

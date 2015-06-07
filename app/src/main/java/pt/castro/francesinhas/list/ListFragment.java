@@ -1,4 +1,4 @@
-package pt.castro.francesinhas;
+package pt.castro.francesinhas.list;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -19,15 +19,17 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
+import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.events.ListRefreshEvent;
 import pt.castro.francesinhas.events.PlacePickerEvent;
-import pt.castro.francesinhas.list.CustomRecyclerViewAdapter;
 
-public class MainActivityFragment extends Fragment {
+public class ListFragment extends Fragment {
 
-    @InjectView(R.id.fragment_recycler_view) SuperRecyclerView mainRecyclerView;
-    @InjectView(R.id.floating_action_button) FloatingActionButton floatingActionButton;
+    @InjectView(R.id.fragment_recycler_view)
+    SuperRecyclerView mainRecyclerView;
+    @InjectView(R.id.floating_action_button)
+    FloatingActionButton floatingActionButton;
     private CustomRecyclerViewAdapter recyclerViewAdapter;
 
     @Override
