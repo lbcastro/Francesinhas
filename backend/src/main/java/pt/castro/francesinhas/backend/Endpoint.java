@@ -111,8 +111,8 @@ public class Endpoint {
         return ofy().load().type(ItemHolder.class).id(id).now();
     }
 
-    private UserHolder findUser(String token) {
-        return ofy().load().type(UserHolder.class).id(token).now();
+    private UserHolder findUser(String userId) {
+        return ofy().load().type(UserHolder.class).id(userId).now();
     }
 
     @ApiMethod(name = "addItem")
@@ -132,39 +132,39 @@ public class Endpoint {
 
     @ApiMethod(name = "addUser")
     public UserHolder addUser(UserHolder userHolder) throws ConflictException {
-        if (findUser(userHolder.getName()) != null) {
+        if (findUser(userHolder.getId()) != null) {
             throw new ConflictException("User already exists");
         }
         ofy().save().entity(userHolder).now();
         return userHolder;
     }
 
+    @ApiMethod(name = "getUser")
+    public UserHolder getUser(UserHolder userHolder) throws ConflictException {
+        UserHolder previousUserHolder;
+        if ((previousUserHolder = findUser(userHolder.getId())) == null) {
+            previousUserHolder = addUser(userHolder);
+        }
+        return previousUserHolder;
+    }
+
     @ApiMethod(name = "addUserVote")
     public UserHolder addUserVote(UserHolder userHolder, @Named("itemId") String itemId, @Named("vote") int vote) {
         ItemHolder itemHolder;
-        if (findUser(userHolder.getToken()) == null) {
+        if (findUser(userHolder.getId()) == null) {
             throw new NullPointerException("User not found");
         } else if ((itemHolder = findItem(itemId)) == null) {
             throw new NullPointerException("Item not found");
         } else {
             ofy().save().entity(userHolder.addVote(itemId, vote)).now();
-            if (vote == 0) {
+            if (vote == -1) {
                 itemHolder.decreaseRanking();
-            } else {
+            } else if (vote == 1) {
                 itemHolder.increaseRanking();
             }
             ofy().save().entity(itemHolder).now();
             return userHolder;
         }
-    }
-
-    @ApiMethod(name = "getUser")
-    public UserHolder getUser(@Named("userToken") String token) {
-        UserHolder userHolder;
-        if ((userHolder = findUser(token)) == null) {
-            throw new NullPointerException("User not found");
-        }
-        return userHolder;
     }
 
     private class RankingComparator implements Comparator<ItemHolder> {

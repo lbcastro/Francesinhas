@@ -15,9 +15,9 @@ import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
-import pt.castro.francesinhas.communication.EndpointsAsyncTask;
 import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.ScoreChangeEvent;
+import pt.castro.francesinhas.events.UserClickEvent;
 
 /**
  * Created by lourenco.castro on 07/05/15.
@@ -25,12 +25,12 @@ import pt.castro.francesinhas.events.ScoreChangeEvent;
 public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewAdapter
         .ViewHolder> {
 
-    private List<ItemHolder> items = Collections.emptyList();
+    private List<LocalItemHolder> items = Collections.emptyList();
 
     public CustomRecyclerViewAdapter() {
     }
 
-    public void setItems(List<ItemHolder> items) {
+    public void setItems(List<LocalItemHolder> items) {
         this.items = items;
         notifyDataSetChanged();
     }
@@ -44,13 +44,21 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        final ItemHolder itemHolder = items.get(position);
+        final ItemHolder itemHolder = items.get(position).getItemHolder();
         holder.rankingTextView.setText(Integer.toString(position + 1));
         holder.titleTextView.setText(itemHolder.getName());
         holder.subtitleTextView.setText(itemHolder.getLocation());
         holder.imageView.setBackgroundColor(itemHolder.getBackgroundColor());
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
+        switch (items.get(position).getUserVote()) {
+            case -1:
+                holder.votesDown.setSelected(true);
+                break;
+            case 1:
+                holder.votesUp.setSelected(true);
+                break;
+        }
     }
 
     @Override
@@ -88,24 +96,41 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             votesDown.setOnClickListener(this);
         }
 
+        private void setVoteUpSelected() {
+            votesUp.setSelected(true);
+            votesDown.setSelected(false);
+        }
+
+        private void setVoteDownSelected() {
+            votesUp.setSelected(false);
+            votesDown.setSelected(true);
+        }
+
         @Override
         public void onClick(View v) {
             if (clicking) {
                 return;
             }
-            final ItemHolder itemHolder = items.get(getAdapterPosition());
+            final ItemHolder itemHolder = items.get(getAdapterPosition()).getItemHolder();
+            final UserClickEvent userClickEvent = new UserClickEvent(itemHolder);
             switch (v.getId()) {
                 case R.id.custom_row_votes_up:
                     clicking = true;
-                    new EndpointsAsyncTask(EndpointsAsyncTask.INCREASE).execute(itemHolder);
-                    itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
-                    notifyDataSetChanged();
+                    userClickEvent.setUserVote(1);
+//                    new EndpointsAsyncTask(EndpointsAsyncTask.INCREASE).execute(itemHolder);
+//                    itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
+//                    notifyDataSetChanged();
+                    EventBus.getDefault().post(userClickEvent);
+                    setVoteUpSelected();
                     break;
                 case R.id.custom_row_votes_down:
                     clicking = true;
-                    new EndpointsAsyncTask(EndpointsAsyncTask.DECREASE).execute(itemHolder);
-                    itemHolder.setVotesDown(itemHolder.getVotesDown() + 1);
-                    notifyDataSetChanged();
+                    userClickEvent.setUserVote(-1);
+                    EventBus.getDefault().post(userClickEvent);
+                    setVoteDownSelected();
+//                    new EndpointsAsyncTask(EndpointsAsyncTask.DECREASE).execute(itemHolder);
+//                    itemHolder.setVotesDown(itemHolder.getVotesDown() + 1);
+//                    notifyDataSetChanged();
                     break;
                 case R.id.custom_row_clickable:
                     break;

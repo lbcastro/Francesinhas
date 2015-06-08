@@ -12,15 +12,20 @@ import java.util.HashMap;
 public class UserHolder {
 
     @Id
+    private String id;
     private String token;
-    private String name;
-
     private HashMap<String, Integer> votesMap;
 
-    public UserHolder(String token, String name) {
-        this.token = token;
-        this.name = name;
+    public UserHolder() {
         this.votesMap = new HashMap<>();
+    }
+
+    public HashMap<String, Integer> getVotesMap() {
+        return votesMap;
+    }
+
+    public void setVotesMap(HashMap<String, Integer> votesMap) {
+        this.votesMap = votesMap;
     }
 
     public UserHolder addVote(final String itemId, final int vote) {
@@ -40,7 +45,15 @@ public class UserHolder {
         return token;
     }
 
-    public String getName() {
-        return name;
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

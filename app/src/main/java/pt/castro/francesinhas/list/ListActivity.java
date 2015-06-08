@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -16,24 +17,33 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.greenrobot.event.EventBus;
 import icepick.Icepick;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
+import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 import pt.castro.francesinhas.communication.EndpointGetItems;
+import pt.castro.francesinhas.communication.EndpointGetUser;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
+import pt.castro.francesinhas.communication.login.EndpointUserVote;
 import pt.castro.francesinhas.communication.login.LoginActivity;
 import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.ListRefreshEvent;
 import pt.castro.francesinhas.events.ListRetrievedEvent;
 import pt.castro.francesinhas.events.PlaceAlreadyExistsEvent;
 import pt.castro.francesinhas.events.PlacePickerEvent;
+import pt.castro.francesinhas.events.UserClickEvent;
+import pt.castro.francesinhas.events.UserDataEvent;
 import pt.castro.francesinhas.tools.LayoutUtils;
 import pt.castro.francesinhas.tools.PlaceUtils;
 
 public class ListActivity extends AppCompatActivity {
 
     private static final int PLACE_PICKER_REQUEST = 1;
+    private UserHolder mCurrentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +51,17 @@ public class ListActivity extends AppCompatActivity {
         Icepick.restoreInstanceState(this, savedInstanceState);
         setContentView(R.layout.activity_main);
         new EndpointGetItems().execute();
+        getUserData();
+    }
+
+    private void getUserData() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if (accessToken != null) {
+            UserHolder userHolder = new UserHolder();
+            userHolder.setId(accessToken.getUserId());
+            userHolder.setToken(accessToken.getToken());
+            new EndpointGetUser().execute(userHolder);
+        }
     }
 
     @Override
@@ -90,13 +111,35 @@ public class ListActivity extends AppCompatActivity {
     }
 
     @EventBusHook
+    public void onEvent(final UserDataEvent userDataEvent) {
+        mCurrentUser = userDataEvent.getUserHolder();
+    }
+
+    @EventBusHook
     public void onEvent(final ListRetrievedEvent listRetrievedEvent) {
         final ListFragment fragment = (ListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment);
+        List<LocalItemHolder> localItemHolders = new ArrayList<>();
         for (ItemHolder itemHolder : listRetrievedEvent.list) {
             itemHolder.setBackgroundColor(getResources().getColor(R.color.row_color));
+            LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
+//            int vote = (int) mCurrentUser.getVotes().get(itemHolder.getId());
+//            if (vote != 0) {
+//                localItemHolder.setUserVote(vote);
+//            }
+            localItemHolders.add(localItemHolder);
         }
-        fragment.setItems(listRetrievedEvent.list);
+        fragment.setItems(localItemHolders);
+    }
+
+    @EventBusHook
+    public void onEvent(final UserClickEvent userClickEvent) {
+        if (mCurrentUser != null) {
+            new EndpointUserVote(mCurrentUser, userClickEvent.getItemHolder().getId())
+                    .execute(userClickEvent.getUserVote());
+        } else {
+            Toast.makeText(this, "You need to be logged in to vote", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @EventBusHook

@@ -5,6 +5,7 @@ import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 
 import pt.castro.francesinhas.backend.myApi.MyApi;
 
+
 /**
  * Created by Lourenço on 08/06/2015.
  */

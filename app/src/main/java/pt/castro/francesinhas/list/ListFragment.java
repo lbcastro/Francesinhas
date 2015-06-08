@@ -20,7 +20,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.R;
-import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.events.ListRefreshEvent;
 import pt.castro.francesinhas.events.PlacePickerEvent;
 
@@ -61,7 +60,7 @@ public class ListFragment extends Fragment {
         return fragmentView;
     }
 
-    public void setItems(final List<ItemHolder> items) {
+    public void setItems(final List<LocalItemHolder> items) {
         recyclerViewAdapter.setItems(items);
         if (mainRecyclerView.getAdapter() == null) {
             mainRecyclerView.setAdapter(recyclerViewAdapter);
