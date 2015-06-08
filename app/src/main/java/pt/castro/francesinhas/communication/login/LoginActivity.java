@@ -106,6 +106,8 @@ public class LoginActivity extends Activity {
         LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+                View rootView = findViewById(R.id.fragment_login_parent);
+                rootView.setVisibility(View.GONE);
                 Log.d("LoginManager", "Success");
                 startList();
             }

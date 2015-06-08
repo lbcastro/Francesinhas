@@ -111,21 +111,60 @@ public class Endpoint {
         return ofy().load().type(ItemHolder.class).id(id).now();
     }
 
+    private UserHolder findUser(String token) {
+        return ofy().load().type(UserHolder.class).id(token).now();
+    }
+
     @ApiMethod(name = "addItem")
-    public ItemHolder addItem(ItemHolder quote) throws ConflictException {
-        if (findItem(quote.getId()) != null) {
-            if (findItem(quote.getId()) != null) {
-                throw new ConflictException("Item already exists");
-            }
+    public ItemHolder addItem(ItemHolder itemHolder) throws ConflictException {
+        if (findItem(itemHolder.getId()) != null) {
+            throw new ConflictException("Item already exists");
         }
-        ofy().save().entity(quote).now();
+        ofy().save().entity(itemHolder).now();
         dirtyList = true;
-        return quote;
+        return itemHolder;
     }
 
     private void updateRanking() {
         Collections.sort(itemList, new RankingComparator());
         Collections.reverse(itemList);
+    }
+
+    @ApiMethod(name = "addUser")
+    public UserHolder addUser(UserHolder userHolder) throws ConflictException {
+        if (findUser(userHolder.getName()) != null) {
+            throw new ConflictException("User already exists");
+        }
+        ofy().save().entity(userHolder).now();
+        return userHolder;
+    }
+
+    @ApiMethod(name = "addUserVote")
+    public UserHolder addUserVote(UserHolder userHolder, @Named("itemId") String itemId, @Named("vote") int vote) {
+        ItemHolder itemHolder;
+        if (findUser(userHolder.getToken()) == null) {
+            throw new NullPointerException("User not found");
+        } else if ((itemHolder = findItem(itemId)) == null) {
+            throw new NullPointerException("Item not found");
+        } else {
+            ofy().save().entity(userHolder.addVote(itemId, vote)).now();
+            if (vote == 0) {
+                itemHolder.decreaseRanking();
+            } else {
+                itemHolder.increaseRanking();
+            }
+            ofy().save().entity(itemHolder).now();
+            return userHolder;
+        }
+    }
+
+    @ApiMethod(name = "getUser")
+    public UserHolder getUser(@Named("userToken") String token) {
+        UserHolder userHolder;
+        if ((userHolder = findUser(token)) == null) {
+            throw new NullPointerException("User not found");
+        }
+        return userHolder;
     }
 
     private class RankingComparator implements Comparator<ItemHolder> {

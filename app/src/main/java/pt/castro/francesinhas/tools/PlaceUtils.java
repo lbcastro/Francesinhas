@@ -1,4 +1,4 @@
-package pt.castro.francesinhas;
+package pt.castro.francesinhas.tools;
 
 import android.content.Context;
 import android.location.Address;
@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
 

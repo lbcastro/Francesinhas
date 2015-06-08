@@ -35,7 +35,7 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        final View fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
+        final View fragmentView = inflater.inflate(R.layout.fragment_list, container, false);
         ButterKnife.inject(this, fragmentView);
         recyclerViewAdapter = new CustomRecyclerViewAdapter();
         mainRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));

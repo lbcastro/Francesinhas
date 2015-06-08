@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
@@ -17,17 +18,18 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 
 import de.greenrobot.event.EventBus;
 import icepick.Icepick;
-import pt.castro.francesinhas.LayoutUtils;
-import pt.castro.francesinhas.PlaceUtils;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.communication.EndpointGetItems;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
+import pt.castro.francesinhas.communication.login.LoginActivity;
 import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.ListRefreshEvent;
 import pt.castro.francesinhas.events.ListRetrievedEvent;
 import pt.castro.francesinhas.events.PlaceAlreadyExistsEvent;
 import pt.castro.francesinhas.events.PlacePickerEvent;
+import pt.castro.francesinhas.tools.LayoutUtils;
+import pt.castro.francesinhas.tools.PlaceUtils;
 
 public class ListActivity extends AppCompatActivity {
 
@@ -78,7 +80,13 @@ public class ListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return item.getItemId() == R.id.action_settings || super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.action_logout) {
+            LoginManager.getInstance().logOut();
+            Intent intent = new Intent(this, LoginActivity.class);
+            finish();
+            startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @EventBusHook

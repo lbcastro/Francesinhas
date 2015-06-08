@@ -1,4 +1,4 @@
-package pt.castro.francesinhas;
+package pt.castro.francesinhas.tools;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,6 +7,8 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
 import java.util.Random;
+
+import pt.castro.francesinhas.R;
 
 /**
  * Created by lourenco.castro on 02-06-2015.
