@@ -1,11 +1,12 @@
-package pt.castro.francesinhas.communication.login;
+package pt.castro.francesinhas.communication;
 
 import android.os.AsyncTask;
 
 import java.io.IOException;
 
+import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
-import pt.castro.francesinhas.communication.EndpointApiHolder;
+import pt.castro.francesinhas.events.ScoreChangeEvent;
 
 /**
  * Created by lourenco on 08/06/15.
@@ -28,5 +29,11 @@ public class EndpointUserVote extends AsyncTask<Integer, Void, UserHolder> {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(UserHolder userHolder) {
+        super.onPostExecute(userHolder);
+        EventBus.getDefault().post(new ScoreChangeEvent());
     }
 }

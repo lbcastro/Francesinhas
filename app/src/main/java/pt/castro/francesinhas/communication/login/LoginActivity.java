@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -101,7 +102,7 @@ public class LoginActivity extends Activity {
     }
 
     private void startLogin() {
-        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+        final LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("public_profile");
         LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -115,12 +116,21 @@ public class LoginActivity extends Activity {
             @Override
             public void onCancel() {
                 Log.d("LoginManager", "Cancel");
+                Toast.makeText(LoginActivity.this, "Login failed\nPlease try again", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onError(FacebookException e) {
                 Log.d("LoginManager", "Error");
                 e.printStackTrace();
+                Toast.makeText(LoginActivity.this, "Login failed\nPlease try again", Toast.LENGTH_LONG).show();
+            }
+        });
+        final View guestButton = findViewById(R.id.guest_button);
+        guestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startList();
             }
         });
     }

@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.appevents.AppEventsLogger;
@@ -17,6 +16,7 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +24,12 @@ import de.greenrobot.event.EventBus;
 import icepick.Icepick;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
+import pt.castro.francesinhas.backend.myApi.model.JsonMap;
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 import pt.castro.francesinhas.communication.EndpointGetItems;
-import pt.castro.francesinhas.communication.EndpointGetUser;
+import pt.castro.francesinhas.communication.EndpointUserVote;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
-import pt.castro.francesinhas.communication.login.EndpointUserVote;
+import pt.castro.francesinhas.communication.UserEndpointActions;
 import pt.castro.francesinhas.communication.login.LoginActivity;
 import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.ListRefreshEvent;
@@ -37,19 +38,21 @@ import pt.castro.francesinhas.events.PlaceAlreadyExistsEvent;
 import pt.castro.francesinhas.events.PlacePickerEvent;
 import pt.castro.francesinhas.events.UserClickEvent;
 import pt.castro.francesinhas.events.UserDataEvent;
-import pt.castro.francesinhas.tools.LayoutUtils;
+import pt.castro.francesinhas.tools.NotificationTools;
 import pt.castro.francesinhas.tools.PlaceUtils;
 
 public class ListActivity extends AppCompatActivity {
 
     private static final int PLACE_PICKER_REQUEST = 1;
     private UserHolder mCurrentUser;
+    private ListFragment mListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
         setContentView(R.layout.activity_main);
+        mListFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
         new EndpointGetItems().execute();
         getUserData();
     }
@@ -57,10 +60,9 @@ public class ListActivity extends AppCompatActivity {
     private void getUserData() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         if (accessToken != null) {
-            UserHolder userHolder = new UserHolder();
-            userHolder.setId(accessToken.getUserId());
-            userHolder.setToken(accessToken.getToken());
-            new EndpointGetUser().execute(userHolder);
+            new UserEndpointActions(UserEndpointActions.GET_USER).execute(AccessToken.getCurrentAccessToken().getUserId());
+        } else {
+            mListFragment.setVoting(false);
         }
     }
 
@@ -96,6 +98,8 @@ public class ListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.action_logout).setTitle(AccessToken.getCurrentAccessToken() != null ?
+                R.string.action_logout : R.string.action_login);
         return true;
     }
 
@@ -112,33 +116,46 @@ public class ListActivity extends AppCompatActivity {
 
     @EventBusHook
     public void onEvent(final UserDataEvent userDataEvent) {
-        mCurrentUser = userDataEvent.getUserHolder();
+        if (userDataEvent.getUserHolder() == null) {
+            new UserEndpointActions(UserEndpointActions.ADD_USER).execute(AccessToken.getCurrentAccessToken().getUserId());
+        } else {
+            mCurrentUser = userDataEvent.getUserHolder();
+            mListFragment.setVoting(true);
+            new EndpointGetItems().execute();
+        }
     }
 
     @EventBusHook
     public void onEvent(final ListRetrievedEvent listRetrievedEvent) {
-        final ListFragment fragment = (ListFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragment);
-        List<LocalItemHolder> localItemHolders = new ArrayList<>();
+        final List<LocalItemHolder> localItemHolders = new ArrayList<>();
+
+        // Creates a blank map in case the user has no votes.
+        JsonMap map = new JsonMap();
+        if (mCurrentUser != null) {
+            map = mCurrentUser.getVotes();
+        }
+
+        // Iterates all retrieved items and adds votes when applied.
         for (ItemHolder itemHolder : listRetrievedEvent.list) {
-            itemHolder.setBackgroundColor(getResources().getColor(R.color.row_color));
             LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
-//            int vote = (int) mCurrentUser.getVotes().get(itemHolder.getId());
-//            if (vote != 0) {
-//                localItemHolder.setUserVote(vote);
-//            }
+            BigDecimal vote = (BigDecimal) map.get(itemHolder.getId());
+            int voteInt = vote != null ? vote.intValueExact() : 0;
+            localItemHolder.setUserVote(voteInt);
             localItemHolders.add(localItemHolder);
         }
-        fragment.setItems(localItemHolders);
+
+        // Passes the generated list to the adapter.
+
+        mListFragment.setItems(localItemHolders);
     }
 
     @EventBusHook
     public void onEvent(final UserClickEvent userClickEvent) {
-        if (mCurrentUser != null) {
+        if (mCurrentUser != null && userClickEvent.getItemHolder() != null) {
             new EndpointUserVote(mCurrentUser, userClickEvent.getItemHolder().getId())
                     .execute(userClickEvent.getUserVote());
         } else {
-            Toast.makeText(this, "You need to be logged in to vote", Toast.LENGTH_SHORT).show();
+            NotificationTools.toastLoggedVote(this);
         }
     }
 
@@ -151,12 +168,17 @@ public class ListActivity extends AppCompatActivity {
 
     @EventBusHook
     public void onEvent(final PlacePickerEvent placePickerEvent) {
+        if (mCurrentUser == null) {
+            NotificationTools.toastLoggedAdd(this);
+            return;
+        }
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
         Context context = getApplicationContext();
         try {
             startActivityForResult(builder.build(context), PLACE_PICKER_REQUEST);
         } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException
                 e) {
+            NotificationTools.toastGoogleConnectionFailed(this);
             // TODO
             e.printStackTrace();
         }
@@ -164,7 +186,7 @@ public class ListActivity extends AppCompatActivity {
 
     @EventBusHook
     public void onEventMainThread(final PlaceAlreadyExistsEvent placeAlreadyExistsEvent) {
-        Toast.makeText(this, R.string.place_exists, Toast.LENGTH_LONG).show();
+        NotificationTools.toastCustomText(this, R.string.place_exists);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -174,12 +196,9 @@ public class ListActivity extends AppCompatActivity {
             if (!place.getPlaceTypes().contains(Place.TYPE_RESTAURANT) && !place.getPlaceTypes()
                     .contains(Place.TYPE_CAFE) && !place.getPlaceTypes().contains(Place
                     .TYPE_FOOD)) {
-                Toast.makeText(this, R.string.invalid_place, Toast.LENGTH_SHORT).show();
+                NotificationTools.toastCustomText(this, R.string.invalid_place);
             } else {
-                final EndpointsAsyncTask task = new EndpointsAsyncTask(EndpointsAsyncTask.ADD);
-                final ItemHolder itemHolder = PlaceUtils.getItemFromPlace(this, place);
-                itemHolder.setBackgroundColor(LayoutUtils.getRandomColor(this));
-                task.execute(itemHolder);
+                new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(PlaceUtils.getItemFromPlace(this, place));
             }
         }
     }

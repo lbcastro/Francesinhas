@@ -26,6 +26,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         .ViewHolder> {
 
     private List<LocalItemHolder> items = Collections.emptyList();
+    private boolean votingEnabled;
 
     public CustomRecyclerViewAdapter() {
     }
@@ -33,6 +34,10 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     public void setItems(List<LocalItemHolder> items) {
         this.items = items;
         notifyDataSetChanged();
+    }
+
+    public void setVoting(boolean enabled) {
+        votingEnabled = enabled;
     }
 
     @Override
@@ -48,15 +53,17 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         holder.rankingTextView.setText(Integer.toString(position + 1));
         holder.titleTextView.setText(itemHolder.getName());
         holder.subtitleTextView.setText(itemHolder.getLocation());
-        holder.imageView.setBackgroundColor(itemHolder.getBackgroundColor());
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
         switch (items.get(position).getUserVote()) {
             case -1:
-                holder.votesDown.setSelected(true);
+                holder.setVoteDownSelected();
                 break;
             case 1:
-                holder.votesUp.setSelected(true);
+                holder.setVoteUpSelected();
+                break;
+            default:
+                holder.resetVotes();
                 break;
         }
     }
@@ -106,35 +113,67 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             votesDown.setSelected(true);
         }
 
+        private void resetVotes() {
+            votesUp.setSelected(false);
+            votesDown.setSelected(false);
+        }
+
         @Override
         public void onClick(View v) {
             if (clicking) {
                 return;
             }
-            final ItemHolder itemHolder = items.get(getAdapterPosition()).getItemHolder();
-            final UserClickEvent userClickEvent = new UserClickEvent(itemHolder);
             switch (v.getId()) {
                 case R.id.custom_row_votes_up:
+                    if (!votingEnabled) {
+                        postClick();
+                        break;
+                    }
+                    // This prevents multiple votes on the same item.
+                    if (votesUp.isSelected()) {
+                        break;
+                    }
                     clicking = true;
-                    userClickEvent.setUserVote(1);
-//                    new EndpointsAsyncTask(EndpointsAsyncTask.INCREASE).execute(itemHolder);
-//                    itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
-//                    notifyDataSetChanged();
-                    EventBus.getDefault().post(userClickEvent);
-                    setVoteUpSelected();
+                    postVote(getAdapterPosition(), 1);
+                    notifyDataSetChanged();
                     break;
                 case R.id.custom_row_votes_down:
+                    if (!votingEnabled) {
+                        postClick();
+                        break;
+                    }
+                    // This prevents multiple votes on the same item.
+                    if (votesDown.isSelected()) {
+                        break;
+                    }
                     clicking = true;
-                    userClickEvent.setUserVote(-1);
-                    EventBus.getDefault().post(userClickEvent);
-                    setVoteDownSelected();
-//                    new EndpointsAsyncTask(EndpointsAsyncTask.DECREASE).execute(itemHolder);
-//                    itemHolder.setVotesDown(itemHolder.getVotesDown() + 1);
-//                    notifyDataSetChanged();
+                    postVote(getAdapterPosition(), -1);
+                    notifyDataSetChanged();
                     break;
                 case R.id.custom_row_clickable:
                     break;
             }
+        }
+
+        private void postVote(int position, int vote) {
+            final LocalItemHolder localItemHolder = items.get(position);
+            final ItemHolder itemHolder = localItemHolder.getItemHolder();
+            localItemHolder.setUserVote(vote);
+            switch (vote) {
+                case -1:
+                    itemHolder.setVotesDown(itemHolder.getVotesDown() + 1);
+                    break;
+                case 1:
+                    itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
+                    break;
+            }
+            final UserClickEvent userClickEvent = new UserClickEvent(itemHolder);
+            userClickEvent.setUserVote(vote);
+            EventBus.getDefault().post(userClickEvent);
+        }
+
+        private void postClick() {
+            EventBus.getDefault().post(new UserClickEvent(null));
         }
 
         @EventBusHook

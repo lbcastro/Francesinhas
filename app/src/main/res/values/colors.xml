@@ -10,6 +10,7 @@
     <color name="dark_gray">#594F4F</color>
     <color name="background">#F5F5F5</color>
     <color name="orange_best">#FD9E0D</color>
+    <color name="red_transparent">#32FF5252</color>
 
     <color name="blue_faded">#90CAF9</color>
     <color name="teal_faded">#80CBC4</color>

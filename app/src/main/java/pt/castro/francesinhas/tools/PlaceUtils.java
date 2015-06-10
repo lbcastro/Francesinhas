@@ -63,7 +63,6 @@ public class PlaceUtils {
             ItemHolder itemHolder = new ItemHolder();
             itemHolder.setName(names[x]);
             itemHolder.setLocation(locations[x]);
-            itemHolder.setBackgroundColor(LayoutUtils.getRandomColor(context));
             itemHolder.setId(names[x]);
             items.add(itemHolder);
             EndpointsAsyncTask task = new EndpointsAsyncTask(EndpointsAsyncTask.ADD);

@@ -131,19 +131,21 @@ public class Endpoint {
     }
 
     @ApiMethod(name = "addUser")
-    public UserHolder addUser(UserHolder userHolder) throws ConflictException {
-        if (findUser(userHolder.getId()) != null) {
+    public UserHolder addUser(@Named("userId") String userId) throws ConflictException {
+        if (findUser(userId) != null) {
             throw new ConflictException("User already exists");
         }
+        final UserHolder userHolder = new UserHolder();
+        userHolder.setId(userId);
         ofy().save().entity(userHolder).now();
         return userHolder;
     }
 
     @ApiMethod(name = "getUser")
-    public UserHolder getUser(UserHolder userHolder) throws ConflictException {
+    public UserHolder getUser(@Named("userId") String userId) throws ConflictException {
         UserHolder previousUserHolder;
-        if ((previousUserHolder = findUser(userHolder.getId())) == null) {
-            previousUserHolder = addUser(userHolder);
+        if ((previousUserHolder = findUser(userId)) == null) {
+            throw new ConflictException("User not found");
         }
         return previousUserHolder;
     }
@@ -151,18 +153,17 @@ public class Endpoint {
     @ApiMethod(name = "addUserVote")
     public UserHolder addUserVote(UserHolder userHolder, @Named("itemId") String itemId, @Named("vote") int vote) {
         ItemHolder itemHolder;
-        if (findUser(userHolder.getId()) == null) {
+        if ((userHolder = findUser(userHolder.getId())) == null) {
             throw new NullPointerException("User not found");
         } else if ((itemHolder = findItem(itemId)) == null) {
             throw new NullPointerException("Item not found");
         } else {
             ofy().save().entity(userHolder.addVote(itemId, vote)).now();
             if (vote == -1) {
-                itemHolder.decreaseRanking();
+                decreaseScore(itemHolder);
             } else if (vote == 1) {
-                itemHolder.increaseRanking();
+                increaseScore(itemHolder);
             }
-            ofy().save().entity(itemHolder).now();
             return userHolder;
         }
     }

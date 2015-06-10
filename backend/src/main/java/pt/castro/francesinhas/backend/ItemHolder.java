@@ -1,7 +1,5 @@
 package pt.castro.francesinhas.backend;
 
-import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.datastore.Blob;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
@@ -25,10 +23,6 @@ public class ItemHolder {
     private String address;
     private String phone;
     private String url;
-
-    private int backgroundColor;
-    private BlobKey key;
-    private Blob image;
 
     public ItemHolder increaseRanking() {
         this.votesUp++;
@@ -102,15 +96,6 @@ public class ItemHolder {
 
     public ItemHolder setPriceRange(int priceRange) {
         this.priceRange = priceRange;
-        return this;
-    }
-
-    public int getBackgroundColor() {
-        return backgroundColor;
-    }
-
-    public ItemHolder setBackgroundColor(int backgroundColor) {
-        this.backgroundColor = backgroundColor;
         return this;
     }
 

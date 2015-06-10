@@ -13,15 +13,10 @@ public class UserHolder {
 
     @Id
     private String id;
-    private String token;
     private HashMap<String, Integer> votesMap;
 
     public UserHolder() {
         this.votesMap = new HashMap<>();
-    }
-
-    public HashMap<String, Integer> getVotesMap() {
-        return votesMap;
     }
 
     public void setVotesMap(HashMap<String, Integer> votesMap) {
@@ -39,14 +34,6 @@ public class UserHolder {
 
     public HashMap<String, Integer> getVotes() {
         return votesMap;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     public String getId() {

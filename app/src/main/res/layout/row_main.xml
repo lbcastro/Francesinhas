@@ -19,6 +19,7 @@
             android:id="@+id/custom_row_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/blue_light"
             android:scaleType="centerCrop" />
 
         <View
@@ -67,6 +68,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:animateLayoutChanges="true"
             android:orientation="vertical">
 
             <TextView
@@ -87,7 +89,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="@drawable/selector"
+                android:background="@drawable/selector_red"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"

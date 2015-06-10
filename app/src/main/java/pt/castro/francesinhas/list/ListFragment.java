@@ -66,4 +66,8 @@ public class ListFragment extends Fragment {
             mainRecyclerView.setAdapter(recyclerViewAdapter);
         }
     }
+
+    public void setVoting(final boolean enabled) {
+        recyclerViewAdapter.setVoting(enabled);
+    }
 }
