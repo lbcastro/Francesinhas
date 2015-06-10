@@ -13,18 +13,18 @@ import pt.castro.francesinhas.events.ScoreChangeEvent;
  */
 public class EndpointUserVote extends AsyncTask<Integer, Void, UserHolder> {
 
-    private final UserHolder userHolder;
+    private final String userId;
     private final String itemId;
 
-    public EndpointUserVote(final UserHolder userHolder, final String itemId) {
-        this.userHolder = userHolder;
+    public EndpointUserVote(final String userId, final String itemId) {
+        this.userId = userId;
         this.itemId = itemId;
     }
 
     @Override
     protected UserHolder doInBackground(Integer... params) {
         try {
-            EndpointApiHolder.getInstance().addUserVote(itemId, params[0], userHolder).execute();
+            return EndpointApiHolder.getInstance().addUserVote(userId, itemId, params[0]).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -34,6 +34,6 @@ public class EndpointUserVote extends AsyncTask<Integer, Void, UserHolder> {
     @Override
     protected void onPostExecute(UserHolder userHolder) {
         super.onPostExecute(userHolder);
-        EventBus.getDefault().post(new ScoreChangeEvent());
+        EventBus.getDefault().post(new ScoreChangeEvent(userHolder));
     }
 }

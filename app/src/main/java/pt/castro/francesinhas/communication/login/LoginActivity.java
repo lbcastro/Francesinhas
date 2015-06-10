@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -29,6 +28,7 @@ import java.util.Arrays;
 import icepick.Icepick;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.list.ListActivity;
+import pt.castro.francesinhas.tools.NotificationTools;
 
 /**
  * Created by lourenco.castro on 07/06/15.
@@ -47,7 +47,6 @@ public class LoginActivity extends Activity {
                 md = MessageDigest.getInstance("SHA");
                 md.update(signature.toByteArray());
                 String something = new String(Base64.encode(md.digest(), 0));
-                //String something = new String(Base64.encodeBytes(md.digest()));
                 Log.e("hash key", something);
             }
         } catch (PackageManager.NameNotFoundException e1) {
@@ -111,19 +110,20 @@ public class LoginActivity extends Activity {
                 rootView.setVisibility(View.GONE);
                 Log.d("LoginManager", "Success");
                 startList();
+                NotificationTools.toastCustomText(LoginActivity.this, "Logged in as " + Profile.getCurrentProfile().getName());
             }
 
             @Override
             public void onCancel() {
                 Log.d("LoginManager", "Cancel");
-                Toast.makeText(LoginActivity.this, "Login failed\nPlease try again", Toast.LENGTH_LONG).show();
+                NotificationTools.toastLoginFailed(LoginActivity.this);
             }
 
             @Override
             public void onError(FacebookException e) {
                 Log.d("LoginManager", "Error");
                 e.printStackTrace();
-                Toast.makeText(LoginActivity.this, "Login failed\nPlease try again", Toast.LENGTH_LONG).show();
+                NotificationTools.toastLoginFailed(LoginActivity.this);
             }
         });
         final View guestButton = findViewById(R.id.guest_button);

@@ -23,11 +23,18 @@ import pt.castro.francesinhas.communication.EndpointsAsyncTask;
 public class PlaceUtils {
 
     public static ItemHolder getItemFromPlace(final Context context, final Place place) {
-        return new ItemHolder().setName(place.getName().toString()).setId(place.getId())
-                .setAddress(place.getAddress().toString()).setPhone(place.getPhoneNumber()
-                        .toString()).setPriceRange(place.getPriceLevel()).setLocation(getCityName
-                        (context, place)).setUrl(place.getWebsiteUri().toString())
-                .setGoogleRating(place.getRating());
+        ItemHolder itemHolder = new ItemHolder();
+        itemHolder.setName(place.getName().toString());
+        itemHolder.setId(place.getId());
+        itemHolder.setAddress(place.getAddress().toString());
+        itemHolder.setPhone(place.getPhoneNumber().toString());
+        itemHolder.setPriceRange(place.getPriceLevel());
+        itemHolder.setLocation(getCityName(context, place));
+        if (place.getWebsiteUri() != null) {
+            itemHolder.setUrl(place.getWebsiteUri().toString());
+        }
+        itemHolder.setGoogleRating(place.getRating());
+        return itemHolder;
     }
 
     private static String getCityName(Context context, Place place) {

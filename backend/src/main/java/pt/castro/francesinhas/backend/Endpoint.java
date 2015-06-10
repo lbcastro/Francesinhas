@@ -151,9 +151,10 @@ public class Endpoint {
     }
 
     @ApiMethod(name = "addUserVote")
-    public UserHolder addUserVote(UserHolder userHolder, @Named("itemId") String itemId, @Named("vote") int vote) {
+    public UserHolder addUserVote(@Named("userId") String userId, @Named("itemId") String itemId, @Named("vote") int vote) {
         ItemHolder itemHolder;
-        if ((userHolder = findUser(userHolder.getId())) == null) {
+        UserHolder userHolder;
+        if ((userHolder = findUser(userId)) == null) {
             throw new NullPointerException("User not found");
         } else if ((itemHolder = findItem(itemId)) == null) {
             throw new NullPointerException("Item not found");

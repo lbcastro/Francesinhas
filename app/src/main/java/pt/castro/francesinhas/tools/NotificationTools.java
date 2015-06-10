@@ -31,7 +31,11 @@ public class NotificationTools {
     }
 
     public static void toastLoggedAdd(final Context context) {
-        showToast(context, "You need to be loggged int to add a new place", Toast.LENGTH_LONG);
+        showToast(context, "You need to be logged in to add a new place", Toast.LENGTH_LONG);
+    }
+
+    public static void toastLoginFailed(final Context context) {
+        showToast(context, "Login failed\nPlease try again", Toast.LENGTH_LONG);
     }
 
     public static void toastGoogleConnectionFailed(final Context context) {

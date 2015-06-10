@@ -36,6 +36,7 @@ import pt.castro.francesinhas.events.ListRefreshEvent;
 import pt.castro.francesinhas.events.ListRetrievedEvent;
 import pt.castro.francesinhas.events.PlaceAlreadyExistsEvent;
 import pt.castro.francesinhas.events.PlacePickerEvent;
+import pt.castro.francesinhas.events.ScoreChangeEvent;
 import pt.castro.francesinhas.events.UserClickEvent;
 import pt.castro.francesinhas.events.UserDataEvent;
 import pt.castro.francesinhas.tools.NotificationTools;
@@ -106,12 +107,21 @@ public class ListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_logout) {
-            LoginManager.getInstance().logOut();
-            Intent intent = new Intent(this, LoginActivity.class);
-            finish();
-            startActivity(intent);
+            logOut();
+            startLoginActivity();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startLoginActivity() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        finish();
+        startActivity(intent);
+    }
+
+    private void logOut() {
+        LoginManager.getInstance().logOut();
+        mListFragment.setVoting(false);
     }
 
     @EventBusHook
@@ -145,18 +155,22 @@ public class ListActivity extends AppCompatActivity {
         }
 
         // Passes the generated list to the adapter.
-
         mListFragment.setItems(localItemHolders);
     }
 
     @EventBusHook
     public void onEvent(final UserClickEvent userClickEvent) {
         if (mCurrentUser != null && userClickEvent.getItemHolder() != null) {
-            new EndpointUserVote(mCurrentUser, userClickEvent.getItemHolder().getId())
+            new EndpointUserVote(mCurrentUser.getId(), userClickEvent.getItemHolder().getId())
                     .execute(userClickEvent.getUserVote());
         } else {
             NotificationTools.toastLoggedVote(this);
         }
+    }
+
+    @EventBusHook
+    public void onEvent(final ScoreChangeEvent scoreChangeEvent) {
+        mCurrentUser = scoreChangeEvent.getUserHolder();
     }
 
     @EventBusHook
@@ -205,7 +219,11 @@ public class ListActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+        if (AccessToken.getCurrentAccessToken() == null) {
+            startLoginActivity();
+        } else {
+            super.onBackPressed();
+            finish();
+        }
     }
 }
