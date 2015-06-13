@@ -88,9 +88,9 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         ImageView imageView;
         @InjectView(R.id.custom_row_clickable)
         View clickable;
-        @InjectView(R.id.custom_row_votes_up)
+        @InjectView(R.id.votes_up)
         TextView votesUp;
-        @InjectView(R.id.custom_row_votes_down)
+        @InjectView(R.id.votes_down)
         TextView votesDown;
         private boolean clicking;
 
@@ -124,7 +124,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
                 return;
             }
             switch (v.getId()) {
-                case R.id.custom_row_votes_up:
+                case R.id.votes_up:
                     if (!votingEnabled) {
                         postClick();
                         break;
@@ -137,7 +137,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
                     postVote(getAdapterPosition(), 1);
                     notifyDataSetChanged();
                     break;
-                case R.id.custom_row_votes_down:
+                case R.id.votes_down:
                     if (!votingEnabled) {
                         postClick();
                         break;
@@ -151,6 +151,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
                     notifyDataSetChanged();
                     break;
                 case R.id.custom_row_clickable:
+                    postClick(getAdapterPosition());
                     break;
             }
         }
@@ -170,6 +171,12 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             final UserClickEvent userClickEvent = new UserClickEvent(itemHolder);
             userClickEvent.setUserVote(vote);
             EventBus.getDefault().post(userClickEvent);
+        }
+
+        private void postClick(int position) {
+            final LocalItemHolder localItemHolder = items.get(position);
+            final ItemHolder itemHolder = localItemHolder.getItemHolder();
+            EventBus.getDefault().post(new UserClickEvent(itemHolder));
         }
 
         private void postClick() {

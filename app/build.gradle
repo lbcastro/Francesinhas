@@ -21,18 +21,29 @@ android {
 }
 
 dependencies {
+
+    // Project
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(path: ':backend', configuration: 'android-endpoints')
+
+    // Google
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.android.support:cardview-v7:22.2.0'
     compile 'com.android.support:design:22.2.0'
-    compile 'com.malinskiy:superrecyclerview:1.1.0'
     compile 'com.google.android.gms:play-services-location:7.5.0'
+
+    // Layout
+    compile 'com.malinskiy:superrecyclerview:1.1.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.1'
+    compile 'com.github.paolorotolo:appintro:1.2.1'
+
+    // Productivity
+    compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.jakewharton:butterknife:5.1.2'
     compile 'frankiesardo:icepick:3.0.2'
     provided 'frankiesardo:icepick-processor:3.0.2'
-    compile 'de.greenrobot:eventbus:2.4.0'
-    compile project(path: ':backend', configuration: 'android-endpoints')
+
+    // Authentication
     compile 'com.facebook.android:facebook-android-sdk:4.1.0'
 }

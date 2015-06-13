@@ -3,6 +3,8 @@ package pt.castro.francesinhas.list;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -31,6 +33,7 @@ import pt.castro.francesinhas.communication.EndpointUserVote;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
 import pt.castro.francesinhas.communication.UserEndpointActions;
 import pt.castro.francesinhas.communication.login.LoginActivity;
+import pt.castro.francesinhas.details.DetailsFragment;
 import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.ListRefreshEvent;
 import pt.castro.francesinhas.events.ListRetrievedEvent;
@@ -61,7 +64,8 @@ public class ListActivity extends AppCompatActivity {
     private void getUserData() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         if (accessToken != null) {
-            new UserEndpointActions(UserEndpointActions.GET_USER).execute(AccessToken.getCurrentAccessToken().getUserId());
+            new UserEndpointActions(UserEndpointActions.GET_USER).execute(AccessToken
+                    .getCurrentAccessToken().getUserId());
         } else {
             mListFragment.setVoting(false);
         }
@@ -127,7 +131,8 @@ public class ListActivity extends AppCompatActivity {
     @EventBusHook
     public void onEvent(final UserDataEvent userDataEvent) {
         if (userDataEvent.getUserHolder() == null) {
-            new UserEndpointActions(UserEndpointActions.ADD_USER).execute(AccessToken.getCurrentAccessToken().getUserId());
+            new UserEndpointActions(UserEndpointActions.ADD_USER).execute(AccessToken
+                    .getCurrentAccessToken().getUserId());
         } else {
             mCurrentUser = userDataEvent.getUserHolder();
             mListFragment.setVoting(true);
@@ -147,8 +152,8 @@ public class ListActivity extends AppCompatActivity {
 
         // Iterates all retrieved items and adds votes when applied.
         for (ItemHolder itemHolder : listRetrievedEvent.list) {
-            LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
-            BigDecimal vote = (BigDecimal) map.get(itemHolder.getId());
+            final LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
+            final BigDecimal vote = (BigDecimal) map.get(itemHolder.getId());
             int voteInt = vote != null ? vote.intValueExact() : 0;
             localItemHolder.setUserVote(voteInt);
             localItemHolders.add(localItemHolder);
@@ -160,12 +165,34 @@ public class ListActivity extends AppCompatActivity {
 
     @EventBusHook
     public void onEvent(final UserClickEvent userClickEvent) {
-        if (mCurrentUser != null && userClickEvent.getItemHolder() != null) {
-            new EndpointUserVote(mCurrentUser.getId(), userClickEvent.getItemHolder().getId())
-                    .execute(userClickEvent.getUserVote());
+        final ItemHolder itemHolder = userClickEvent.getItemHolder();
+        if (itemHolder != null) {
+            if (userClickEvent.getUserVote() != 0 && mCurrentUser != null) {
+                new EndpointUserVote(mCurrentUser.getId(), itemHolder.getId()).execute
+                        (userClickEvent.getUserVote());
+            } else {
+                showDetailsFragment(itemHolder);
+            }
         } else {
             NotificationTools.toastLoggedVote(this);
         }
+    }
+
+    private void showDetailsFragment(final ItemHolder itemHolder) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        final Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        final DetailsFragment fragment = DetailsFragment.newInstance();
+        fragment.setItemName(itemHolder.getName());
+        fragment.setItemAddress(itemHolder.getAddress());
+        fragment.setItemPhone(itemHolder.getPhone());
+        fragment.setItemUrl(itemHolder.getUrl());
+        fragment.setVotesUp(Integer.toString(itemHolder.getVotesUp()));
+        fragment.setVotesDown(Integer.toString(itemHolder.getVotesDown()));
+        fragment.show(ft, DetailsFragment.class.getName());
     }
 
     @EventBusHook
@@ -212,7 +239,8 @@ public class ListActivity extends AppCompatActivity {
                     .TYPE_FOOD)) {
                 NotificationTools.toastCustomText(this, R.string.invalid_place);
             } else {
-                new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(PlaceUtils.getItemFromPlace(this, place));
+                new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(PlaceUtils
+                        .getItemFromPlace(this, place));
             }
         }
     }

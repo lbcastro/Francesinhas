@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="@dimen/row_main_height"
-    android:layout_marginLeft="@dimen/margin_xsmall"
-    android:layout_marginRight="@dimen/margin_xsmall"
-    android:layout_marginTop="@dimen/margin_xsmall"
-    android:descendantFocusability="blocksDescendants"
-    card_view:cardCornerRadius="@dimen/margin_xsmall">
+                                    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="@dimen/row_main_height"
+                                    android:layout_marginLeft="@dimen/margin_xsmall"
+                                    android:layout_marginRight="@dimen/margin_xsmall"
+                                    android:layout_marginTop="@dimen/margin_xsmall"
+                                    android:descendantFocusability="blocksDescendants"
+                                    card_view:cardCornerRadius="@dimen/margin_xsmall">
 
     <RelativeLayout
         android:id="@+id/card_view"
@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/blue_light"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"/>
 
         <View
             android:id="@+id/custom_row_clickable"
@@ -30,7 +30,7 @@
             android:layout_marginRight="65dp"
             android:background="@drawable/selector"
             android:clickable="true"
-            android:focusable="true" />
+            android:focusable="true"/>
 
         <TextView
             android:id="@+id/custom_row_ranking"
@@ -44,7 +44,7 @@
             android:alpha="0.3"
             android:gravity="center"
             android:textSize="@dimen/text_size_l"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/custom_row_name"
@@ -52,7 +52,7 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/margin_xlarge"
             android:layout_marginStart="@dimen/margin_xlarge"
-            android:paddingBottom="24dp" />
+            android:paddingBottom="24dp"/>
 
         <TextView
             android:id="@+id/custom_row_location"
@@ -60,41 +60,13 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/margin_xlarge"
             android:layout_marginStart="@dimen/margin_xlarge"
-            android:paddingTop="24dp" />
+            android:paddingTop="24dp"/>
 
-        <LinearLayout
-            style="@style/Base.Widget.AppCompat.ButtonBar"
+        <include
+            layout="@layout/button_bar"
             android:layout_width="@dimen/button_size"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/custom_row_votes_up"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginBottom="1dp"
-                android:layout_weight="1"
-                android:background="@drawable/selector"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:textColor="@color/green_bright"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/custom_row_votes_down"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/selector_red"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:textColor="@color/red_faded"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:layout_alignParentRight="true"/>
     </RelativeLayout>
 </android.support.v7.widget.CardView>

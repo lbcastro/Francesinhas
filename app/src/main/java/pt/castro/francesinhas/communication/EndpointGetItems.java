@@ -25,7 +25,6 @@ public class EndpointGetItems extends AsyncTask<Void, Void, List<ItemHolder>> {
         }
     }
 
-
     @Override
     protected void onPostExecute(List<ItemHolder> list) {
         if (list == null) {
