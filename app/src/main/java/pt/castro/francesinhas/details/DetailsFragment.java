@@ -1,13 +1,16 @@
 package pt.castro.francesinhas.details;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -43,6 +46,16 @@ public class DetailsFragment extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
         getDialog().getWindow()
                 .getAttributes().windowAnimations = R.style.MyAnimation_Window;
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+
+        // request a window without the title
+        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        return dialog;
     }
 
     @Nullable

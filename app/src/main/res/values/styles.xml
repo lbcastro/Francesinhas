@@ -45,6 +45,5 @@
         <item name="android:textSize">@dimen/text_size_m</item>
         <item name="android:textColor">@android:color/black</item>
         <item name="android:layout_margin">16dp</item>
-        <item name="android:textStyle">bold</item>
     </style>
 </resources>
