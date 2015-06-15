@@ -1,11 +1,13 @@
 package pt.castro.francesinhas.list;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,6 +52,7 @@ public class ListActivity extends AppCompatActivity {
     private static final int PLACE_PICKER_REQUEST = 1;
     private UserHolder mCurrentUser;
     private ListFragment mListFragment;
+    private SearchView mSearchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +108,22 @@ public class ListActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         menu.findItem(R.id.action_logout).setTitle(AccessToken.getCurrentAccessToken() != null ?
                 R.string.action_logout : R.string.action_login);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        mSearchView = (SearchView) menu.findItem(R.id.options_menu_main_search).getActionView();
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                mListFragment.setFilter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                mListFragment.setFilter(newText);
+                return false;
+            }
+        });
         return true;
     }
 
@@ -247,11 +266,14 @@ public class ListActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (AccessToken.getCurrentAccessToken() == null) {
+        if (!mSearchView.isIconified()) {
+            mSearchView.setQuery("", true);
+            mSearchView.setIconified(true);
+            mSearchView.clearFocus();
+        } else if (AccessToken.getCurrentAccessToken() == null) {
             startLoginActivity();
         } else {
             super.onBackPressed();
-            finish();
         }
     }
 }

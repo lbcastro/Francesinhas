@@ -67,6 +67,10 @@ public class ListFragment extends Fragment {
         }
     }
 
+    public void setFilter(final String filter) {
+        recyclerViewAdapter.setFilter(filter);
+    }
+
     public void setVoting(final boolean enabled) {
         recyclerViewAdapter.setVoting(enabled);
     }

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         .ViewHolder> {
 
     private List<LocalItemHolder> items = Collections.emptyList();
+    private List<LocalItemHolder> visibleItems;
     private boolean votingEnabled;
 
     public CustomRecyclerViewAdapter() {
@@ -33,6 +35,24 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
 
     public void setItems(List<LocalItemHolder> items) {
         this.items = items;
+        flushFilter();
+//        notifyDataSetChanged();
+    }
+
+    private void flushFilter() {
+        visibleItems = new ArrayList<>();
+        visibleItems.addAll(items);
+        notifyDataSetChanged();
+    }
+
+    public void setFilter(String query) {
+        visibleItems = new ArrayList<>();
+        for (LocalItemHolder localItemHolder : items) {
+            if (localItemHolder.getItemHolder().getName().toLowerCase().contains(query
+                    .toLowerCase())) {
+                visibleItems.add(localItemHolder);
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -49,13 +69,14 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        final ItemHolder itemHolder = items.get(position).getItemHolder();
-        holder.rankingTextView.setText(Integer.toString(position + 1));
+        final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
+        holder.rankingTextView.setText(Integer.toString(items.indexOf(visibleItems.get(position))
+                + 1));
         holder.titleTextView.setText(itemHolder.getName());
         holder.subtitleTextView.setText(itemHolder.getLocation());
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
-        switch (items.get(position).getUserVote()) {
+        switch (visibleItems.get(position).getUserVote()) {
             case -1:
                 holder.setVoteDownSelected();
                 break;
@@ -71,7 +92,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     @Override
     public int getItemCount() {
         try {
-            return items.size();
+            return visibleItems.size();
         } catch (NullPointerException e) {
             return 0;
         }
@@ -157,7 +178,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         }
 
         private void postVote(int position, int vote) {
-            final LocalItemHolder localItemHolder = items.get(position);
+            final LocalItemHolder localItemHolder = visibleItems.get(position);
             final ItemHolder itemHolder = localItemHolder.getItemHolder();
             localItemHolder.setUserVote(vote);
             switch (vote) {
@@ -174,7 +195,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         }
 
         private void postClick(int position) {
-            final LocalItemHolder localItemHolder = items.get(position);
+            final LocalItemHolder localItemHolder = visibleItems.get(position);
             final ItemHolder itemHolder = localItemHolder.getItemHolder();
             EventBus.getDefault().post(new UserClickEvent(itemHolder));
         }
