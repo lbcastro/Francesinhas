@@ -32,8 +32,9 @@ public class PlaceUtils {
         itemHolder.setLocation(getCityName(context, place));
         if (place.getWebsiteUri() != null) {
             itemHolder.setUrl(place.getWebsiteUri().toString());
+        } else {
+            itemHolder.setUrl("n/a");
         }
-        itemHolder.setGoogleRating(place.getRating());
         return itemHolder;
     }
 

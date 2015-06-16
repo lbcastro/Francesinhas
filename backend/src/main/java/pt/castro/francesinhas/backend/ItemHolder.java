@@ -4,6 +4,7 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
 /**
+ * Object used to hold all data associated with a single item.
  * Created by lourenco.castro on 07/05/15.
  */
 @Entity
@@ -12,12 +13,11 @@ public class ItemHolder {
     @Id
     private String id;
     private String name;
+    private String userId;
 
-    private int ranking;
     private int votesUp;
     private int votesDown;
     private int priceRange;
-    private float googleRating;
 
     private String location;
     private String address;
@@ -29,17 +29,12 @@ public class ItemHolder {
         return this;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public void decreaseRanking() {
         this.votesDown++;
-    }
-
-    public int getRanking() {
-        return ranking;
-    }
-
-    public ItemHolder setRanking(int ranking) {
-        this.ranking = ranking;
-        return this;
     }
 
     public int getVotesUp() {
@@ -48,10 +43,6 @@ public class ItemHolder {
 
     public int getVotesDown() {
         return votesDown;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public String getName() {
@@ -108,12 +99,11 @@ public class ItemHolder {
         return this;
     }
 
-    public float getGoogleRating() {
-        return googleRating;
+    public String getUserId() {
+        return userId;
     }
 
-    public ItemHolder setGoogleRating(float googleRating) {
-        this.googleRating = googleRating;
-        return this;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

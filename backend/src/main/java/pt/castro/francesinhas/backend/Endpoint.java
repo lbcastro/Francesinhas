@@ -65,6 +65,7 @@ public class Endpoint {
         dirtyList = false;
         updateRanking();
 //        }
+        ofy().clear();
         return CollectionResponse.<ItemHolder>builder().setItems(itemList).setNextPageToken
                 (cursorString).build();
     }

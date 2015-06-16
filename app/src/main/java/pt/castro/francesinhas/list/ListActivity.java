@@ -164,9 +164,12 @@ public class ListActivity extends AppCompatActivity {
         final List<LocalItemHolder> localItemHolders = new ArrayList<>();
 
         // Creates a blank map in case the user has no votes.
-        JsonMap map = new JsonMap();
+        JsonMap map = null;
         if (mCurrentUser != null) {
             map = mCurrentUser.getVotes();
+        }
+        if (map == null) {
+            map = new JsonMap();
         }
 
         // Iterates all retrieved items and adds votes when applied.
@@ -198,7 +201,7 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void showDetailsFragment(final ItemHolder itemHolder) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
             ft.remove(prev);
@@ -232,6 +235,7 @@ public class ListActivity extends AppCompatActivity {
             NotificationTools.toastLoggedAdd(this);
             return;
         }
+
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
         Context context = getApplicationContext();
         try {
@@ -258,8 +262,9 @@ public class ListActivity extends AppCompatActivity {
                     .TYPE_FOOD)) {
                 NotificationTools.toastCustomText(this, R.string.invalid_place);
             } else {
-                new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(PlaceUtils
-                        .getItemFromPlace(this, place));
+                final ItemHolder itemHolder = PlaceUtils.getItemFromPlace(this, place);
+                itemHolder.setUserId(mCurrentUser.getId());
+                new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(itemHolder);
             }
         }
     }

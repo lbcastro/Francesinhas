@@ -5,6 +5,10 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+
     defaultConfig {
         applicationId "pt.castro.francesinhas"
         minSdkVersion 15
