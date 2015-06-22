@@ -19,9 +19,16 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,21 +69,30 @@ public class ListActivity extends AppCompatActivity {
     private SearchView mSearchView;
 
     public static void initImageLoader(Context context) {
-        // This configuration tuning is custom. You can tune every option, you may tune some of them,
-        // or you can create default configuration by
-        //  ImageLoaderConfiguration.createDefault(this);
-        // method.
-        ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(context);
-//        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
-//        config.threadPriority(Thread.NORM_PRIORITY - 2);
-//        config.denyCacheImageMultipleSizesInMemory();
-//        config.discCacheFileNameGenerator(new Md5FileNameGenerator());
-//        config.discCacheSize(50 * 1024 * 1024); // 50 MiB
-//        config.tasksProcessingOrder(QueueProcessingType.FIFO);
-//        config.writeDebugLogs(); // Remove for release app
+        if (ImageLoader.getInstance().isInited()) {
+            return;
+        }
+
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisc(true)
+                .build();
+
+        final File cacheDir = StorageUtils.getCacheDirectory(context);
+        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
+        config.threadPriority(Thread.NORM_PRIORITY - 2);
+        config.denyCacheImageMultipleSizesInMemory();
+        config.discCache(new UnlimitedDiscCache(cacheDir));
+        config.discCacheFileNameGenerator(new Md5FileNameGenerator());
+        config.discCacheSize(50 * 1024 * 1024);
+        config.memoryCache(new LruMemoryCache(2 * 1024 * 1024));
+        config.memoryCacheSize(2 * 1024 * 1024);
+        config.defaultDisplayImageOptions(defaultOptions);
+        config.tasksProcessingOrder(QueueProcessingType.FIFO);
+        config.writeDebugLogs(); // Remove for release app
 
         // Initialize ImageLoader with configuration.
-        ImageLoader.getInstance().init(config);
+        ImageLoader.getInstance().init(config.build());
     }
 
     private static String addExtraParams(String base, Param... extraParams) {
@@ -256,7 +272,7 @@ public class ListActivity extends AppCompatActivity {
         fragment.setItemUrl(itemHolder.getUrl());
         fragment.setVotesUp(Integer.toString(itemHolder.getVotesUp()));
         fragment.setVotesDown(Integer.toString(itemHolder.getVotesDown()));
-        fragment.setBackground(localItemHolder.getPhoto());
+        fragment.setBackgroundUrl(localItemHolder.getPhotoUrl());
         fragment.show(ft, DetailsFragment.class.getName());
     }
 
@@ -268,6 +284,7 @@ public class ListActivity extends AppCompatActivity {
     @EventBusHook
     public void onEvent(final ListRefreshEvent listRefreshEvent) {
         if (!listRefreshEvent.isRefreshed()) {
+            // TODO: Instead of retrieving a new set of items, update the existing ones
             new EndpointGetItems().execute();
         }
     }

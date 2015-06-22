@@ -15,6 +15,10 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
@@ -34,6 +38,7 @@ public class DetailsFragment extends DialogFragment {
     private static final String ITEM_URL = "url";
     private static final String ITEM_VOTES_UP = "votes_up";
     private static final String ITEM_VOTES_DOWN = "votesDown";
+    private static final String ITEM_BACKGROUND_URL = "background_url";
 
     @InjectView(R.id.name)
     TextView nameTextView;
@@ -50,7 +55,7 @@ public class DetailsFragment extends DialogFragment {
     @InjectView(R.id.details_image)
     ImageView imageView;
 
-    private Bitmap background;
+    private String backgroundUrl;
 
     public static DetailsFragment newInstance() {
         return new DetailsFragment();
@@ -80,8 +85,14 @@ public class DetailsFragment extends DialogFragment {
             setTextOrHide(votesUpTextView, getArguments().getString(ITEM_VOTES_UP));
             setTextOrHide(votesDownTextView, getArguments().getString(ITEM_VOTES_DOWN));
         }
-        if (background != null) {
-            imageView.setImageBitmap(background);
+
+        if (backgroundUrl != null) {
+            DisplayImageOptions options = new DisplayImageOptions.Builder()
+                    .resetViewBeforeLoading(true).cacheOnDisc(true)
+                    .postProcessor(null).delayBeforeLoading(0).cacheInMemory(true)
+                    .bitmapConfig(Bitmap.Config.RGB_565)
+                    .imageScaleType(ImageScaleType.EXACTLY).build();
+            ImageLoader.getInstance().displayImage(backgroundUrl, imageView, options);
         }
 
         addressTextView.setOnClickListener(new View.OnClickListener() {
@@ -161,7 +172,7 @@ public class DetailsFragment extends DialogFragment {
         setTextOrSave(votesDownTextView, votesDown, ITEM_VOTES_DOWN);
     }
 
-    public void setBackground(Bitmap background) {
-        this.background = background;
+    public void setBackgroundUrl(final String backgroundUrl) {
+        this.backgroundUrl = backgroundUrl;
     }
 }

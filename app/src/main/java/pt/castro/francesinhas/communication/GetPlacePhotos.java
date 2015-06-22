@@ -18,7 +18,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -112,26 +111,28 @@ public class GetPlacePhotos extends AsyncTask<String, Void, String> {
                 JSONArray jsonPhotos = result.optJSONArray("photos");
                 List<PhotoReference> photos = new ArrayList<>();
                 if (jsonPhotos != null) {
-                    for (int i = 0; i < jsonPhotos.length(); i++) {
+                    for (int i = 0; i < Math.min(jsonPhotos.length(), 10); i++) {
                         JSONObject jsonPhoto = jsonPhotos.getJSONObject(i);
                         String photoReference = jsonPhoto.getString("photo_reference");
-                        Log.d("Photo", photoReference);
                         int width = jsonPhoto.getInt("width"), height = jsonPhoto.getInt("height");
                         photos.add(new PhotoReference(photoReference, width, height));
                     }
                     localItemHolder.setPhotoReferences(photos);
-                    PhotoReference reference = localItemHolder.getPhotoReferences().get(0);
-                    String uri = buildPhotoUrl(String.format("maxwidth=%s&photoreference=%s&key=%s", reference.getWidth(), reference.getReference(), "AIzaSyDSQ408Gts6XQxTEaec8b38sCIMSQWuoc4"));
-                    localItemHolder.setPhotoUrl(uri);
+                    PhotoReference reference = null;
+                    for (int x = 0; x < Math.min(photos.size(), 10); x++) {
+                        if ((reference != null && photos.get(x).getWidth() > reference.getWidth()) || reference == null) {
+                            reference = photos.get(x);
+                        }
+                    }
+                    // TODO: Make this value dynamic, adjusting to the current device resolution
+                    if (reference == null || reference.getWidth() < 720) {
+                        return;
+                    }
+                    localItemHolder.setPhotoUrl(buildPhotoUrl(String.format("maxwidth=%s&photoreference=%s&key=%s", reference.getWidth(), reference.getReference(), "AIzaSyDSQ408Gts6XQxTEaec8b38sCIMSQWuoc4")));
                 } else {
                     Log.d("Photos", "No photos found");
                 }
                 EventBus.getDefault().post(new PhotoUpdateEvent(localItemHolder));
-            } else {
-                Iterator<String> iterator = object.keys();
-                while (iterator.hasNext()) {
-                    Log.d("Reference", iterator.next());
-                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

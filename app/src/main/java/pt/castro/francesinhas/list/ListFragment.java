@@ -7,12 +7,14 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.malinskiy.superrecyclerview.SuperRecyclerView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
 
@@ -42,6 +44,17 @@ public class ListFragment extends Fragment {
             @Override
             public void onRefresh() {
                 EventBus.getDefault().post(new ListRefreshEvent(false));
+            }
+        });
+        mainRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    ImageLoader.getInstance().pause();
+                } else {
+                    ImageLoader.getInstance().resume();
+                }
             }
         });
         floatingActionButton.setOnClickListener(new View.OnClickListener() {

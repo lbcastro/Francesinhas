@@ -16,7 +16,6 @@ import pt.castro.francesinhas.events.ListRetrievedEvent;
 public class EndpointGetItems extends AsyncTask<Void, Void, List<ItemHolder>> {
     @Override
     protected List<ItemHolder> doInBackground(Void... params) {
-
         try {
             return EndpointApiHolder.getInstance().listItems().execute().getItems();
         } catch (IOException e) {

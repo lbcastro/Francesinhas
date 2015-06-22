@@ -24,6 +24,10 @@ public class LocalItemHolder {
         return itemHolder;
     }
 
+    public void setItemHolder(final ItemHolder itemHolder) {
+        this.itemHolder = itemHolder;
+    }
+
     public int getUserVote() {
         return userVote;
     }

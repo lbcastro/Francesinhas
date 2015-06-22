@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,12 +33,13 @@ import pt.castro.francesinhas.events.UserClickEvent;
 public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewAdapter
         .ViewHolder> {
 
-    private List<LocalItemHolder> items = Collections.emptyList();
+    private List<LocalItemHolder> items;
     private List<LocalItemHolder> visibleItems;
     private boolean votingEnabled;
 
     public CustomRecyclerViewAdapter() {
         EventBus.getDefault().register(this);
+        items = Collections.emptyList();
     }
 
     public void onEvent(final PhotoUpdateEvent photoUpdateEvent) {
@@ -80,19 +83,17 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final LocalItemHolder localItemHolder = visibleItems.get(position);
-        holder.imageView.setImageBitmap(null);
-        if (localItemHolder.getPhoto() != null) {
-            holder.imageView.setImageBitmap(localItemHolder.getPhoto());
-        } else if (localItemHolder.getPhotoUrl() != null && holder.imageView.getBackground() != null) {
+        holder.imageView.setImageDrawable(null);
+        if (localItemHolder.getPhotoUrl() != null) {
             final ImageLoader imageLoader = ImageLoader.getInstance();
-            imageLoader.loadImage(localItemHolder.getPhotoUrl(), new SimpleImageLoadingListener() {
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    localItemHolder.setPhoto(loadedImage);
-                    holder.imageView.setImageBitmap(localItemHolder.getPhoto());
-                }
-            });
-//            imageLoader.displayImage(localItemHolder.getPhotoUrl(), holder.imageView);
+            ImageViewAware aware = new ImageViewAware(holder.imageView, false);
+            imageLoader.cancelDisplayTask(aware);
+            DisplayImageOptions options = new DisplayImageOptions.Builder()
+                    .resetViewBeforeLoading(true).cacheOnDisc(true)
+                    .postProcessor(null).delayBeforeLoading(0).cacheInMemory(true)
+                    .bitmapConfig(Bitmap.Config.RGB_565)
+                    .imageScaleType(ImageScaleType.EXACTLY).build();
+            imageLoader.displayImage(localItemHolder.getPhotoUrl(), aware, options);
         }
         final ItemHolder itemHolder = localItemHolder.getItemHolder();
         holder.rankingTextView.setText(Integer.toString(items.indexOf(visibleItems.get(position))
