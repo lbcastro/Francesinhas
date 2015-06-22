@@ -82,6 +82,17 @@ public class Endpoint {
         return itemHolder;
     }
 
+    @ApiMethod(name = "addPhoto")
+    public ItemHolder addPhoto(@Named("itemId") String itemId, @Named("photUrl") String photoUrl) {
+        ItemHolder itemHolder;
+        if ((itemHolder = findItem(itemId)) == null) {
+            throw new NullPointerException("Item not found");
+        }
+        itemHolder.setPhotoUrl(photoUrl);
+        ofy().save().entity(itemHolder).now();
+        return itemHolder;
+    }
+
     @ApiMethod(name = "increaseScore")
     public ItemHolder increaseScore(ItemHolder itemHolder) {
         ItemHolder previousItemHolder;

@@ -24,6 +24,8 @@ public class ItemHolder {
     private String phone;
     private String url;
 
+    private String photoUrl;
+
     public ItemHolder increaseRanking() {
         this.votesUp++;
         return this;
@@ -105,5 +107,13 @@ public class ItemHolder {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }
