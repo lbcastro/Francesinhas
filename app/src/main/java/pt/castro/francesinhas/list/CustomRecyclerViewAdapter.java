@@ -1,11 +1,15 @@
 package pt.castro.francesinhas.list;
 
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +21,7 @@ import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.events.EventBusHook;
+import pt.castro.francesinhas.events.PhotoUpdateEvent;
 import pt.castro.francesinhas.events.ScoreChangeEvent;
 import pt.castro.francesinhas.events.UserClickEvent;
 
@@ -31,6 +36,11 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     private boolean votingEnabled;
 
     public CustomRecyclerViewAdapter() {
+        EventBus.getDefault().register(this);
+    }
+
+    public void onEvent(final PhotoUpdateEvent photoUpdateEvent) {
+        notifyDataSetChanged();
     }
 
     public void setItems(List<LocalItemHolder> items) {
@@ -68,8 +78,23 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        final LocalItemHolder localItemHolder = visibleItems.get(position);
+        holder.imageView.setImageBitmap(null);
+        if (localItemHolder.getPhoto() != null) {
+            holder.imageView.setImageBitmap(localItemHolder.getPhoto());
+        } else if (localItemHolder.getPhotoUrl() != null && holder.imageView.getBackground() != null) {
+            final ImageLoader imageLoader = ImageLoader.getInstance();
+            imageLoader.loadImage(localItemHolder.getPhotoUrl(), new SimpleImageLoadingListener() {
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    localItemHolder.setPhoto(loadedImage);
+                    holder.imageView.setImageBitmap(localItemHolder.getPhoto());
+                }
+            });
+//            imageLoader.displayImage(localItemHolder.getPhotoUrl(), holder.imageView);
+        }
+        final ItemHolder itemHolder = localItemHolder.getItemHolder();
         holder.rankingTextView.setText(Integer.toString(items.indexOf(visibleItems.get(position))
                 + 1));
         holder.titleTextView.setText(itemHolder.getName());
@@ -189,15 +214,14 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
                     itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
                     break;
             }
-            final UserClickEvent userClickEvent = new UserClickEvent(itemHolder);
+            final UserClickEvent userClickEvent = new UserClickEvent(localItemHolder);
             userClickEvent.setUserVote(vote);
             EventBus.getDefault().post(userClickEvent);
         }
 
         private void postClick(int position) {
             final LocalItemHolder localItemHolder = visibleItems.get(position);
-            final ItemHolder itemHolder = localItemHolder.getItemHolder();
-            EventBus.getDefault().post(new UserClickEvent(itemHolder));
+            EventBus.getDefault().post(new UserClickEvent(localItemHolder));
         }
 
         private void postClick() {

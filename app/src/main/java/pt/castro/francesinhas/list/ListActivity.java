@@ -19,10 +19,13 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
 import icepick.Icepick;
@@ -33,6 +36,7 @@ import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 import pt.castro.francesinhas.communication.EndpointGetItems;
 import pt.castro.francesinhas.communication.EndpointUserVote;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
+import pt.castro.francesinhas.communication.GetPlacePhotos;
 import pt.castro.francesinhas.communication.UserEndpointActions;
 import pt.castro.francesinhas.communication.login.LoginActivity;
 import pt.castro.francesinhas.details.DetailsFragment;
@@ -49,16 +53,52 @@ import pt.castro.francesinhas.tools.PlaceUtils;
 
 public class ListActivity extends AppCompatActivity {
 
+    public static final String METHOD_DETAILS = "details";
+    public static final String METHOD_PHOTO = "photo";
     private static final int PLACE_PICKER_REQUEST = 1;
+    private final static String BROWSER_KEY = "AIzaSyDSQ408Gts6XQxTEaec8b38sCIMSQWuoc4";
     private UserHolder mCurrentUser;
     private ListFragment mListFragment;
     private SearchView mSearchView;
+
+    public static void initImageLoader(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+        ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(context);
+//        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
+//        config.threadPriority(Thread.NORM_PRIORITY - 2);
+//        config.denyCacheImageMultipleSizesInMemory();
+//        config.discCacheFileNameGenerator(new Md5FileNameGenerator());
+//        config.discCacheSize(50 * 1024 * 1024); // 50 MiB
+//        config.tasksProcessingOrder(QueueProcessingType.FIFO);
+//        config.writeDebugLogs(); // Remove for release app
+
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config);
+    }
+
+    private static String addExtraParams(String base, Param... extraParams) {
+        for (Param param : extraParams) {
+            base += "&" + param.name + (param.value != null ? "=" + param.value : "");
+        }
+        return base;
+    }
+
+    private static String buildUrl(String method, String params, Param... extraParams) {
+        String url = String.format(Locale.ENGLISH, "%s%s/json?%s", "https://maps.googleapis.com/maps/api/place/", method, params);
+        url = addExtraParams(url, extraParams);
+        url = url.replace(' ', '+');
+        return url;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
         setContentView(R.layout.activity_main);
+        initImageLoader(getApplicationContext());
         mListFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
         new EndpointGetItems().execute();
         getUserData();
@@ -178,6 +218,7 @@ public class ListActivity extends AppCompatActivity {
             final BigDecimal vote = (BigDecimal) map.get(itemHolder.getId());
             int voteInt = vote != null ? vote.intValueExact() : 0;
             localItemHolder.setUserVote(voteInt);
+            getItemPhotos(localItemHolder);
             localItemHolders.add(localItemHolder);
         }
 
@@ -187,20 +228,21 @@ public class ListActivity extends AppCompatActivity {
 
     @EventBusHook
     public void onEvent(final UserClickEvent userClickEvent) {
-        final ItemHolder itemHolder = userClickEvent.getItemHolder();
+        final ItemHolder itemHolder = userClickEvent.getLocalItemHolder().getItemHolder();
         if (itemHolder != null) {
             if (userClickEvent.getUserVote() != 0 && mCurrentUser != null) {
                 new EndpointUserVote(mCurrentUser.getId(), itemHolder.getId()).execute
                         (userClickEvent.getUserVote());
             } else {
-                showDetailsFragment(itemHolder);
+                showDetailsFragment(userClickEvent.getLocalItemHolder());
             }
         } else {
             NotificationTools.toastLoggedVote(this);
         }
     }
 
-    private void showDetailsFragment(final ItemHolder itemHolder) {
+    private void showDetailsFragment(final LocalItemHolder localItemHolder) {
+        final ItemHolder itemHolder = localItemHolder.getItemHolder();
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
@@ -214,6 +256,7 @@ public class ListActivity extends AppCompatActivity {
         fragment.setItemUrl(itemHolder.getUrl());
         fragment.setVotesUp(Integer.toString(itemHolder.getVotesUp()));
         fragment.setVotesDown(Integer.toString(itemHolder.getVotesDown()));
+        fragment.setBackground(localItemHolder.getPhoto());
         fragment.show(ft, DetailsFragment.class.getName());
     }
 
@@ -257,6 +300,7 @@ public class ListActivity extends AppCompatActivity {
         Log.d("ActivityResult", "Request code: " + requestCode + "\tResult code: " + resultCode);
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
             final Place place = PlacePicker.getPlace(data, this);
+
             if (!place.getPlaceTypes().contains(Place.TYPE_RESTAURANT) && !place.getPlaceTypes()
                     .contains(Place.TYPE_CAFE) && !place.getPlaceTypes().contains(Place
                     .TYPE_FOOD)) {
@@ -266,6 +310,22 @@ public class ListActivity extends AppCompatActivity {
                 itemHolder.setUserId(mCurrentUser.getId());
                 new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(itemHolder);
             }
+        }
+    }
+
+    public void getItemPhotos(LocalItemHolder localItemHolder, Param... extraParams) {
+        String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s", localItemHolder.getItemHolder().getId(), BROWSER_KEY), extraParams);
+        Log.d("GetPhotos", uri);
+        GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
+        getPlacePhotos.getAllPhotos(uri);
+    }
+
+    public void getPhoto(LocalItemHolder localItemHolder) {
+        if (localItemHolder.getPhotoReferences() != null) {
+            PhotoReference reference = localItemHolder.getPhotoReferences().get(0);
+            String uri = buildUrl(METHOD_PHOTO, String.format("maxwidth=%s&photoreference=%s&key=%s", reference.getWidth(), reference.getReference(), BROWSER_KEY));
+            GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
+            getPlacePhotos.getPhotoReference(uri);
         }
     }
 

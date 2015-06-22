@@ -43,6 +43,7 @@ dependencies {
     compile 'com.github.paolorotolo:appintro:1.2.1'
 
     // Productivity
+    compile 'com.nostra13.universalimageloader:parent:1.9.4'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.jakewharton:butterknife:5.1.2'
     compile 'frankiesardo:icepick:3.0.2'

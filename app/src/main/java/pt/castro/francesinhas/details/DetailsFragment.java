@@ -2,6 +2,7 @@ package pt.castro.francesinhas.details;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.net.URI;
@@ -32,6 +34,7 @@ public class DetailsFragment extends DialogFragment {
     private static final String ITEM_URL = "url";
     private static final String ITEM_VOTES_UP = "votes_up";
     private static final String ITEM_VOTES_DOWN = "votesDown";
+
     @InjectView(R.id.name)
     TextView nameTextView;
     @InjectView(R.id.address)
@@ -44,6 +47,10 @@ public class DetailsFragment extends DialogFragment {
     TextView votesUpTextView;
     @InjectView(R.id.votes_down)
     TextView votesDownTextView;
+    @InjectView(R.id.details_image)
+    ImageView imageView;
+
+    private Bitmap background;
 
     public static DetailsFragment newInstance() {
         return new DetailsFragment();
@@ -72,6 +79,9 @@ public class DetailsFragment extends DialogFragment {
             setTextOrHide(urlTextView, getArguments().getString(ITEM_URL));
             setTextOrHide(votesUpTextView, getArguments().getString(ITEM_VOTES_UP));
             setTextOrHide(votesDownTextView, getArguments().getString(ITEM_VOTES_DOWN));
+        }
+        if (background != null) {
+            imageView.setImageBitmap(background);
         }
 
         addressTextView.setOnClickListener(new View.OnClickListener() {
@@ -149,5 +159,9 @@ public class DetailsFragment extends DialogFragment {
 
     public void setVotesDown(final String votesDown) {
         setTextOrSave(votesDownTextView, votesDown, ITEM_VOTES_DOWN);
+    }
+
+    public void setBackground(Bitmap background) {
+        this.background = background;
     }
 }

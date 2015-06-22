@@ -2,22 +2,22 @@ package pt.castro.francesinhas.events;
 
 import android.view.View;
 
-import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
+import pt.castro.francesinhas.list.LocalItemHolder;
 
 /**
  * Created by lourenco on 08/06/15.
  */
 public class UserClickEvent {
     private View view;
-    private ItemHolder itemHolder;
+    private LocalItemHolder itemHolder;
     private int userVote;
 
-    public UserClickEvent(ItemHolder itemHolder) {
+    public UserClickEvent(LocalItemHolder itemHolder) {
         this.itemHolder = itemHolder;
     }
 
 
-    public ItemHolder getItemHolder() {
+    public LocalItemHolder getLocalItemHolder() {
         return itemHolder;
     }
 

@@ -12,6 +12,7 @@
         android:layout_height="@dimen/row_main_height">
 
         <ImageView
+            android:id="@+id/details_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
