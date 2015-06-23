@@ -60,10 +60,7 @@ import pt.castro.francesinhas.tools.PlaceUtils;
 
 public class ListActivity extends AppCompatActivity {
 
-    public static final String METHOD_DETAILS = "details";
-    public static final String METHOD_PHOTO = "photo";
     private static final int PLACE_PICKER_REQUEST = 1;
-    private final static String BROWSER_KEY = "AIzaSyDSQ408Gts6XQxTEaec8b38sCIMSQWuoc4";
     private UserHolder mCurrentUser;
     private ListFragment mListFragment;
     private SearchView mSearchView;
@@ -234,7 +231,10 @@ public class ListActivity extends AppCompatActivity {
             final BigDecimal vote = (BigDecimal) map.get(itemHolder.getId());
             int voteInt = vote != null ? vote.intValueExact() : 0;
             localItemHolder.setUserVote(voteInt);
-            getItemPhotos(localItemHolder);
+            if (itemHolder.getPhotoUrl() == null) {
+                final GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
+                getPlacePhotos.getAllPhotos();
+            }
             localItemHolders.add(localItemHolder);
         }
 
@@ -272,7 +272,7 @@ public class ListActivity extends AppCompatActivity {
         fragment.setItemUrl(itemHolder.getUrl());
         fragment.setVotesUp(Integer.toString(itemHolder.getVotesUp()));
         fragment.setVotesDown(Integer.toString(itemHolder.getVotesDown()));
-        fragment.setBackgroundUrl(localItemHolder.getPhotoUrl());
+        fragment.setBackgroundUrl(itemHolder.getPhotoUrl());
         fragment.show(ft, DetailsFragment.class.getName());
     }
 
@@ -327,22 +327,6 @@ public class ListActivity extends AppCompatActivity {
                 itemHolder.setUserId(mCurrentUser.getId());
                 new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(itemHolder);
             }
-        }
-    }
-
-    public void getItemPhotos(LocalItemHolder localItemHolder, Param... extraParams) {
-        String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s", localItemHolder.getItemHolder().getId(), BROWSER_KEY), extraParams);
-        Log.d("GetPhotos", uri);
-        GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
-        getPlacePhotos.getAllPhotos(uri);
-    }
-
-    public void getPhoto(LocalItemHolder localItemHolder) {
-        if (localItemHolder.getPhotoReferences() != null) {
-            PhotoReference reference = localItemHolder.getPhotoReferences().get(0);
-            String uri = buildUrl(METHOD_PHOTO, String.format("maxwidth=%s&photoreference=%s&key=%s", reference.getWidth(), reference.getReference(), BROWSER_KEY));
-            GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
-            getPlacePhotos.getPhotoReference(uri);
         }
     }
 

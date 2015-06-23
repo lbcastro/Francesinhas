@@ -2,7 +2,6 @@ package pt.castro.francesinhas.details;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,9 +14,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,6 +23,7 @@ import java.util.Locale;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import pt.castro.francesinhas.R;
+import pt.castro.francesinhas.tools.PhotoUtils;
 
 /**
  * Created by lourenco.castro on 13-06-2015.
@@ -87,12 +85,7 @@ public class DetailsFragment extends DialogFragment {
         }
 
         if (backgroundUrl != null) {
-            DisplayImageOptions options = new DisplayImageOptions.Builder()
-                    .resetViewBeforeLoading(true).cacheOnDisc(true)
-                    .postProcessor(null).delayBeforeLoading(0).cacheInMemory(true)
-                    .bitmapConfig(Bitmap.Config.RGB_565)
-                    .imageScaleType(ImageScaleType.EXACTLY).build();
-            ImageLoader.getInstance().displayImage(backgroundUrl, imageView, options);
+            ImageLoader.getInstance().displayImage(backgroundUrl, imageView, PhotoUtils.getDisplayImageOptions());
         }
 
         addressTextView.setOnClickListener(new View.OnClickListener() {

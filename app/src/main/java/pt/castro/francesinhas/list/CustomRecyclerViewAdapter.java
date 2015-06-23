@@ -1,6 +1,5 @@
 package pt.castro.francesinhas.list;
 
-import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,9 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 
 import java.util.ArrayList;
@@ -26,6 +23,7 @@ import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.PhotoUpdateEvent;
 import pt.castro.francesinhas.events.ScoreChangeEvent;
 import pt.castro.francesinhas.events.UserClickEvent;
+import pt.castro.francesinhas.tools.PhotoUtils;
 
 /**
  * Created by lourenco.castro on 07/05/15.
@@ -43,13 +41,12 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     }
 
     public void onEvent(final PhotoUpdateEvent photoUpdateEvent) {
-        notifyDataSetChanged();
+        notifyItemChanged(visibleItems.indexOf(photoUpdateEvent.getLocalItemHolder()));
     }
 
     public void setItems(List<LocalItemHolder> items) {
         this.items = items;
         flushFilter();
-//        notifyDataSetChanged();
     }
 
     private void flushFilter() {
@@ -82,20 +79,14 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        final LocalItemHolder localItemHolder = visibleItems.get(position);
+        final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
         holder.imageView.setImageDrawable(null);
-        if (localItemHolder.getPhotoUrl() != null) {
+        if (itemHolder.getPhotoUrl() != null) {
             final ImageLoader imageLoader = ImageLoader.getInstance();
-            ImageViewAware aware = new ImageViewAware(holder.imageView, false);
+            final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
             imageLoader.cancelDisplayTask(aware);
-            DisplayImageOptions options = new DisplayImageOptions.Builder()
-                    .resetViewBeforeLoading(true).cacheOnDisc(true)
-                    .postProcessor(null).delayBeforeLoading(0).cacheInMemory(true)
-                    .bitmapConfig(Bitmap.Config.RGB_565)
-                    .imageScaleType(ImageScaleType.EXACTLY).build();
-            imageLoader.displayImage(localItemHolder.getPhotoUrl(), aware, options);
+            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils.getDisplayImageOptions());
         }
-        final ItemHolder itemHolder = localItemHolder.getItemHolder();
         holder.rankingTextView.setText(Integer.toString(items.indexOf(visibleItems.get(position))
                 + 1));
         holder.titleTextView.setText(itemHolder.getName());

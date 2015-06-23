@@ -12,6 +12,8 @@ import pt.castro.francesinhas.events.PlaceAlreadyExistsEvent;
 public class EndpointsAsyncTask extends AsyncTask<ItemHolder, Void, ItemHolder> {
 
     public final static int ADD = 1;
+    public final static int UPDATE = 2;
+
     private int activeMode;
 
     public EndpointsAsyncTask(int mode) {
@@ -27,6 +29,13 @@ public class EndpointsAsyncTask extends AsyncTask<ItemHolder, Void, ItemHolder> 
                     return EndpointApiHolder.getInstance().addItem(itemHolder).execute();
                 } catch (IOException e) {
                     EventBus.getDefault().post(new PlaceAlreadyExistsEvent());
+                }
+            case UPDATE:
+                try {
+                    return EndpointApiHolder.getInstance().updateItem(itemHolder).execute();
+                } catch (IOException e) {
+                    // TODO: Figure out when this happens
+                    e.printStackTrace();
                 }
             default:
                 return itemHolder;
