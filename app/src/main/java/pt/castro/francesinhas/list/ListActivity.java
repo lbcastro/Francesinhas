@@ -60,6 +60,7 @@ import pt.castro.francesinhas.tools.PlaceUtils;
 public class ListActivity extends AppCompatActivity {
 
     private static final int PLACE_PICKER_REQUEST = 1;
+    private final String TAG = getClass().getName();
     private UserHolder mCurrentUser;
     private ListFragment mListFragment;
     private SearchView mSearchView;
@@ -215,7 +216,7 @@ public class ListActivity extends AppCompatActivity {
             final LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
             int voteInt = getVote(mCurrentUser, itemHolder.getId());
             localItemHolder.setUserVote(voteInt);
-            if (itemHolder.getPhotoUrl() == null) {
+            if (itemHolder.getPhotoUrl() == null || itemHolder.getPhotoUrl().equals("n/a")) {
                 final GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
                 getPlacePhotos.getAllPhotos();
             }
