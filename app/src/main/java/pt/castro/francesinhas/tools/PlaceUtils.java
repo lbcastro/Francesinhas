@@ -35,6 +35,7 @@ public class PlaceUtils {
         } else {
             itemHolder.setUrl("n/a");
         }
+        itemHolder.setPhotoUrl("n/a");
         return itemHolder;
     }
 

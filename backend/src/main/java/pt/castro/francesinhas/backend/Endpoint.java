@@ -31,12 +31,10 @@ import static pt.castro.francesinhas.backend.OfyService.ofy;
 public class Endpoint {
 
     private List<ItemHolder> itemList = Collections.emptyList();
-    private boolean dirtyList = true;
 
     @ApiMethod(name = "listItems")
     public CollectionResponse<ItemHolder> listItems(@Nullable @Named("cursor") String cursorString,
                                                     @Nullable @Named("count") Integer count) {
-//        if (dirtyList) {
         Query<ItemHolder> query = ofy().load().type(ItemHolder.class);
         if (count != null) {
             query.limit(count);
@@ -62,9 +60,7 @@ public class Endpoint {
                 cursorString = cursor.toWebSafeString();
             }
         }
-        dirtyList = false;
         updateRanking();
-//        }
         ofy().clear();
         return CollectionResponse.<ItemHolder>builder().setItems(itemList).setNextPageToken
                 (cursorString).build();
@@ -78,7 +74,6 @@ public class Endpoint {
             return addItem(itemHolder);
         }
         ofy().save().entity(itemHolder).now();
-        dirtyList = true;
         return itemHolder;
     }
 
@@ -102,7 +97,6 @@ public class Endpoint {
         }
         previousItemHolder.increaseRanking();
         ofy().save().entity(previousItemHolder).now();
-        dirtyList = true;
         return previousItemHolder;
     }
 
@@ -115,7 +109,6 @@ public class Endpoint {
         }
         previousItemHolder.decreaseRanking();
         ofy().save().entity(previousItemHolder).now();
-        dirtyList = true;
         return previousItemHolder;
     }
 
@@ -133,7 +126,6 @@ public class Endpoint {
             throw new ConflictException("Item already exists");
         }
         ofy().save().entity(itemHolder).now();
-        dirtyList = true;
         return itemHolder;
     }
 
@@ -163,7 +155,8 @@ public class Endpoint {
     }
 
     @ApiMethod(name = "addUserVote")
-    public UserHolder addUserVote(@Named("userId") String userId, @Named("itemId") String itemId, @Named("vote") int vote) {
+    public UserHolder addUserVote(@Named("userId") String userId, @Named("itemId") String itemId,
+                                  @Named("vote") int vote) {
         ItemHolder itemHolder;
         UserHolder userHolder;
         if ((userHolder = findUser(userId)) == null) {

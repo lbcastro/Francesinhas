@@ -2,6 +2,7 @@ package pt.castro.francesinhas.backend;
 
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 
 /**
  * Object used to hold all data associated with a single item.
@@ -19,6 +20,7 @@ public class ItemHolder {
     private int votesDown;
     private int priceRange;
 
+    @Index
     private String location;
     private String address;
     private String phone;

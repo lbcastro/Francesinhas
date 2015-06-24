@@ -81,11 +81,12 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
         holder.imageView.setImageDrawable(null);
-        if (itemHolder.getPhotoUrl() != null) {
+        if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
             final ImageLoader imageLoader = ImageLoader.getInstance();
             final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
             imageLoader.cancelDisplayTask(aware);
-            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils.getDisplayImageOptions());
+            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
+                    .getDisplayImageOptions());
         }
         holder.rankingTextView.setText(Integer.toString(items.indexOf(visibleItems.get(position))
                 + 1));
