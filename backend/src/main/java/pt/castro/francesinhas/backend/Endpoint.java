@@ -164,12 +164,54 @@ public class Endpoint {
         } else if ((itemHolder = findItem(itemId)) == null) {
             throw new NullPointerException("Item not found");
         } else {
-            ofy().save().entity(userHolder.addVote(itemId, vote)).now();
-            if (vote == -1) {
-                decreaseScore(itemHolder);
-            } else if (vote == 1) {
-                increaseScore(itemHolder);
+
+            int previousVote = userHolder.getVotes().get(itemId) == null ? 0 :
+                    userHolder.getVote(itemId);
+            switch (vote) {
+                case -1:
+                    if (previousVote == 1) {
+                        itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
+                    } else if (previousVote == -1) {
+                        itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
+                        break;
+                    }
+                    itemHolder.setVotesDown(itemHolder.getVotesDown() + 1);
+                    break;
+                case 1:
+                    if (previousVote == -1) {
+                        itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
+                    } else if (previousVote == 1) {
+                        itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
+                        break;
+                    }
+                    itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
+                    break;
             }
+            if (vote == previousVote) {
+                vote = 0;
+            }
+
+//            if (vote == -1) {
+//                if (previousVote == vote) {
+//                    itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
+//                } else {
+//                    if (previousVote == 1) {
+//                        itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
+//                    }
+//                    itemHolder.setVotesDown(itemHolder.getVotesDown() + 1);
+//                }
+//            } else if (vote == 1) {
+//                if (previousVote == vote) {
+//                    itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
+//                } else {
+//                    if (previousVote == -1) {
+//                        itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
+//                    }
+//                    itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
+//                }
+//            }
+            ofy().save().entity(itemHolder).now();
+            ofy().save().entity(userHolder.addVote(itemId, vote)).now();
             return userHolder;
         }
     }

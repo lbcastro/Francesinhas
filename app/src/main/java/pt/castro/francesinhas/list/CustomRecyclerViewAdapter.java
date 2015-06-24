@@ -168,10 +168,6 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
                         postClick();
                         break;
                     }
-                    // This prevents multiple votes on the same item.
-                    if (votesUp.isSelected()) {
-                        break;
-                    }
                     clicking = true;
                     postVote(getAdapterPosition(), 1);
                     notifyDataSetChanged();
@@ -179,10 +175,6 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
                 case R.id.votes_down:
                     if (!votingEnabled) {
                         postClick();
-                        break;
-                    }
-                    // This prevents multiple votes on the same item.
-                    if (votesDown.isSelected()) {
                         break;
                     }
                     clicking = true;
@@ -195,17 +187,35 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             }
         }
 
+        // FIXME: This manipulation should not occur inside the adapter
         private void postVote(int position, int vote) {
             final LocalItemHolder localItemHolder = visibleItems.get(position);
             final ItemHolder itemHolder = localItemHolder.getItemHolder();
-            localItemHolder.setUserVote(vote);
+            // TODO: Review this interaction, it might be too fragile
             switch (vote) {
                 case -1:
+                    if (localItemHolder.getUserVote() == 1) {
+                        itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
+                    } else if (localItemHolder.getUserVote() == -1) {
+                        itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
+                        break;
+                    }
                     itemHolder.setVotesDown(itemHolder.getVotesDown() + 1);
                     break;
                 case 1:
+                    if (localItemHolder.getUserVote() == -1) {
+                        itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
+                    } else if (localItemHolder.getUserVote() == 1) {
+                        itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
+                        break;
+                    }
                     itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
                     break;
+            }
+            if (vote == localItemHolder.getUserVote()) {
+                localItemHolder.setUserVote(0);
+            } else {
+                localItemHolder.setUserVote(vote);
             }
             final UserClickEvent userClickEvent = new UserClickEvent(localItemHolder);
             userClickEvent.setUserVote(vote);

@@ -45,8 +45,18 @@ public class ItemHolder {
         return votesUp;
     }
 
+    public void setVotesUp(int votesUp) {
+        this.votesUp = votesUp;
+        this.votesUp = Math.max(this.votesUp, 0);
+    }
+
     public int getVotesDown() {
         return votesDown;
+    }
+
+    public void setVotesDown(int votesDown) {
+        this.votesDown = votesDown;
+        this.votesDown = Math.max(this.votesDown, 0);
     }
 
     public String getName() {

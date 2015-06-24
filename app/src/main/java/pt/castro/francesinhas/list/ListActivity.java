@@ -32,7 +32,6 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
 import icepick.Icepick;
@@ -92,18 +91,13 @@ public class ListActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(config.build());
     }
 
-    private static String addExtraParams(String base, Param... extraParams) {
-        for (Param param : extraParams) {
-            base += "&" + param.name + (param.value != null ? "=" + param.value : "");
+    private static int getVote(UserHolder userHolder, String itemId) {
+        JsonMap map = userHolder.getVotes();
+        if (map == null || map.get(itemId) == null) {
+            return 0;
         }
-        return base;
-    }
-
-    private static String buildUrl(String method, String params, Param... extraParams) {
-        String url = String.format(Locale.ENGLISH, "%s%s/json?%s", "https://maps.googleapis.com/maps/api/place/", method, params);
-        url = addExtraParams(url, extraParams);
-        url = url.replace(' ', '+');
-        return url;
+        final BigDecimal vote = (BigDecimal) map.get(itemId);
+        return vote != null ? vote.intValueExact() : 0;
     }
 
     @Override
@@ -216,20 +210,10 @@ public class ListActivity extends AppCompatActivity {
     public void onEvent(final ListRetrievedEvent listRetrievedEvent) {
         final List<LocalItemHolder> localItemHolders = new ArrayList<>();
 
-        // Creates a blank map in case the user has no votes.
-        JsonMap map = null;
-        if (mCurrentUser != null) {
-            map = mCurrentUser.getVotes();
-        }
-        if (map == null) {
-            map = new JsonMap();
-        }
-
         // Iterates all retrieved items and adds votes when applied.
         for (ItemHolder itemHolder : listRetrievedEvent.list) {
             final LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
-            final BigDecimal vote = (BigDecimal) map.get(itemHolder.getId());
-            int voteInt = vote != null ? vote.intValueExact() : 0;
+            int voteInt = getVote(mCurrentUser, itemHolder.getId());
             localItemHolder.setUserVote(voteInt);
             if (itemHolder.getPhotoUrl() == null) {
                 final GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
@@ -244,16 +228,16 @@ public class ListActivity extends AppCompatActivity {
 
     @EventBusHook
     public void onEvent(final UserClickEvent userClickEvent) {
-        final ItemHolder itemHolder = userClickEvent.getLocalItemHolder().getItemHolder();
-        if (itemHolder != null) {
-            if (userClickEvent.getUserVote() != 0 && mCurrentUser != null) {
-                new EndpointUserVote(mCurrentUser.getId(), itemHolder.getId()).execute
-                        (userClickEvent.getUserVote());
-            } else {
-                showDetailsFragment(userClickEvent.getLocalItemHolder());
-            }
-        } else {
+        if (userClickEvent.getLocalItemHolder() == null || userClickEvent.getLocalItemHolder().getItemHolder() == null) {
             NotificationTools.toastLoggedVote(this);
+            return;
+        }
+        if (userClickEvent.getUserVote() != 0 && mCurrentUser != null) {
+            final ItemHolder itemHolder = userClickEvent.getLocalItemHolder().getItemHolder();
+            new EndpointUserVote(mCurrentUser.getId(), itemHolder.getId()).execute
+                    (userClickEvent.getUserVote());
+        } else {
+            showDetailsFragment(userClickEvent.getLocalItemHolder());
         }
     }
 
@@ -317,7 +301,6 @@ public class ListActivity extends AppCompatActivity {
         Log.d("ActivityResult", "Request code: " + requestCode + "\tResult code: " + resultCode);
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
             final Place place = PlacePicker.getPlace(data, this);
-
             if (!place.getPlaceTypes().contains(Place.TYPE_RESTAURANT) && !place.getPlaceTypes()
                     .contains(Place.TYPE_CAFE) && !place.getPlaceTypes().contains(Place
                     .TYPE_FOOD)) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="row_color">@color/blue_light</color>
-    <color name="fab_color">@color/orange_best</color>
+    <color name="fab_color">@color/blue_light</color>
 
     <color name="blue">#1559A5</color>
     <color name="blue_dark">#0A4484</color>
