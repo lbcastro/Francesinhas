@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-                                    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                                    android:layout_width="fill_parent"
-                                    android:layout_height="@dimen/row_main_height"
-                                    android:layout_marginLeft="@dimen/margin_xsmall"
-                                    android:layout_marginRight="@dimen/margin_xsmall"
-                                    android:layout_marginTop="@dimen/margin_xsmall"
-                                    android:descendantFocusability="blocksDescendants"
-                                    card_view:cardCornerRadius="@dimen/margin_xsmall">
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="@dimen/row_main_height"
+    android:layout_marginLeft="@dimen/margin_xsmall"
+    android:layout_marginRight="@dimen/margin_xsmall"
+    android:layout_marginTop="@dimen/margin_xsmall"
+    android:descendantFocusability="blocksDescendants"
+    card_view:cardCornerRadius="@dimen/margin_xsmall">
 
     <RelativeLayout
         android:id="@+id/card_view"
@@ -20,53 +20,54 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/blue_light"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop" />
 
         <View
             android:id="@+id/custom_row_clickable"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginEnd="65dp"
-            android:layout_marginRight="65dp"
             android:background="@drawable/selector"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true" />
 
         <TextView
             android:id="@+id/custom_row_ranking"
             style="@style/Text.Header.1"
-            android:layout_width="@dimen/ranking_size"
-            android:layout_height="@dimen/ranking_size"
-            android:layout_centerVertical="true"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
             android:layout_gravity="center"
-            android:layout_marginEnd="@dimen/margin_small"
-            android:layout_marginStart="@dimen/margin_small"
-            android:alpha="0.3"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/circle"
+            android:elevation="2dp"
+            android:fontFamily="sans-serif-light"
             android:gravity="center"
-            android:textSize="@dimen/text_size_l"
-            android:textStyle="bold"/>
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/custom_row_name"
             style="@style/Text.Header.1"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/margin_xlarge"
-            android:layout_marginStart="@dimen/margin_xlarge"
-            android:paddingBottom="24dp"/>
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="32dp"
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/custom_row_location"
             style="@style/Text.Header.2"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/margin_xlarge"
-            android:layout_marginStart="@dimen/margin_xlarge"
-            android:paddingTop="24dp"/>
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="16dp"
+            android:gravity="center" />
 
         <include
             layout="@layout/button_bar"
             android:layout_width="@dimen/button_size"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:visibility="invisible" />
     </RelativeLayout>
 </android.support.v7.widget.CardView>

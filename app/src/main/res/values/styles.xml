@@ -4,16 +4,11 @@
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blue_dark</item>
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-        <item name="android:actionBarStyle">@style/ActionBar</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="actionBarStyle">@style/ActionBar</item>
-        <item name="windowActionBarOverlay">true</item>
-        <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowBackground">@color/blue</item>
-    </style>
 
-    <style name="ActionBar" parent="Widget.AppCompat.ActionBar.Solid">
         <item name="android:windowActionBarOverlay">true</item>
+
+
+        <item name="android:windowBackground">@color/blue</item>
     </style>
 
     <style name="Animation.Dialog" parent="@android:style/Animation.Activity">
@@ -43,6 +38,11 @@
     <style name="Text.Header.3" parent="Text.Default">
         <item name="android:textSize">@dimen/text_size_m</item>
         <item name="android:textColor">@android:color/black</item>
-        <item name="android:layout_margin">16dp</item>
+    </style>
+
+    <style name="Text.Header.4" parent="Text.Default">
+        <item name="android:textColor">@color/dark_gray</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginTop">16dp</item>
     </style>
 </resources>

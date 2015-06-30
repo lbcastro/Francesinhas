@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    style="@style/Base.Widget.AppCompat.ButtonBar"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Base.Widget.AppCompat.ButtonBar"
     android:animateLayoutChanges="true"
     android:orientation="vertical">
 
@@ -9,7 +9,7 @@
         android:id="@+id/votes_up"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="1dp"
+        android:layout_marginBottom="0dp"
         android:layout_weight="1"
         android:background="@drawable/selector"
         android:clickable="true"

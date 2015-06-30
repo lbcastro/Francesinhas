@@ -45,6 +45,7 @@ import pt.castro.francesinhas.communication.EndpointsAsyncTask;
 import pt.castro.francesinhas.communication.GetPlacePhotos;
 import pt.castro.francesinhas.communication.UserEndpointActions;
 import pt.castro.francesinhas.communication.login.LoginActivity;
+import pt.castro.francesinhas.details.DetailsActivity;
 import pt.castro.francesinhas.details.DetailsFragment;
 import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.ListRefreshEvent;
@@ -105,9 +106,9 @@ public class ListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_list);
         initImageLoader(getApplicationContext());
-        mListFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+        mListFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_list);
         new EndpointGetItems().execute();
         getUserData();
     }
@@ -250,15 +251,28 @@ public class ListActivity extends AppCompatActivity {
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        final DetailsFragment fragment = DetailsFragment.newInstance();
-        fragment.setItemName(itemHolder.getName());
-        fragment.setItemAddress(itemHolder.getAddress());
-        fragment.setItemPhone(itemHolder.getPhone());
-        fragment.setItemUrl(itemHolder.getUrl());
-        fragment.setVotesUp(Integer.toString(itemHolder.getVotesUp()));
-        fragment.setVotesDown(Integer.toString(itemHolder.getVotesDown()));
-        fragment.setBackgroundUrl(itemHolder.getPhotoUrl());
-        fragment.show(ft, DetailsFragment.class.getName());
+
+        Intent intent = new Intent(getApplicationContext(), DetailsActivity.class);
+        intent.putExtra(DetailsFragment.ITEM_NAME, itemHolder.getName());
+        intent.putExtra(DetailsFragment.ITEM_ADDRESS, itemHolder.getAddress());
+        intent.putExtra(DetailsFragment.ITEM_PHONE, itemHolder.getPhone());
+        intent.putExtra(DetailsFragment.ITEM_URL, itemHolder.getUrl());
+        intent.putExtra(DetailsFragment.ITEM_VOTES_UP, Integer.toString(itemHolder.getVotesUp()));
+        intent.putExtra(DetailsFragment.ITEM_VOTES_DOWN, Integer.toString(itemHolder.getVotesDown()));
+        intent.putExtra(DetailsFragment.ITEM_BACKGROUND_URL, itemHolder.getPhotoUrl());
+        intent.putExtra(DetailsFragment.ITEM_LATITUDE, itemHolder.getLatitude());
+        intent.putExtra(DetailsFragment.ITEM_LONGITUDE, itemHolder.getLongitude());
+        startActivity(intent);
+
+//        final DetailsFragment fragment = DetailsFragment.newInstance();
+//        fragment.setItemName(itemHolder.getName());
+//        fragment.setItemAddress(itemHolder.getAddress());
+//        fragment.setItemPhone(itemHolder.getPhone());
+//        fragment.setItemUrl(itemHolder.getUrl());
+//        fragment.setVotesUp(Integer.toString(itemHolder.getVotesUp()));
+//        fragment.setVotesDown(Integer.toString(itemHolder.getVotesDown()));
+//        fragment.setBackgroundUrl(itemHolder.getPhotoUrl());
+//        fragment.show(ft, DetailsFragment.class.getName());
     }
 
     @EventBusHook

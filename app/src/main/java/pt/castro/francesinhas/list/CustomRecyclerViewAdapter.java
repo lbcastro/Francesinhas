@@ -61,6 +61,8 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             if (localItemHolder.getItemHolder().getName().toLowerCase().contains(query
                     .toLowerCase())) {
                 visibleItems.add(localItemHolder);
+            } else if (localItemHolder.getItemHolder().getLocation().toLowerCase().contains(query.toLowerCase())) {
+                visibleItems.add(localItemHolder);
             }
         }
         notifyDataSetChanged();
@@ -80,7 +82,6 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
-        holder.imageView.setImageDrawable(null);
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
             final ImageLoader imageLoader = ImageLoader.getInstance();
             final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
@@ -91,9 +92,10 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         holder.rankingTextView.setText(Integer.toString(items.indexOf(visibleItems.get(position))
                 + 1));
         holder.titleTextView.setText(itemHolder.getName());
+        // Integer.toString(items.indexOf(visibleItems.get(position)) + 1) + ". " +
         holder.subtitleTextView.setText(itemHolder.getLocation());
-        holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
-        holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
+//        holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
+//        holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
         switch (visibleItems.get(position).getUserVote()) {
             case -1:
                 holder.setVoteDownSelected();

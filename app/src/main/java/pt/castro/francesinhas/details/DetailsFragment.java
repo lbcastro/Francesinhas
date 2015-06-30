@@ -1,16 +1,14 @@
 package pt.castro.francesinhas.details;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,16 +26,18 @@ import pt.castro.francesinhas.tools.PhotoUtils;
 /**
  * Created by lourenco.castro on 13-06-2015.
  */
-public class DetailsFragment extends DialogFragment {
+public class DetailsFragment extends Fragment {
 
-    private static final String ITEM_NAME = "name";
-    private static final String ITEM_ADDRESS = "address";
-    private static final String ITEM_PHONE = "phone";
-    private static final String ITEM_URL = "url";
-    private static final String ITEM_VOTES_UP = "votes_up";
-    private static final String ITEM_VOTES_DOWN = "votesDown";
-    private static final String ITEM_BACKGROUND_URL = "background_url";
-
+    public static final String ITEM_NAME = "name";
+    public static final String ITEM_ADDRESS = "address";
+    public static final String ITEM_PHONE = "phone";
+    public static final String ITEM_URL = "url";
+    public static final String ITEM_VOTES_UP = "votes_up";
+    public static final String ITEM_VOTES_DOWN = "votesDown";
+    public static final String ITEM_BACKGROUND_URL = "background_url";
+    public static final String ITEM_LATITUDE = "latitude";
+    public static final String ITEM_LONGITUDE = "longitude";
+    private final String TAG = getClass().getName();
     @InjectView(R.id.name)
     TextView nameTextView;
     @InjectView(R.id.address)
@@ -46,11 +46,11 @@ public class DetailsFragment extends DialogFragment {
     TextView phoneTextView;
     @InjectView(R.id.url)
     TextView urlTextView;
-    @InjectView(R.id.votes_up)
-    TextView votesUpTextView;
-    @InjectView(R.id.votes_down)
-    TextView votesDownTextView;
-    @InjectView(R.id.details_image)
+    //    @InjectView(R.id.votes_up)
+//    TextView votesUpTextView;
+//    @InjectView(R.id.votes_down)
+//    TextView votesDownTextView;
+    @InjectView(R.id.backdrop)
     ImageView imageView;
 
     private String backgroundUrl;
@@ -59,29 +59,29 @@ public class DetailsFragment extends DialogFragment {
         return new DetailsFragment();
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        dialog.getWindow().getAttributes().windowAnimations = R.style.Animation_Dialog;
-        return dialog;
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_details,
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_details2,
                 container, false);
         ButterKnife.inject(this, view);
+//        final Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         if (getArguments() != null) {
             setTextOrHide(nameTextView, getArguments().getString(ITEM_NAME));
             setTextOrHide(addressTextView, getArguments().getString(ITEM_ADDRESS));
             setTextOrHide(phoneTextView, getArguments().getString(ITEM_PHONE));
             setTextOrHide(urlTextView, getArguments().getString(ITEM_URL));
-            setTextOrHide(votesUpTextView, getArguments().getString(ITEM_VOTES_UP));
-            setTextOrHide(votesDownTextView, getArguments().getString(ITEM_VOTES_DOWN));
+//            setTextOrHide(votesUpTextView, getArguments().getString(ITEM_VOTES_UP));
+//            setTextOrHide(votesDownTextView, getArguments().getString(ITEM_VOTES_DOWN));
         }
 
         if (backgroundUrl != null) {
@@ -106,8 +106,6 @@ public class DetailsFragment extends DialogFragment {
                 startActivity(intent);
             }
         });
-
-        return view;
     }
 
     private void setTextOrHide(final TextView textView, final String text) {
@@ -125,7 +123,7 @@ public class DetailsFragment extends DialogFragment {
 
     private void setTextOrSave(final TextView textView, final String text, final String key) {
         try {
-            textView.setText(text);
+            setTextOrHide(textView, text);
         } catch (NullPointerException e) {
             Bundle bundle = this.getArguments();
             if (bundle == null) {
@@ -137,6 +135,7 @@ public class DetailsFragment extends DialogFragment {
     }
 
     public void setItemName(final String name) {
+        Log.d(TAG, "setItemName: setting name");
         setTextOrSave(nameTextView, name, ITEM_NAME);
     }
 
@@ -158,11 +157,11 @@ public class DetailsFragment extends DialogFragment {
     }
 
     public void setVotesUp(final String votesUp) {
-        setTextOrSave(votesUpTextView, votesUp, ITEM_VOTES_UP);
+//        setTextOrSave(votesUpTextView, votesUp, ITEM_VOTES_UP);
     }
 
     public void setVotesDown(final String votesDown) {
-        setTextOrSave(votesDownTextView, votesDown, ITEM_VOTES_DOWN);
+//        setTextOrSave(votesDownTextView, votesDown, ITEM_VOTES_DOWN);
     }
 
     public void setBackgroundUrl(final String backgroundUrl) {

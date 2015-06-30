@@ -30,6 +30,8 @@ public class PlaceUtils {
         itemHolder.setPhone(place.getPhoneNumber().toString());
         itemHolder.setPriceRange(place.getPriceLevel());
         itemHolder.setLocation(getCityName(context, place));
+        itemHolder.setLatitude(place.getLatLng().latitude);
+        itemHolder.setLongitude(place.getLatLng().longitude);
         if (place.getWebsiteUri() != null) {
             itemHolder.setUrl(place.getWebsiteUri().toString());
         } else {
