@@ -4,8 +4,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -222,6 +220,10 @@ public class ListActivity extends AppCompatActivity {
                 getPlacePhotos.getAllPhotos();
             }
             localItemHolders.add(localItemHolder);
+            if (itemHolder.getLatitude() == null || itemHolder.getLongitude() == null) {
+                GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
+                getPlacePhotos.getLocation();
+            }
         }
 
         // Passes the generated list to the adapter.
@@ -245,14 +247,7 @@ public class ListActivity extends AppCompatActivity {
 
     private void showDetailsFragment(final LocalItemHolder localItemHolder) {
         final ItemHolder itemHolder = localItemHolder.getItemHolder();
-        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        final Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
-
-        Intent intent = new Intent(getApplicationContext(), DetailsActivity.class);
+        final Intent intent = new Intent(getApplicationContext(), DetailsActivity.class);
         intent.putExtra(DetailsFragment.ITEM_NAME, itemHolder.getName());
         intent.putExtra(DetailsFragment.ITEM_ADDRESS, itemHolder.getAddress());
         intent.putExtra(DetailsFragment.ITEM_PHONE, itemHolder.getPhone());
@@ -263,16 +258,6 @@ public class ListActivity extends AppCompatActivity {
         intent.putExtra(DetailsFragment.ITEM_LATITUDE, itemHolder.getLatitude());
         intent.putExtra(DetailsFragment.ITEM_LONGITUDE, itemHolder.getLongitude());
         startActivity(intent);
-
-//        final DetailsFragment fragment = DetailsFragment.newInstance();
-//        fragment.setItemName(itemHolder.getName());
-//        fragment.setItemAddress(itemHolder.getAddress());
-//        fragment.setItemPhone(itemHolder.getPhone());
-//        fragment.setItemUrl(itemHolder.getUrl());
-//        fragment.setVotesUp(Integer.toString(itemHolder.getVotesUp()));
-//        fragment.setVotesDown(Integer.toString(itemHolder.getVotesDown()));
-//        fragment.setBackgroundUrl(itemHolder.getPhotoUrl());
-//        fragment.show(ft, DetailsFragment.class.getName());
     }
 
     @EventBusHook

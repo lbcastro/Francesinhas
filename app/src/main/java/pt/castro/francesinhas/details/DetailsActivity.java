@@ -17,6 +17,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import dmax.staticmap.Callback;
 import dmax.staticmap.Config;
+import dmax.staticmap.Marker;
 import dmax.staticmap.StaticMap;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.tools.PhotoUtils;
@@ -78,10 +79,19 @@ public class DetailsActivity extends AppCompatActivity {
             ImageLoader.getInstance().displayImage(backgroundUrl, imageView, PhotoUtils.getDisplayImageOptions());
         }
 
+        final Double latitude = data.getDouble(DetailsFragment.ITEM_LATITUDE);
+        final Double longitude = data.getDouble(DetailsFragment.ITEM_LONGITUDE);
+
         Config config = new Config();
-        config.setImageSize(300, 400)
+        config.setImageSize(300, 500)
                 .setZoom(16)
-                .setCenter(data.getFloat(DetailsFragment.ITEM_LATITUDE), data.getFloat(DetailsFragment.ITEM_LONGITUDE));
+                .setScale(2)
+                .setCenter(latitude.floatValue(), longitude.floatValue());
+
+        final Marker marker = config.addMarker();
+        marker.setLocation(latitude.floatValue(), longitude.floatValue());
+        marker.setSize(Marker.Size.mid);
+
         Callback callback = new Callback() {
             public void onFailed(int errorCode, String errorMessage) {
                 Log.e(TAG, "onFailed: loading image - " + errorMessage + " - " + errorCode);
@@ -93,13 +103,5 @@ public class DetailsActivity extends AppCompatActivity {
             }
         };
         StaticMap.requestMapImage(this, config, callback);
-
-//        mDetailsFragment.setItemName(data.getString(DetailsFragment.ITEM_NAME));
-//        mDetailsFragment.setItemAddress(data.getString(DetailsFragment.ITEM_ADDRESS));
-//        mDetailsFragment.setItemPhone(data.getString(DetailsFragment.ITEM_PHONE));
-//        mDetailsFragment.setItemUrl(data.getString(DetailsFragment.ITEM_URL));
-//        mDetailsFragment.setVotesUp(data.getString(DetailsFragment.ITEM_VOTES_UP));
-//        mDetailsFragment.setVotesDown(data.getString(DetailsFragment.ITEM_VOTES_DOWN));
-//        mDetailsFragment.setBackgroundUrl(data.getString(DetailsFragment.ITEM_BACKGROUND_URL));
     }
 }

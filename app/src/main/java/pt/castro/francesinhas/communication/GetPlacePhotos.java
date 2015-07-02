@@ -34,10 +34,14 @@ import pt.castro.francesinhas.list.PhotoReference;
  */
 public class GetPlacePhotos extends AsyncTask<String, Void, String> {
 
-    private static final String METHOD_DETAILS = "details";
-    private static final String BROWSER_KEY = "AIzaSyDSQ408Gts6XQxTEaec8b38sCIMSQWuoc4";
-    private static final String PLACES_API_URL = "https://maps.googleapis.com/maps/api/place/";
+    private final static int MODE_LOCATION = 0;
+    private final static int MODE_PHOTOS = 1;
 
+    private final static String METHOD_DETAILS = "details";
+    private final static String BROWSER_KEY = "AIzaSyDSQ408Gts6XQxTEaec8b38sCIMSQWuoc4";
+    private final static String PLACES_API_URL = "https://maps.googleapis.com/maps/api/place/";
+
+    private int activeMode;
     private LocalItemHolder localItemHolder;
 
     public GetPlacePhotos(final LocalItemHolder localItemHolder) {
@@ -56,6 +60,13 @@ public class GetPlacePhotos extends AsyncTask<String, Void, String> {
 
     public void getAllPhotos() {
         final String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s", localItemHolder.getItemHolder().getId(), BROWSER_KEY));
+        this.activeMode = MODE_PHOTOS;
+        this.execute(uri);
+    }
+
+    public void getLocation() {
+        final String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s", localItemHolder.getItemHolder().getId(), BROWSER_KEY));
+        this.activeMode = MODE_LOCATION;
         this.execute(uri);
     }
 
@@ -87,38 +98,60 @@ public class GetPlacePhotos extends AsyncTask<String, Void, String> {
             Log.d("Photos", "Result was null");
             return;
         }
+
         try {
             final JSONObject object = new JSONObject(string);
-            JSONObject result = object.getJSONObject("result");
-            JSONArray jsonPhotos = result.optJSONArray("photos");
-            List<PhotoReference> photos = new ArrayList<>();
-            if (jsonPhotos != null) {
-                final int photosSize = Math.min(jsonPhotos.length(), 10);
-                for (int i = 0; i < photosSize; i++) {
-                    JSONObject jsonPhoto = jsonPhotos.getJSONObject(i);
-                    String photoReference = jsonPhoto.getString("photo_reference");
-                    int width = jsonPhoto.getInt("width"), height = jsonPhoto.getInt("height");
-                    photos.add(new PhotoReference(photoReference, width, height));
-                }
-                PhotoReference reference = null;
-                for (int x = 0; x < photosSize; x++) {
-                    if ((reference != null && photos.get(x).getWidth() > reference.getWidth()) || reference == null) {
-                        reference = photos.get(x);
-                    }
-                }
-                // TODO: Make this value dynamic, adjusting to the current device resolution
-                if (reference == null || reference.getWidth() < 720) {
-                    return;
-                }
-                final ItemHolder itemHolder = localItemHolder.getItemHolder();
-                itemHolder.setPhotoUrl(buildPhotoUrl(String.format("maxwidth=%s&photoreference=%s&key=%s", reference.getWidth(), reference.getReference(), BROWSER_KEY)));
-                new EndpointsAsyncTask(EndpointsAsyncTask.UPDATE).execute(itemHolder);
-            } else {
-                Log.d("Photos", "No photos found");
+            final JSONObject result = object.getJSONObject("result");
+
+            switch (activeMode) {
+                case MODE_PHOTOS:
+                    processPhotos(result.optJSONArray("photos"));
+                    break;
+                case MODE_LOCATION:
+                    processLocation(result.getJSONObject("geometry").getJSONObject("location"));
+                    break;
             }
-            EventBus.getDefault().post(new PhotoUpdateEvent(localItemHolder));
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+    }
+
+    private void processPhotos(final JSONArray jsonPhotos) throws JSONException {
+        List<PhotoReference> photos = new ArrayList<>();
+        if (jsonPhotos != null) {
+            final int photosSize = Math.min(jsonPhotos.length(), 10);
+            for (int i = 0; i < photosSize; i++) {
+                JSONObject jsonPhoto = jsonPhotos.getJSONObject(i);
+                String photoReference = jsonPhoto.getString("photo_reference");
+                int width = jsonPhoto.getInt("width"), height = jsonPhoto.getInt("height");
+                photos.add(new PhotoReference(photoReference, width, height));
+            }
+            PhotoReference reference = null;
+            for (int x = 0; x < photosSize; x++) {
+                if ((reference != null && photos.get(x).getWidth() > reference.getWidth()) || reference == null) {
+                    reference = photos.get(x);
+                }
+            }
+            // TODO: Make this value dynamic, adjusting to the current device resolution
+            if (reference == null || reference.getWidth() < 720) {
+                return;
+            }
+            final ItemHolder itemHolder = localItemHolder.getItemHolder();
+            itemHolder.setPhotoUrl(buildPhotoUrl(String.format("maxwidth=%s&photoreference=%s&key=%s", reference.getWidth(), reference.getReference(), BROWSER_KEY)));
+            new EndpointsAsyncTask(EndpointsAsyncTask.UPDATE).execute(itemHolder);
+        } else {
+            Log.d("Photos", "No photos found");
+        }
+        EventBus.getDefault().post(new PhotoUpdateEvent(localItemHolder));
+    }
+
+    private void processLocation(final JSONObject jsonLocation) throws JSONException {
+        final double latitude = jsonLocation.getDouble("lat");
+        final double longitude = jsonLocation.getDouble("lng");
+        localItemHolder.getItemHolder().setLatitude(latitude);
+        localItemHolder.getItemHolder().setLongitude(longitude);
+        EndpointsAsyncTask a = new EndpointsAsyncTask(EndpointsAsyncTask.UPDATE);
+        a.execute(localItemHolder.getItemHolder());
     }
 }

@@ -77,8 +77,6 @@
             android:layout_gravity="top"
             android:orientation="vertical"
             android:paddingBottom="16dp"
-            android:paddingLeft="48dp"
-            android:paddingRight="48dp"
             android:paddingTop="24dp">
 
             <TextView
@@ -87,12 +85,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="64dp"
                 android:maxLines="2"
+                android:paddingLeft="48dp"
+                android:paddingRight="48dp"
                 android:visibility="gone" />
 
             <TextView
                 style="@style/Text.Header.4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="48dp"
+                android:paddingRight="48dp"
                 android:text="Address" />
 
             <TextView
@@ -100,12 +102,16 @@
                 style="@style/Text.Header.3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="5" />
+                android:maxLines="5"
+                android:paddingLeft="48dp"
+                android:paddingRight="48dp" />
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="156dp"
                 android:layout_marginBottom="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
                 android:layout_marginTop="16dp"
                 card_view:cardCornerRadius="@dimen/margin_small">
 
@@ -120,18 +126,24 @@
                 style="@style/Text.Header.4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="48dp"
+                android:paddingRight="48dp"
                 android:text="Phone" />
 
             <TextView
                 android:id="@+id/phone"
                 style="@style/Text.Header.3"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:paddingLeft="48dp"
+                android:paddingRight="48dp" />
 
             <TextView
                 style="@style/Text.Header.4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="48dp"
+                android:paddingRight="48dp"
                 android:text="Website" />
 
             <TextView
@@ -140,7 +152,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:autoLink="web"
-                android:maxLines="2" />
+                android:maxLines="2"
+                android:paddingLeft="48dp"
+                android:paddingRight="48dp" />
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
