@@ -1,10 +1,15 @@
 package pt.castro.francesinhas.list;
 
+import android.animation.ObjectAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -16,6 +21,7 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
@@ -80,7 +86,14 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     }
 
     @Override
+    public void onViewRecycled(ViewHolder holder) {
+        super.onViewRecycled(holder);
+
+    }
+
+    @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+        holder.cancelAnimations();
         final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
             final ImageLoader imageLoader = ImageLoader.getInstance();
@@ -88,14 +101,20 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             imageLoader.cancelDisplayTask(aware);
             imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
                     .getDisplayImageOptions());
+        } else {
+            holder.imageView.setImageDrawable(null);
+            holder.imageView.setBackgroundColor(holder.imageView.getContext().getResources().getColor(R.color.blue_light, null));
         }
-        holder.rankingTextView.setText(Integer.toString(items.indexOf(visibleItems.get(position))
-                + 1));
+        final String text = Integer.toString(items.indexOf(visibleItems.get(position)) + 1);
+        holder.rankingTextView.setText(text);
         holder.titleTextView.setText(itemHolder.getName());
-        // Integer.toString(items.indexOf(visibleItems.get(position)) + 1) + ". " +
         holder.subtitleTextView.setText(itemHolder.getLocation());
-//        holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
-//        holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
+        holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
+        holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
+        holder.votesParent.setVisibility(View.GONE);
+//        holder.votesParent.setTranslationX(holder.votesParent.getContext().getResources().getDimension(R.dimen.button_size));
+        holder.textParent.setTranslationX(0);
+        holder.translated = true;
         switch (visibleItems.get(position).getUserVote()) {
             case -1:
                 holder.setVoteDownSelected();
@@ -118,7 +137,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         }
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         @InjectView(R.id.custom_row_ranking)
         TextView rankingTextView;
         @InjectView(R.id.custom_row_name)
@@ -133,15 +152,21 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         TextView votesUp;
         @InjectView(R.id.votes_down)
         TextView votesDown;
-        private boolean clicking;
+        @InjectView(R.id.votes_parent)
+        LinearLayout votesParent;
+        @InjectView(R.id.text_parent)
+        RelativeLayout textParent;
+
+        private boolean voting;
+        private boolean translated;
+
+        private ObjectAnimator votesAnimator;
+        private TranslateAnimation textAnimator;
 
         public ViewHolder(View itemView) {
             super(itemView);
             EventBus.getDefault().register(this);
             ButterKnife.inject(this, itemView);
-            clickable.setOnClickListener(this);
-            votesUp.setOnClickListener(this);
-            votesDown.setOnClickListener(this);
         }
 
         private void setVoteUpSelected() {
@@ -159,34 +184,48 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             votesDown.setSelected(false);
         }
 
-        @Override
-        public void onClick(View v) {
-            if (clicking) {
-                return;
+        private void clickVote(int vote) {
+            if (!voting) {
+                if (!votingEnabled) {
+                    postClick();
+                } else {
+                    voting = true;
+                    setSelected(vote);
+                    postVote(getAdapterPosition(), vote);
+                }
             }
-            switch (v.getId()) {
-                case R.id.votes_up:
-                    if (!votingEnabled) {
-                        postClick();
-                        break;
-                    }
-                    clicking = true;
-                    postVote(getAdapterPosition(), 1);
-                    notifyDataSetChanged();
+        }
+
+        private void setSelected(int vote) {
+            switch (vote) {
+                case 1:
+                    votesUp.setSelected(!votesUp.isSelected());
+                    votesDown.setSelected(false);
                     break;
-                case R.id.votes_down:
-                    if (!votingEnabled) {
-                        postClick();
-                        break;
-                    }
-                    clicking = true;
-                    postVote(getAdapterPosition(), -1);
-                    notifyDataSetChanged();
+                case -1:
+                    votesUp.setSelected(false);
+                    votesDown.setSelected(!votesDown.isSelected());
                     break;
-                case R.id.custom_row_clickable:
-                    postClick(getAdapterPosition());
+                default:
+                    votesUp.setSelected(false);
+                    votesDown.setSelected(false);
                     break;
             }
+        }
+
+        @OnClick(R.id.votes_up)
+        void onClickVotesUp() {
+            clickVote(1);
+        }
+
+        @OnClick(R.id.votes_down)
+        void onClickVotesDown() {
+            clickVote(-1);
+        }
+
+        @OnClick(R.id.custom_row_clickable)
+        void onClickRow() {
+            translate();
         }
 
         // FIXME: This manipulation should not occur inside the adapter
@@ -194,34 +233,76 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             final LocalItemHolder localItemHolder = visibleItems.get(position);
             final ItemHolder itemHolder = localItemHolder.getItemHolder();
             // TODO: Review this interaction, it might be too fragile
+
+            int votesUp = itemHolder.getVotesUp();
+            int votesDown = itemHolder.getVotesDown();
+
             switch (vote) {
                 case -1:
                     if (localItemHolder.getUserVote() == 1) {
-                        itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
+                        votesUp--;
                     } else if (localItemHolder.getUserVote() == -1) {
-                        itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
+                        votesDown--;
                         break;
                     }
-                    itemHolder.setVotesDown(itemHolder.getVotesDown() + 1);
+                    votesDown++;
                     break;
                 case 1:
-                    if (localItemHolder.getUserVote() == -1) {
-                        itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
-                    } else if (localItemHolder.getUserVote() == 1) {
-                        itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
+                    if (localItemHolder.getUserVote() == 1) {
+                        votesUp--;
                         break;
+                    } else if (localItemHolder.getUserVote() == -1) {
+                        votesDown--;
                     }
-                    itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
+                    votesUp++;
                     break;
             }
+            itemHolder.setVotesUp(votesUp);
+            itemHolder.setVotesDown(votesDown);
+
+            this.votesUp.setText(Integer.toString(votesUp));
+            this.votesDown.setText(Integer.toString(votesDown));
+
             if (vote == localItemHolder.getUserVote()) {
                 localItemHolder.setUserVote(0);
             } else {
                 localItemHolder.setUserVote(vote);
             }
+
             final UserClickEvent userClickEvent = new UserClickEvent(localItemHolder);
             userClickEvent.setUserVote(vote);
             EventBus.getDefault().post(userClickEvent);
+        }
+
+        public void cancelAnimations() {
+            if (votesAnimator != null) {
+                votesAnimator.cancel();
+            }
+            if (textAnimator != null) {
+                textAnimator.cancel();
+            }
+        }
+
+        private void translate() {
+            float end = votesParent.getContext().getResources().getDimension(R.dimen.button_size);
+            final float start = translated ? 0 : -end;
+            end = translated ? -end : end;
+
+//            votesAnimator = ObjectAnimator.ofFloat(votesParent, "translationX", translated ? -end : 0, translated ? start : end);
+//            votesAnimator.setDuration(500);
+//            votesAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+//            votesAnimator.start();
+
+            votesParent.setVisibility(translated ? View.VISIBLE : View.GONE);
+
+            textAnimator = new TranslateAnimation(start, translated ? end : 0, textParent.getTranslationY(), textParent.getTranslationY());
+            textAnimator.setDuration(500);
+            textAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+            textAnimator.setFillAfter(true);
+//            textParent.startAnimation(textAnimator);
+            imageView.startAnimation(textAnimator);
+
+            translated = !translated;
         }
 
         private void postClick(int position) {
@@ -235,7 +316,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
 
         @EventBusHook
         public void onEvent(ScoreChangeEvent scoreChangeEvent) {
-            clicking = false;
+            voting = false;
         }
     }
 }

@@ -20,6 +20,7 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.events.ListRefreshEvent;
@@ -50,17 +51,12 @@ public class ListFragment extends Fragment {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING || newState == RecyclerView.SCROLL_STATE_SETTLING) {
                     ImageLoader.getInstance().pause();
                 } else {
                     ImageLoader.getInstance().resume();
                 }
-            }
-        });
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EventBus.getDefault().post(new PlacePickerEvent());
             }
         });
         final AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
@@ -71,6 +67,11 @@ public class ListFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
         return fragmentView;
+    }
+
+    @OnClick(R.id.floating_action_button)
+    void onClickFloatingActionButton() {
+        EventBus.getDefault().post(new PlacePickerEvent());
     }
 
     public void setItems(final List<LocalItemHolder> items) {

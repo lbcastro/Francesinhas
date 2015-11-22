@@ -37,6 +37,10 @@ public class DetailsFragment extends Fragment {
     public static final String ITEM_BACKGROUND_URL = "background_url";
     public static final String ITEM_LATITUDE = "latitude";
     public static final String ITEM_LONGITUDE = "longitude";
+    public static final String ITEM_ID = "item_id";
+    public static final String USER_ID = "user_id";
+    public static final String USER_VOTE = "user_vote";
+
     private final String TAG = getClass().getName();
     @InjectView(R.id.name)
     TextView nameTextView;

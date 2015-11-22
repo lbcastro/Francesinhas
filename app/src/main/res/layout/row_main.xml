@@ -13,13 +13,52 @@
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:background="@color/dark_gray">
+
+        <LinearLayout
+            android:id="@+id/votes_parent"
+            style="@style/Base.Widget.AppCompat.ButtonBar"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:animateLayoutChanges="true"
+            android:background="@drawable/black_gradient"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/votes_up"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:textColor="@color/green_bright"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/votes_down"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:textColor="@color/red_faded"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/custom_row_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/blue_light"
+            android:contentDescription="@null"
             android:scaleType="centerCrop" />
 
         <View
@@ -30,44 +69,40 @@
             android:clickable="true"
             android:focusable="true" />
 
-        <TextView
-            android:id="@+id/custom_row_ranking"
-            style="@style/Text.Header.1"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/circle"
-            android:elevation="2dp"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center"
-            android:textColor="#ffffff"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/custom_row_name"
-            style="@style/Text.Header.1"
+        <RelativeLayout
+            android:id="@+id/text_parent"
             android:layout_width="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="32dp"
-            android:gravity="center" />
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/custom_row_location"
-            style="@style/Text.Header.2"
-            android:layout_width="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="16dp"
-            android:gravity="center" />
+            <TextView
+                android:id="@+id/custom_row_ranking"
+                style="@style/Text.Header.1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:textColor="#64000000"
+                android:textSize="130sp" />
 
-        <include
-            layout="@layout/button_bar"
-            android:layout_width="@dimen/button_size"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:visibility="invisible" />
+            <TextView
+                android:id="@+id/custom_row_name"
+                style="@style/Text.Header.1"
+                android:layout_width="match_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="32dp"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/custom_row_location"
+                style="@style/Text.Header.2"
+                android:layout_width="match_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="16dp"
+                android:gravity="center" />
+        </RelativeLayout>
+
     </RelativeLayout>
 </android.support.v7.widget.CardView>

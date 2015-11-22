@@ -17,7 +17,7 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -71,16 +71,16 @@ public class ListActivity extends AppCompatActivity {
 
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
-                .cacheOnDisc(true)
+                .cacheOnDisk(true)
                 .build();
 
         final File cacheDir = StorageUtils.getCacheDirectory(context);
         ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
         config.threadPriority(Thread.NORM_PRIORITY - 2);
         config.denyCacheImageMultipleSizesInMemory();
-        config.discCache(new UnlimitedDiscCache(cacheDir));
-        config.discCacheFileNameGenerator(new Md5FileNameGenerator());
-        config.discCacheSize(50 * 1024 * 1024);
+        config.diskCache(new UnlimitedDiskCache(cacheDir));
+        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
+        config.diskCacheSize(50 * 1024 * 1024);
         config.memoryCache(new LruMemoryCache(2 * 1024 * 1024));
         config.memoryCacheSize(2 * 1024 * 1024);
         config.defaultDisplayImageOptions(defaultOptions);
@@ -92,6 +92,9 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private static int getVote(UserHolder userHolder, String itemId) {
+        if (userHolder == null) {
+            return 0;
+        }
         JsonMap map = userHolder.getVotes();
         if (map == null || map.get(itemId) == null) {
             return 0;
@@ -212,9 +215,10 @@ public class ListActivity extends AppCompatActivity {
 
         // Iterates all retrieved items and adds votes when applied.
         for (ItemHolder itemHolder : listRetrievedEvent.list) {
-            final LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
+            LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
             int voteInt = getVote(mCurrentUser, itemHolder.getId());
             localItemHolder.setUserVote(voteInt);
+            localItemHolder.setChilds();
             if (itemHolder.getPhotoUrl() == null || itemHolder.getPhotoUrl().equals("n/a")) {
                 final GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
                 getPlacePhotos.getAllPhotos();
@@ -252,11 +256,14 @@ public class ListActivity extends AppCompatActivity {
         intent.putExtra(DetailsFragment.ITEM_ADDRESS, itemHolder.getAddress());
         intent.putExtra(DetailsFragment.ITEM_PHONE, itemHolder.getPhone());
         intent.putExtra(DetailsFragment.ITEM_URL, itemHolder.getUrl());
-        intent.putExtra(DetailsFragment.ITEM_VOTES_UP, Integer.toString(itemHolder.getVotesUp()));
-        intent.putExtra(DetailsFragment.ITEM_VOTES_DOWN, Integer.toString(itemHolder.getVotesDown()));
+        intent.putExtra(DetailsFragment.ITEM_VOTES_UP, itemHolder.getVotesUp());
+        intent.putExtra(DetailsFragment.ITEM_VOTES_DOWN, itemHolder.getVotesDown());
         intent.putExtra(DetailsFragment.ITEM_BACKGROUND_URL, itemHolder.getPhotoUrl());
         intent.putExtra(DetailsFragment.ITEM_LATITUDE, itemHolder.getLatitude());
         intent.putExtra(DetailsFragment.ITEM_LONGITUDE, itemHolder.getLongitude());
+        intent.putExtra(DetailsFragment.ITEM_ID, itemHolder.getId());
+        intent.putExtra(DetailsFragment.USER_ID, mCurrentUser != null ? mCurrentUser.getId() : "");
+        intent.putExtra(DetailsFragment.USER_VOTE, localItemHolder.getUserVote());
         startActivity(intent);
     }
 

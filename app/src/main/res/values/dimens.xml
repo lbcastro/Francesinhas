@@ -10,7 +10,7 @@
 
     <dimen name="icon_size">32dp</dimen>
     <dimen name="ranking_size">48dp</dimen>
-    <dimen name="button_size">64dp</dimen>
+    <dimen name="button_size">72dp</dimen>
 
     <dimen name="text_size_s">15sp</dimen>
     <dimen name="text_size_m">18sp</dimen>

@@ -19,7 +19,6 @@ public class EndpointGetItems extends AsyncTask<Void, Void, List<ItemHolder>> {
         try {
             return EndpointApiHolder.getInstance().listItems().execute().getItems();
         } catch (IOException e) {
-            e.printStackTrace();
             return null;
         }
     }
