@@ -110,7 +110,7 @@ public class LoginActivity extends Activity {
                 rootView.setVisibility(View.GONE);
                 Log.d("LoginManager", "Success");
                 startList();
-                NotificationTools.toastCustomText(LoginActivity.this, "Logged in as " + Profile.getCurrentProfile().getName());
+//                NotificationTools.toastCustomText(LoginActivity.this, "Logged in as " + Profile.getCurrentProfile().getName());
             }
 
             @Override

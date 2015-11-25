@@ -69,7 +69,7 @@ public class ListActivity extends AppCompatActivity {
             return;
         }
 
-        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+        final DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .build();
@@ -110,7 +110,7 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
         initImageLoader(getApplicationContext());
         mListFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_list);
-        new EndpointGetItems().execute();
+//        new EndpointGetItems().execute();
         getUserData();
     }
 
@@ -121,6 +121,7 @@ public class ListActivity extends AppCompatActivity {
                     .getCurrentAccessToken().getUserId());
         } else {
             mListFragment.setVoting(false);
+            new EndpointGetItems().execute();
         }
     }
 
@@ -182,6 +183,8 @@ public class ListActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_logout) {
             logOut();
             startLoginActivity();
+        } else if (item.getItemId() == R.id.action_refresh) {
+            new EndpointGetItems().execute();
         }
         return super.onOptionsItemSelected(item);
     }

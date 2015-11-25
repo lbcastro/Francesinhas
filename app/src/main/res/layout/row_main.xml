@@ -3,9 +3,9 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="@dimen/row_main_height"
-    android:layout_marginLeft="@dimen/margin_xsmall"
-    android:layout_marginRight="@dimen/margin_xsmall"
-    android:layout_marginTop="@dimen/margin_xsmall"
+    android:layout_marginLeft="@dimen/margin_small"
+    android:layout_marginRight="@dimen/margin_small"
+    android:layout_marginTop="@dimen/margin_small"
     android:descendantFocusability="blocksDescendants"
     card_view:cardCornerRadius="@dimen/margin_xsmall">
 
@@ -27,73 +27,67 @@
             android:background="@drawable/black_gradient"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/votes_up"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginBottom="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/selector"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:textColor="@color/green_bright"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/votes_down"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/selector"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:textColor="@color/red_faded"
-                android:textStyle="bold" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/custom_row_image"
+        <FrameLayout
+            android:id="@+id/clickable_parent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/blue_light"
-            android:contentDescription="@null"
-            android:scaleType="centerCrop" />
+            android:layout_height="match_parent">
 
-        <View
-            android:id="@+id/custom_row_clickable"
-            android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/custom_row_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/blue_light"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop" />
+
+            <View
+                android:id="@+id/custom_row_clickable"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/selector"
+                android:clickable="true"
+                android:focusable="true" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/custom_row_ranking"
+            style="@style/Text.Header.1"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@drawable/selector"
-            android:clickable="true"
-            android:focusable="true" />
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:paddingBottom="@dimen/row_bottom_bar_height"
+            android:text="3"
+            android:textColor="#ffffff"
+            android:textSize="64sp" />
 
         <RelativeLayout
             android:id="@+id/text_parent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/custom_row_ranking"
-                style="@style/Text.Header.1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="center"
-                android:fontFamily="sans-serif-light"
-                android:gravity="center"
-                android:textColor="#64000000"
-                android:textSize="130sp" />
+            android:layout_height="@dimen/row_bottom_bar_height"
+            android:layout_alignParentBottom="true"
+            android:background="#ffffff"
+            android:paddingLeft="16dp"
+            android:paddingStart="16dp">
 
             <TextView
                 android:id="@+id/custom_row_name"
                 style="@style/Text.Header.1"
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="32dp"
-                android:gravity="center" />
+                android:layout_centerVertical="true"
+                android:fontFamily="sans-serif-light"
+                android:gravity="start|center_vertical"
+                android:text="Name"
+                android:textColor="#606060" />
 
             <TextView
                 android:id="@+id/custom_row_location"
@@ -101,7 +95,42 @@
                 android:layout_width="match_parent"
                 android:layout_alignParentBottom="true"
                 android:layout_marginBottom="16dp"
-                android:gravity="center" />
+                android:gravity="center"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/votes_down"
+                style="@style/Text.Header.2"
+                android:layout_width="@dimen/ranking_size"
+                android:layout_height="@dimen/ranking_size"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="12dp"
+                android:layout_marginRight="12dp"
+                android:background="@drawable/selector_circle_red"
+                android:gravity="center"
+                android:maxEms="3"
+                android:text="35"
+                android:textColor="@color/red_faded"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/votes_up"
+                style="@style/Text.Header.2"
+                android:layout_width="@dimen/ranking_size"
+                android:layout_height="@dimen/ranking_size"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="64dp"
+                android:layout_marginRight="64dp"
+                android:background="@drawable/selector_circle_green"
+                android:gravity="center"
+                android:maxEms="3"
+                android:text="11"
+                android:textColor="@color/green_bright"
+                android:textStyle="bold" />
         </RelativeLayout>
 
     </RelativeLayout>

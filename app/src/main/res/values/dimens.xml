@@ -5,11 +5,12 @@
     <dimen name="margin_small">8dp</dimen>
     <dimen name="margin_xsmall">4dp</dimen>
 
-    <dimen name="row_main_height">112dp</dimen>
+    <dimen name="row_bottom_bar_height">56dp</dimen>
+    <dimen name="row_main_height">186dp</dimen>
     <dimen name="row_details_height">72dp</dimen>
 
     <dimen name="icon_size">32dp</dimen>
-    <dimen name="ranking_size">48dp</dimen>
+    <dimen name="ranking_size">40dp</dimen>
     <dimen name="button_size">72dp</dimen>
 
     <dimen name="text_size_s">15sp</dimen>

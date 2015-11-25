@@ -5,10 +5,10 @@
 
     <color name="blue">#2c527c</color>
     <color name="blue_dark">#304774</color>
-    <color name="black_transparent">#32000000</color>
+    <color name="black_transparent">#1e000000</color>
     <color name="blue_light">#5889C0</color>
     <color name="dark_gray">#6b6464</color>
-    <color name="background">#F5F5F5</color>
+    <color name="background">#e1e1e1</color>
     <color name="orange_best">#FD9E0D</color>
     <color name="red_transparent">#32FF5252</color>
 

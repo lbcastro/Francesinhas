@@ -1,15 +1,15 @@
 package pt.castro.francesinhas.list;
 
+import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.TranslateAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -29,6 +29,7 @@ import pt.castro.francesinhas.events.EventBusHook;
 import pt.castro.francesinhas.events.PhotoUpdateEvent;
 import pt.castro.francesinhas.events.ScoreChangeEvent;
 import pt.castro.francesinhas.events.UserClickEvent;
+import pt.castro.francesinhas.list.decoration.CustomParallaxViewController;
 import pt.castro.francesinhas.tools.PhotoUtils;
 
 /**
@@ -37,6 +38,8 @@ import pt.castro.francesinhas.tools.PhotoUtils;
 public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewAdapter
         .ViewHolder> {
 
+    CustomParallaxViewController parallaxViewController;
+
     private List<LocalItemHolder> items;
     private List<LocalItemHolder> visibleItems;
     private boolean votingEnabled;
@@ -44,6 +47,13 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     public CustomRecyclerViewAdapter() {
         EventBus.getDefault().register(this);
         items = Collections.emptyList();
+        parallaxViewController = new CustomParallaxViewController();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        parallaxViewController.registerImageParallax(recyclerView);
     }
 
     public void onEvent(final PhotoUpdateEvent photoUpdateEvent) {
@@ -82,7 +92,9 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_main,
                 parent, false);
-        return new ViewHolder(row);
+        ViewHolder viewHolder = new ViewHolder(row);
+        parallaxViewController.imageParallax(viewHolder.imageView);
+        return viewHolder;
     }
 
     @Override
@@ -103,7 +115,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
                     .getDisplayImageOptions());
         } else {
             holder.imageView.setImageDrawable(null);
-            holder.imageView.setBackgroundColor(holder.imageView.getContext().getResources().getColor(R.color.blue_light, null));
+            holder.imageView.setBackgroundColor(holder.imageView.getContext().getResources().getColor(R.color.blue_light));
         }
         final String text = Integer.toString(items.indexOf(visibleItems.get(position)) + 1);
         holder.rankingTextView.setText(text);
@@ -112,8 +124,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
         holder.votesParent.setVisibility(View.GONE);
-//        holder.votesParent.setTranslationX(holder.votesParent.getContext().getResources().getDimension(R.dimen.button_size));
-        holder.textParent.setTranslationX(0);
+        holder.clickableParent.setTranslationX(0);
         holder.translated = true;
         switch (visibleItems.get(position).getUserVote()) {
             case -1:
@@ -154,14 +165,13 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         TextView votesDown;
         @InjectView(R.id.votes_parent)
         LinearLayout votesParent;
-        @InjectView(R.id.text_parent)
-        RelativeLayout textParent;
+        @InjectView(R.id.clickable_parent)
+        FrameLayout clickableParent;
 
         private boolean voting;
         private boolean translated;
 
-        private ObjectAnimator votesAnimator;
-        private TranslateAnimation textAnimator;
+        private ObjectAnimator textAnimator;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -275,9 +285,6 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         }
 
         public void cancelAnimations() {
-            if (votesAnimator != null) {
-                votesAnimator.cancel();
-            }
             if (textAnimator != null) {
                 textAnimator.cancel();
             }
@@ -286,22 +293,37 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         private void translate() {
             float end = votesParent.getContext().getResources().getDimension(R.dimen.button_size);
             final float start = translated ? 0 : -end;
-            end = translated ? -end : end;
 
-//            votesAnimator = ObjectAnimator.ofFloat(votesParent, "translationX", translated ? -end : 0, translated ? start : end);
-//            votesAnimator.setDuration(500);
-//            votesAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-//            votesAnimator.start();
-
-            votesParent.setVisibility(translated ? View.VISIBLE : View.GONE);
-
-            textAnimator = new TranslateAnimation(start, translated ? end : 0, textParent.getTranslationY(), textParent.getTranslationY());
+            textAnimator = ObjectAnimator.ofFloat(clickableParent, "translationX", start, translated ? -end : 0);
             textAnimator.setDuration(500);
             textAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-            textAnimator.setFillAfter(true);
-//            textParent.startAnimation(textAnimator);
-            imageView.startAnimation(textAnimator);
 
+            if (translated) {
+                votesParent.setVisibility(View.VISIBLE);
+            } else {
+                textAnimator.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        votesParent.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+            }
+            textAnimator.start();
             translated = !translated;
         }
 
