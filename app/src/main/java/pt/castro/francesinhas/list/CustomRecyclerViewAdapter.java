@@ -235,7 +235,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
 
         @OnClick(R.id.custom_row_clickable)
         void onClickRow() {
-            translate();
+            postClick(getAdapterPosition());
         }
 
         // FIXME: This manipulation should not occur inside the adapter

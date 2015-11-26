@@ -63,8 +63,8 @@ public class ListFragment extends Fragment {
         appCompatActivity.setSupportActionBar((Toolbar) fragmentView.findViewById(R.id.toolbar));
         final ActionBar actionBar = appCompatActivity.getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+            actionBar.setDisplayHomeAsUpEnabled(false);
+//            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
         return fragmentView;
     }

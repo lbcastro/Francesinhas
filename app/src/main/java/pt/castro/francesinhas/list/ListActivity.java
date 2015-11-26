@@ -85,7 +85,6 @@ public class ListActivity extends AppCompatActivity {
         config.memoryCacheSize(2 * 1024 * 1024);
         config.defaultDisplayImageOptions(defaultOptions);
         config.tasksProcessingOrder(QueueProcessingType.FIFO);
-        config.writeDebugLogs(); // Remove for release app
 
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config.build());
@@ -110,8 +109,8 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
         initImageLoader(getApplicationContext());
         mListFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_list);
-//        new EndpointGetItems().execute();
         getUserData();
+        Log.d("List", "CREATE");
     }
 
     private void getUserData() {
@@ -209,6 +208,7 @@ public class ListActivity extends AppCompatActivity {
             mCurrentUser = userDataEvent.getUserHolder();
             mListFragment.setVoting(true);
             new EndpointGetItems().execute();
+            Log.d("List", "UserDataEvent");
         }
     }
 

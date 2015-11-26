@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class CustomParallaxViewController extends ParallaxViewController {
     protected List<ImageView> imageViewList = new ArrayList<>();
-    int PARALLAX_SPEED = 100;
+    int PARALLAX_SPEED = 30;
     float actionBarHeight;
     View firstVisibleView = null;
     float recyclerviewCenterY = -1;

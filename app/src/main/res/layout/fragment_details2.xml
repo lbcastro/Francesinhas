@@ -20,7 +20,7 @@
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="#ffffff"
     android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
@@ -51,7 +51,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#32000000"
+                android:background="@color/black_transparent"
                 android:fitsSystemWindows="true" />
 
             <android.support.v7.widget.Toolbar
@@ -92,7 +92,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/vote_up"
@@ -134,6 +135,7 @@
                 style="@style/Text.Header.3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:maxLines="5"
                 android:paddingLeft="48dp"
                 android:paddingRight="48dp" />
@@ -167,6 +169,7 @@
                 style="@style/Text.Header.3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:paddingLeft="48dp"
                 android:paddingRight="48dp" />
 

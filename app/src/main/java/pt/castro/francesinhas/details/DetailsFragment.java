@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +13,11 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Locale;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.tools.PhotoUtils;
 
@@ -50,10 +48,7 @@ public class DetailsFragment extends Fragment {
     TextView phoneTextView;
     @InjectView(R.id.url)
     TextView urlTextView;
-    //    @InjectView(R.id.votes_up)
-//    TextView votesUpTextView;
-//    @InjectView(R.id.votes_down)
-//    TextView votesDownTextView;
+
     @InjectView(R.id.backdrop)
     ImageView imageView;
 
@@ -70,9 +65,6 @@ public class DetailsFragment extends Fragment {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_details2,
                 container, false);
         ButterKnife.inject(this, view);
-//        final Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         return view;
     }
 
@@ -84,32 +76,25 @@ public class DetailsFragment extends Fragment {
             setTextOrHide(addressTextView, getArguments().getString(ITEM_ADDRESS));
             setTextOrHide(phoneTextView, getArguments().getString(ITEM_PHONE));
             setTextOrHide(urlTextView, getArguments().getString(ITEM_URL));
-//            setTextOrHide(votesUpTextView, getArguments().getString(ITEM_VOTES_UP));
-//            setTextOrHide(votesDownTextView, getArguments().getString(ITEM_VOTES_DOWN));
         }
 
         if (backgroundUrl != null) {
             ImageLoader.getInstance().displayImage(backgroundUrl, imageView, PhotoUtils.getDisplayImageOptions());
         }
+    }
 
-        addressTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String uri = String.format(Locale.ENGLISH, "geo:0,0?q=" + addressTextView.getText
-                        () + "(" + nameTextView.getText() + ")");
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                getActivity().startActivity(intent);
-            }
-        });
+    @OnClick(R.id.phone)
+    public void onClickPhoneText() {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phoneTextView.getText()));
+        startActivity(intent);
+    }
 
-        phoneTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:" + phoneTextView.getText()));
-                startActivity(intent);
-            }
-        });
+    @OnClick(R.id.address)
+    public void onClickAddressText() {
+        String uri = String.format(Locale.ENGLISH, "geo:0,0?q=" + addressTextView.getText() + "(" + nameTextView.getText() + ")");
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        startActivity(intent);
     }
 
     private void setTextOrHide(final TextView textView, final String text) {
@@ -136,39 +121,5 @@ public class DetailsFragment extends Fragment {
             bundle.putString(key, text);
             setArguments(bundle);
         }
-    }
-
-    public void setItemName(final String name) {
-        Log.d(TAG, "setItemName: setting name");
-        setTextOrSave(nameTextView, name, ITEM_NAME);
-    }
-
-    public void setItemAddress(final String address) {
-        setTextOrSave(addressTextView, address, ITEM_ADDRESS);
-    }
-
-    public void setItemPhone(final String phone) {
-        setTextOrSave(phoneTextView, phone, ITEM_PHONE);
-    }
-
-    public void setItemUrl(final String url) {
-        try {
-            URI uri = new URI(url);
-            setTextOrSave(urlTextView, uri.getHost(), ITEM_URL);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setVotesUp(final String votesUp) {
-//        setTextOrSave(votesUpTextView, votesUp, ITEM_VOTES_UP);
-    }
-
-    public void setVotesDown(final String votesDown) {
-//        setTextOrSave(votesDownTextView, votesDown, ITEM_VOTES_DOWN);
-    }
-
-    public void setBackgroundUrl(final String backgroundUrl) {
-        this.backgroundUrl = backgroundUrl;
     }
 }
