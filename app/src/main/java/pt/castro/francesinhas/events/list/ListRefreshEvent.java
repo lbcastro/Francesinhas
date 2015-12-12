@@ -1,4 +1,4 @@
-package pt.castro.francesinhas.events;
+package pt.castro.francesinhas.events.list;
 
 /**
  * Created by lourenco.castro on 02-06-2015.

@@ -1,12 +1,13 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background"
-    tools:context=".MainActivityFragment">
+                                                 xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                 xmlns:tools="http://schemas.android.com/tools"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="match_parent"
+                                                 app:statusBarBackground="@android:color/transparent"
+                                                 tools:context=".list.ListActivity">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -14,30 +15,32 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:layout_scrollFlags="scroll|enterAlways" />
+            android:minHeight="0dp"
+            android:theme="@style/GalaxyZooThemeToolbarDarkOverflow"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/Theme.AppCompat.NoActionBar"/>
     </android.support.design.widget.AppBarLayout>
 
-    <com.malinskiy.superrecyclerview.SuperRecyclerView
+    <com.marshalchen.ultimaterecyclerview.UltimateRecyclerView
         android:id="@+id/fragment_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:scrollbars="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_empty="@layout/empty_list"
-        app:layout_moreProgress="@layout/view_more_progress"
-        app:recyclerClipToPadding="false"
-        app:recyclerPaddingBottom="4dp" />
+        app:recyclerviewEmptyView="@layout/empty_list"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floating_action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/margin_m"
         android:clickable="true"
         android:src="@drawable/ic_add_white_24dp"
         app:backgroundTint="@color/fab_color"
         app:layout_anchor="@id/fragment_recycler_view"
         app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_behavior="pt.castro.francesinhas.list.decoration.ScrollAwareFABBehavior"
-        app:layout_scrollFlags="scroll|enterAlways" />
+        app:layout_scrollFlags="scroll|enterAlways"/>
 </android.support.design.widget.CoordinatorLayout>

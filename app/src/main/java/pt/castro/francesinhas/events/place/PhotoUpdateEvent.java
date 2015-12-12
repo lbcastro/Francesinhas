@@ -1,4 +1,4 @@
-package pt.castro.francesinhas.events;
+package pt.castro.francesinhas.events.place;
 
 import pt.castro.francesinhas.list.LocalItemHolder;
 

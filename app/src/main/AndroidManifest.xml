@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="pt.castro.francesinhas">
+<manifest
+    package="pt.castro.francesinhas"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -37,9 +38,9 @@
         <activity
             android:name=".list.ListActivity"
             android:label="@string/app_name"
-            android:launchMode="singleInstance"
             android:noHistory="false"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -52,9 +53,9 @@
         <activity
             android:name=".details.DetailsActivity"
             android:label="Details"
-            android:launchMode="singleInstance"
             android:noHistory="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
 
         <activity
             android:name=".communication.login.LoginActivity"

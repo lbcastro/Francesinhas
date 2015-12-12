@@ -1,13 +1,14 @@
 package pt.castro.francesinhas.communication;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.IOException;
 
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
-import pt.castro.francesinhas.events.UserDataEvent;
+import pt.castro.francesinhas.events.connection.ConnectionFailedEvent;
+import pt.castro.francesinhas.events.user.NoUserEvent;
+import pt.castro.francesinhas.events.user.UserDataEvent;
 
 
 /**
@@ -31,13 +32,13 @@ public class UserEndpointActions extends AsyncTask<String, Void, UserHolder> {
                 try {
                     return EndpointApiHolder.getInstance().getUser(params[0]).execute();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    EventBus.getDefault().post(new ConnectionFailedEvent());
                 }
             case ADD_USER:
                 try {
                     return EndpointApiHolder.getInstance().addUser(params[0]).execute();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    EventBus.getDefault().post(new ConnectionFailedEvent());
                 }
         }
         return null;
@@ -46,11 +47,12 @@ public class UserEndpointActions extends AsyncTask<String, Void, UserHolder> {
     @Override
     protected void onPostExecute(UserHolder userHolder) {
         super.onPostExecute(userHolder);
-        if (userHolder != null) {
-            Log.d("UserHolder", userHolder.getId());
+        if (userHolder == null) {
+            if (mode == GET_USER) {
+                EventBus.getDefault().post(new NoUserEvent());
+            }
         } else {
-            Log.d("UserHolder", "NULL");
+            EventBus.getDefault().post(new UserDataEvent(userHolder));
         }
-        EventBus.getDefault().post(new UserDataEvent(userHolder));
     }
 }

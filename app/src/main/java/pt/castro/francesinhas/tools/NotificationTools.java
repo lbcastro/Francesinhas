@@ -3,6 +3,8 @@ package pt.castro.francesinhas.tools;
 import android.content.Context;
 import android.widget.Toast;
 
+import pt.castro.francesinhas.R;
+
 /**
  * Created by lourenco on 09/06/15.
  */
@@ -27,19 +29,20 @@ public class NotificationTools {
     }
 
     public static void toastLoggedVote(final Context context) {
-        showToast(context, "You need to be logged in to vote", Toast.LENGTH_SHORT);
+        showToast(context, context.getString(R.string.logged_in_to_vote), Toast
+                .LENGTH_SHORT);
     }
 
     public static void toastLoggedAdd(final Context context) {
-        showToast(context, "You need to be logged in to add a new place", Toast.LENGTH_LONG);
+        showToast(context, context.getString(R.string.logged_in_to_add), Toast.LENGTH_LONG);
     }
 
     public static void toastLoginFailed(final Context context) {
-        showToast(context, "Login failed\nPlease try again", Toast.LENGTH_LONG);
+        showToast(context, context.getString(R.string.log_in_failed), Toast.LENGTH_LONG);
     }
 
     public static void toastGoogleConnectionFailed(final Context context) {
-        showToast(context, "Connection to Google Play failed", Toast.LENGTH_LONG);
+        showToast(context, context.getString(R.string.google_play_failed), Toast.LENGTH_LONG);
     }
 
     public static void toastCustomText(final Context context, final String text) {

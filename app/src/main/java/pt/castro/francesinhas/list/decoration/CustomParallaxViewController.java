@@ -18,12 +18,12 @@ import java.util.List;
  */
 public class CustomParallaxViewController extends ParallaxViewController {
     protected List<ImageView> imageViewList = new ArrayList<>();
-    int PARALLAX_SPEED = 30;
+    int PARALLAX_SPEED = 10;
     float actionBarHeight;
-    View firstVisibleView = null;
     float recyclerviewCenterY = -1;
     Rect rect = new Rect();
     View currentImageView;
+    int height;
 
     public static float limit(float min, float value, float max) {
         return Math.max(Math.min(value, max), min);
@@ -34,13 +34,13 @@ public class CustomParallaxViewController extends ParallaxViewController {
         TypedValue tv = new TypedValue();
         Context context = recyclerView.getContext();
         if (context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, context.getResources().getDisplayMetrics());
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, context
+                    .getResources().getDisplayMetrics());
         }
     }
 
     public void imageParallax(ImageView imageView) {
-        if (!imageViewList.contains(imageView))
-            imageViewList.add(imageView);
+        if (!imageViewList.contains(imageView)) imageViewList.add(imageView);
     }
 
     @Override
@@ -51,16 +51,18 @@ public class CustomParallaxViewController extends ParallaxViewController {
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         if (recyclerView.getChildCount() > 0) {
-            if (firstVisibleView == null) firstVisibleView = recyclerView.getChildAt(0);
             if (recyclerviewCenterY == -1)
-                recyclerviewCenterY = recyclerView.getMeasuredHeight() / 2 + recyclerView.getTop();
+                recyclerviewCenterY = recyclerView.getMeasuredHeight() / 2 +
+                        recyclerView.getTop() - actionBarHeight;
 
             for (int i = 0, count = imageViewList.size(); i < count; ++i) {
                 currentImageView = imageViewList.get(i);
                 currentImageView.getGlobalVisibleRect(rect);
 
-                float yOffset = limit(-1, (recyclerviewCenterY - rect.top - actionBarHeight) / currentImageView.getHeight(), 1);
-                ViewHelper.setTranslationY(currentImageView, (-1f + yOffset) * PARALLAX_SPEED);
+                float yOffset = limit(-2, (recyclerviewCenterY - rect.top -
+                        actionBarHeight) / currentImageView.getHeight(), 2);
+                ViewHelper.setTranslationY(currentImageView, (0f + yOffset) *
+                        PARALLAX_SPEED);
             }
         }
     }

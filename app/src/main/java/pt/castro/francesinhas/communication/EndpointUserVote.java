@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
-import pt.castro.francesinhas.events.ScoreChangeEvent;
+import pt.castro.francesinhas.events.place.ScoreChangeEvent;
 
 /**
  * Created by lourenco on 08/06/15.

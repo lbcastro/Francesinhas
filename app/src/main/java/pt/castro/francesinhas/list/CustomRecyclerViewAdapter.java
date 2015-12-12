@@ -1,44 +1,43 @@
 package pt.castro.francesinhas.list;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.events.EventBusHook;
-import pt.castro.francesinhas.events.PhotoUpdateEvent;
-import pt.castro.francesinhas.events.ScoreChangeEvent;
-import pt.castro.francesinhas.events.UserClickEvent;
-import pt.castro.francesinhas.list.decoration.CustomParallaxViewController;
+import pt.castro.francesinhas.events.place.PhotoUpdateEvent;
+import pt.castro.francesinhas.events.place.ScoreChangeEvent;
+import pt.castro.francesinhas.events.user.UserClickEvent;
 import pt.castro.francesinhas.tools.PhotoUtils;
 
 /**
  * Created by lourenco.castro on 07/05/15.
  */
-public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecyclerViewAdapter
-        .ViewHolder> {
+public class CustomRecyclerViewAdapter extends RecyclerView
+        .Adapter<CustomRecyclerViewAdapter.ViewHolder> {
 
-    CustomParallaxViewController parallaxViewController;
+//    CustomParallaxViewController parallaxViewController;
 
     private List<LocalItemHolder> items;
     private List<LocalItemHolder> visibleItems;
@@ -47,13 +46,13 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     public CustomRecyclerViewAdapter() {
         EventBus.getDefault().register(this);
         items = Collections.emptyList();
-        parallaxViewController = new CustomParallaxViewController();
+//        parallaxViewController = new CustomParallaxViewController();
     }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        parallaxViewController.registerImageParallax(recyclerView);
+//        parallaxViewController.registerImageParallax(recyclerView);
     }
 
     public void onEvent(final PhotoUpdateEvent photoUpdateEvent) {
@@ -77,7 +76,8 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             if (localItemHolder.getItemHolder().getName().toLowerCase().contains(query
                     .toLowerCase())) {
                 visibleItems.add(localItemHolder);
-            } else if (localItemHolder.getItemHolder().getLocation().toLowerCase().contains(query.toLowerCase())) {
+            } else if (localItemHolder.getItemHolder().getLocation().toLowerCase()
+                    .contains(query.toLowerCase())) {
                 visibleItems.add(localItemHolder);
             }
         }
@@ -90,10 +90,10 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_main,
-                parent, false);
+        final View row = LayoutInflater.from(parent.getContext()).inflate(R.layout
+                .row_main, parent, false);
         ViewHolder viewHolder = new ViewHolder(row);
-        parallaxViewController.imageParallax(viewHolder.imageView);
+//        parallaxViewController.imageParallax(viewHolder.imageView);
         return viewHolder;
     }
 
@@ -111,20 +111,39 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             final ImageLoader imageLoader = ImageLoader.getInstance();
             final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
             imageLoader.cancelDisplayTask(aware);
-            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
-                    .getDisplayImageOptions());
+            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils.getDisplayImageOptions(), new ImageLoadingListener() {
+                @Override
+                public void onLoadingStarted(String imageUri, View view) {
+
+                }
+
+                @Override
+                public void onLoadingFailed(String imageUri, View view, FailReason
+                        failReason) {
+
+                }
+
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap
+                        loadedImage) {
+                }
+
+                @Override
+                public void onLoadingCancelled(String imageUri, View view) {
+
+                }
+            });
         } else {
             holder.imageView.setImageDrawable(null);
-            holder.imageView.setBackgroundColor(holder.imageView.getContext().getResources().getColor(R.color.blue_light));
+            holder.imageView.setBackgroundColor(holder.imageView.getContext()
+                    .getResources().getColor(R.color.blue_light));
         }
-        final String text = Integer.toString(items.indexOf(visibleItems.get(position)) + 1);
+        final String text = Integer.toString(items.indexOf(visibleItems.get(position))
+                + 1);
         holder.rankingTextView.setText(text);
         holder.titleTextView.setText(itemHolder.getName());
-        holder.subtitleTextView.setText(itemHolder.getLocation());
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
-        holder.votesParent.setVisibility(View.GONE);
-        holder.clickableParent.setTranslationX(0);
         holder.translated = true;
         switch (visibleItems.get(position).getUserVote()) {
             case -1:
@@ -149,24 +168,20 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        @InjectView(R.id.custom_row_ranking)
+        @Bind(R.id.custom_row_ranking)
         TextView rankingTextView;
-        @InjectView(R.id.custom_row_name)
+        @Bind(R.id.custom_row_name)
         TextView titleTextView;
-        @InjectView(R.id.custom_row_location)
-        TextView subtitleTextView;
-        @InjectView(R.id.custom_row_image)
+        @Bind(R.id.backdrop_image)
         ImageView imageView;
-        @InjectView(R.id.custom_row_clickable)
+        @Bind(R.id.backdrop_clickable)
         View clickable;
-        @InjectView(R.id.votes_up)
+        @Bind(R.id.votes_up)
         TextView votesUp;
-        @InjectView(R.id.votes_down)
+        @Bind(R.id.votes_down)
         TextView votesDown;
-        @InjectView(R.id.votes_parent)
-        LinearLayout votesParent;
-        @InjectView(R.id.clickable_parent)
-        FrameLayout clickableParent;
+        @Bind(R.id.clickable_parent)
+        RelativeLayout clickableParent;
 
         private boolean voting;
         private boolean translated;
@@ -176,7 +191,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
         public ViewHolder(View itemView) {
             super(itemView);
             EventBus.getDefault().register(this);
-            ButterKnife.inject(this, itemView);
+            ButterKnife.bind(this, itemView);
         }
 
         private void setVoteUpSelected() {
@@ -233,7 +248,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             clickVote(-1);
         }
 
-        @OnClick(R.id.custom_row_clickable)
+        @OnClick(R.id.backdrop_clickable)
         void onClickRow() {
             postClick(getAdapterPosition());
         }
@@ -281,6 +296,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
 
             final UserClickEvent userClickEvent = new UserClickEvent(localItemHolder);
             userClickEvent.setUserVote(vote);
+            userClickEvent.setView(titleTextView);
             EventBus.getDefault().post(userClickEvent);
         }
 
@@ -290,46 +306,11 @@ public class CustomRecyclerViewAdapter extends RecyclerView.Adapter<CustomRecycl
             }
         }
 
-        private void translate() {
-            float end = votesParent.getContext().getResources().getDimension(R.dimen.button_size);
-            final float start = translated ? 0 : -end;
-
-            textAnimator = ObjectAnimator.ofFloat(clickableParent, "translationX", start, translated ? -end : 0);
-            textAnimator.setDuration(500);
-            textAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-
-            if (translated) {
-                votesParent.setVisibility(View.VISIBLE);
-            } else {
-                textAnimator.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        votesParent.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
-            }
-            textAnimator.start();
-            translated = !translated;
-        }
-
         private void postClick(int position) {
             final LocalItemHolder localItemHolder = visibleItems.get(position);
-            EventBus.getDefault().post(new UserClickEvent(localItemHolder));
+            UserClickEvent userClickEvent = new UserClickEvent(localItemHolder);
+            userClickEvent.setView(itemView);
+            EventBus.getDefault().post(userClickEvent);
         }
 
         private void postClick() {

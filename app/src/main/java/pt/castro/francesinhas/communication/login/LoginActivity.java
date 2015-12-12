@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -23,7 +25,7 @@ import com.facebook.login.widget.LoginButton;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
+import java.util.Collections;
 
 import icepick.Icepick;
 import pt.castro.francesinhas.R;
@@ -63,10 +65,14 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         getKey();
         Icepick.restoreInstanceState(this, savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
         FacebookSdk.sdkInitialize(getApplicationContext());
         trackAccessToken();
         if (AccessToken.getCurrentAccessToken() != null || Profile.getCurrentProfile() != null) {
-            LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile"));
+            LoginManager.getInstance().logInWithReadPermissions(this, Collections
+                    .singletonList("public_profile"));
             startList();
         } else {
             Log.d("LoginActivity", "No login found");
@@ -92,8 +98,8 @@ public class LoginActivity extends Activity {
                     AccessToken currentAccessToken) {
                 Log.d("LoginActivity", "Token has changed");
                 if (currentAccessToken != null && !currentAccessToken.isExpired()) {
-                    LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this,
-                            Arrays.asList("public_profile"));
+                    LoginManager.getInstance().logInWithReadPermissions(LoginActivity
+                            .this, Collections.singletonList("public_profile"));
                     startList();
                 }
             }

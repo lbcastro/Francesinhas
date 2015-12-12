@@ -1,4 +1,4 @@
-package pt.castro.francesinhas.events;
+package pt.castro.francesinhas.events.user;
 
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 

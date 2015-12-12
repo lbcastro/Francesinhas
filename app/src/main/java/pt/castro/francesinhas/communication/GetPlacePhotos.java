@@ -23,7 +23,7 @@ import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
-import pt.castro.francesinhas.events.PhotoUpdateEvent;
+import pt.castro.francesinhas.events.place.PhotoUpdateEvent;
 import pt.castro.francesinhas.list.LocalItemHolder;
 import pt.castro.francesinhas.list.PhotoReference;
 
@@ -112,7 +112,7 @@ public class GetPlacePhotos extends AsyncTask<String, Void, String> {
                     break;
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
 
     }

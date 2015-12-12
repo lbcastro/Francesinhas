@@ -1,19 +1,23 @@
 <resources>
-    <dimen name="margin_xlarge">72dp</dimen>
-    <dimen name="margin_large">48dp</dimen>
+    <dimen name="margin_xxl">72dp</dimen>
+    <dimen name="margin_xl">56dp</dimen>
+    <dimen name="margin_l">32dp</dimen>
     <dimen name="margin_m">16dp</dimen>
-    <dimen name="margin_small">8dp</dimen>
-    <dimen name="margin_xsmall">4dp</dimen>
+    <dimen name="margin_s">8dp</dimen>
+    <dimen name="margin_xs">4dp</dimen>
 
-    <dimen name="row_bottom_bar_height">56dp</dimen>
-    <dimen name="row_main_height">186dp</dimen>
-    <dimen name="row_details_height">72dp</dimen>
+    <dimen name="row_bottom_bar_height">48dp</dimen>
+    <dimen name="row_main_height">160dp</dimen>
+    <dimen name="map_view_height">144dp</dimen>
 
     <dimen name="icon_size">32dp</dimen>
     <dimen name="ranking_size">40dp</dimen>
     <dimen name="button_size">72dp</dimen>
 
-    <dimen name="text_size_s">15sp</dimen>
-    <dimen name="text_size_m">18sp</dimen>
-    <dimen name="text_size_l">34sp</dimen>
+    <dimen name="text_size_s">14sp</dimen>
+    <dimen name="text_size_m">15sp</dimen>
+    <dimen name="text_size_l">32sp</dimen>
+    <dimen name="text_size_xl">62sp</dimen>
+
+    <dimen name="card_elevation">1dp</dimen>
 </resources>

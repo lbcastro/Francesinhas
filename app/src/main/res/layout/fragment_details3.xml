@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.github.ksoichiro.android.observablescrollview.ObservableScrollView
+    android:id="@+id/scrollView"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include layout="@layout/material_view_pager_placeholder"/>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/details_card_vote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_m"
+            android:background="@android:color/white"
+            app:cardElevation="4dp">
+
+            <RelativeLayout
+                android:id="@+id/text_parent"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:animateLayoutChanges="true"
+                android:background="@color/blue_darker"
+                android:paddingEnd="@dimen/margin_m"
+                android:paddingLeft="@dimen/margin_m"
+                android:paddingRight="@dimen/margin_m"
+                android:paddingStart="@dimen/margin_m"
+                android:transitionName="@string/transition_votes">
+
+                <TextView
+                    android:id="@+id/custom_row_name"
+                    style="@style/Text.Header.1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:fontFamily="sans-serif-light"
+                    android:gravity="start|center_vertical"
+                    android:textColor="@android:color/white"
+                    android:transitionName="@string/transition_text"/>
+
+                <TextView
+                    android:id="@+id/votes_down"
+                    style="@style/Text.Header.2"
+                    android:layout_width="@dimen/ranking_size"
+                    android:layout_height="@dimen/ranking_size"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/selector_circle_red"
+                    android:gravity="center"
+                    android:maxEms="3"
+                    android:textColor="@color/red_faded"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/votes_up"
+                    style="@style/Text.Header.2"
+                    android:layout_width="@dimen/ranking_size"
+                    android:layout_height="@dimen/ranking_size"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/margin_xl"
+                    android:layout_marginRight="@dimen/margin_xl"
+                    android:background="@drawable/selector_circle_green"
+                    android:gravity="center"
+                    android:maxEms="3"
+                    android:textColor="@color/green_bright"
+                    android:textStyle="bold"/>
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/details_card"
+            android:layout_width="match_parent"
+            android:layout_height="1000dp"
+            android:layout_margin="@dimen/margin_m"
+            android:background="@android:color/white"
+            android:translationY="300dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/details_address_label"
+                    style="@style/Text.Header.4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/ic_map_black_24dp"
+                    android:drawableStart="@drawable/ic_map_black_24dp"
+                    android:text="@string/details_address"/>
+
+                <TextView
+                    android:id="@+id/details_address_content"
+                    style="@style/Text.Header.3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:autoLink="map"
+                    android:maxLines="5"
+                    android:paddingLeft="@dimen/margin_xxl"
+                    android:paddingRight="@dimen/margin_xxl"/>
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/map_view_height"
+                    android:layout_marginBottom="@dimen/margin_s"
+                    android:layout_marginLeft="@dimen/margin_m"
+                    android:layout_marginRight="@dimen/margin_m"
+                    android:layout_marginTop="@dimen/margin_m"
+                    card_view:cardCornerRadius="@dimen/margin_small">
+
+                    <TextView
+                        style="@style/Text.Header.2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="@string/loading_map"
+                        android:textColor="@color/black_transparent"/>
+
+                    <ImageView
+                        android:id="@+id/map_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@null"
+                        android:scaleType="centerCrop"/>
+                </android.support.v7.widget.CardView>
+
+                <TextView
+                    android:id="@+id/details_phone_label"
+                    style="@style/Text.Header.4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/ic_local_phone_black_24dp"
+                    android:drawableStart="@drawable/ic_local_phone_black_24dp"
+                    android:text="@string/details_phone"/>
+
+                <TextView
+                    android:id="@+id/details_phone_content"
+                    style="@style/Text.Header.3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/margin_m"
+                    android:autoLink="phone"
+                    android:paddingLeft="@dimen/margin_xxl"
+                    android:paddingRight="@dimen/margin_xxl"/>
+
+                <TextView
+                    android:id="@+id/details_url_label"
+                    style="@style/Text.Header.4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/ic_public_black_24dp"
+                    android:drawableStart="@drawable/ic_public_black_24dp"
+                    android:text="@string/details_website"/>
+
+                <TextView
+                    android:id="@+id/details_url_content"
+                    style="@style/Text.Header.3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/margin_l"
+                    android:autoLink="web"
+                    android:ellipsize="end"
+                    android:includeFontPadding="true"
+                    android:paddingLeft="@dimen/margin_xxl"
+                    android:paddingRight="@dimen/margin_xxl"
+                    android:singleLine="true"/>
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+</com.github.ksoichiro.android.observablescrollview.ObservableScrollView>

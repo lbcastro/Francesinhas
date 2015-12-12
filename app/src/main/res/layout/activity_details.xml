@@ -1,7 +1,22 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_details"
-    android:name="pt.castro.francesinhas.details.DetailsFragment"
+<?xml version="1.0" encoding="utf-8"?>
+<com.github.florent37.materialviewpager.MaterialViewPager
+    android:id="@+id/materialViewPager"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:layout="@layout/fragment_details2" />
+    app:viewpager_animatedHeaderImage="false"
+    app:viewpager_disableToolbar="false"
+    app:viewpager_displayToolbarWhenSwipe="false"
+    app:viewpager_enableToolbarElevation="false"
+    app:viewpager_header="@layout/viewpager_header"
+    app:viewpager_headerAdditionalHeight="20dp"
+    app:viewpager_headerAlpha="1.0"
+    app:viewpager_headerHeight="100dp"
+    app:viewpager_hideLogoWithFade="false"
+    app:viewpager_hideToolbarAndTitle="true"
+    app:viewpager_imageHeaderDarkLayerAlpha="0.2"
+    app:viewpager_logo="@layout/header_logo"
+    app:viewpager_logoMarginTop="80dp"
+    app:viewpager_parallaxHeaderFactor="1.5"
+    app:viewpager_transparentToolbar="true"/>

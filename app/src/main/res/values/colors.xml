@@ -3,10 +3,11 @@
     <color name="row_color">@color/blue_light</color>
     <color name="fab_color">@color/blue_light</color>
 
-    <color name="blue">#2c527c</color>
-    <color name="blue_dark">#304774</color>
-    <color name="black_transparent">#1e000000</color>
-    <color name="blue_light">#5889C0</color>
+    <color name="blue">#1045A6</color>
+    <color name="blue_dark">#0C3682</color>
+    <color name="blue_darker">#556270</color>
+    <color name="black_transparent">#28000000</color>
+    <color name="blue_light">#335EAE</color>
     <color name="dark_gray">#6b6464</color>
     <color name="background">#e1e1e1</color>
     <color name="orange_best">#FD9E0D</color>
@@ -26,9 +27,9 @@
     <color name="teal_bright">#64FFDA</color>
     <color name="indigo_bright">#536DFE</color>
     <color name="purple_bright">#7C4DFF</color>
-    <color name="red_bright">#FF5252</color>
+    <color name="red_bright">#DE1A1A</color>
     <color name="pink_bright">#FF4081</color>
-    <color name="green_bright">#69F0AE</color>
+    <color name="green_bright">#56E39F</color>
     <color name="yellow_bright">#FFFF00</color>
     <color name="orange_bright">#FF6E40</color>
 

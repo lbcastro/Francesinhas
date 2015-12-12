@@ -6,8 +6,8 @@ import java.io.IOException;
 
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
-import pt.castro.francesinhas.events.ListRefreshEvent;
-import pt.castro.francesinhas.events.PlaceAlreadyExistsEvent;
+import pt.castro.francesinhas.events.list.ListRefreshEvent;
+import pt.castro.francesinhas.events.place.PlaceAlreadyExistsEvent;
 
 public class EndpointsAsyncTask extends AsyncTask<ItemHolder, Void, ItemHolder> {
 

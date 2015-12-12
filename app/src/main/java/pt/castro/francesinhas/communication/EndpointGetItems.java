@@ -8,28 +8,27 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
-import pt.castro.francesinhas.events.ListRetrievedEvent;
+import pt.castro.francesinhas.events.connection.ConnectionFailedEvent;
+import pt.castro.francesinhas.events.list.ListRetrievedEvent;
 
 /**
  * Created by lourenco.castro on 23/05/15.
  */
-public class EndpointGetItems extends AsyncTask<Void, Void, List<ItemHolder>> {
+public class EndpointGetItems extends AsyncTask<Void, Void, Void> {
     @Override
-    protected List<ItemHolder> doInBackground(Void... params) {
+    protected Void doInBackground(Void... params) {
         try {
-            return EndpointApiHolder.getInstance().listItems().execute().getItems();
+            List<ItemHolder> list = EndpointApiHolder.getInstance().listItems().execute
+                    ().getItems();
+            if (list == null) {
+                list = Collections.emptyList();
+            }
+            ListRetrievedEvent listRetrievedEvent = new ListRetrievedEvent();
+            listRetrievedEvent.list = list;
+            EventBus.getDefault().post(listRetrievedEvent);
         } catch (IOException e) {
-            return null;
+            EventBus.getDefault().post(new ConnectionFailedEvent());
         }
-    }
-
-    @Override
-    protected void onPostExecute(List<ItemHolder> list) {
-        if (list == null) {
-            list = Collections.emptyList();
-        }
-        ListRetrievedEvent listRetrievedEvent = new ListRetrievedEvent();
-        listRetrievedEvent.list = list;
-        EventBus.getDefault().post(listRetrievedEvent);
+        return null;
     }
 }
