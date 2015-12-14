@@ -3,7 +3,6 @@ package pt.castro.francesinhas.details;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -18,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -76,6 +76,8 @@ public class DetailsActivity extends AppCompatActivity {
     NestedScrollView scrollView;
     @Bind(R.id.appbar)
     AppBarLayout appBarLayout;
+    @Bind(R.id.temp_title)
+    TextView tempTitle;
 
     private String location;
     private Bitmap bitmap;
@@ -91,6 +93,15 @@ public class DetailsActivity extends AppCompatActivity {
             getWindow().setExitTransition(TransitionUtils.makeFadeTransition());
 
             setEnterSharedElementCallback(new SharedElementCallback() {
+
+                @Override
+                public void onSharedElementStart(List<String> sharedElementNames,
+                                                 List<View> sharedElements, List<View>
+                                                         sharedElementSnapshots) {
+                    super.onSharedElementStart(sharedElementNames, sharedElements,
+                            sharedElementSnapshots);
+                }
+
                 @Override
                 public void onSharedElementEnd(List<String> sharedElementNames,
                                                List<View> sharedElements, List<View>
@@ -107,6 +118,14 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         final Bundle data = getIntent().getExtras();
+        tempTitle.setText(data.getString(DetailsKeys.ITEM_NAME));
+        tempTitle.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
+                .OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                tempTitle.setVisibility(View.INVISIBLE);
+            }
+        });
 
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
@@ -121,8 +140,12 @@ public class DetailsActivity extends AppCompatActivity {
         setTitle(data.getString(DetailsKeys.ITEM_NAME));
 
         final String backgroundUrl = data.getString(DetailsKeys.ITEM_BACKGROUND_URL);
-        ImageLoader.getInstance().displayImage(backgroundUrl, backdrop, PhotoUtils
-                .getDisplayImageOptions());
+        if (backgroundUrl == null || backgroundUrl.equals("n/a")) {
+            backdrop.setImageResource(R.drawable.francesinha_blur);
+        } else {
+            ImageLoader.getInstance().displayImage(backgroundUrl, backdrop, PhotoUtils
+                    .getDisplayImageOptions());
+        }
 
         setAddress(data);
         setPhone(data);
@@ -141,6 +164,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        tempTitle.setVisibility(View.VISIBLE);
         detailsAnimateExit();
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -164,7 +188,6 @@ public class DetailsActivity extends AppCompatActivity {
     private void detailsAnimateEnter() {
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_up);
         scrollView.startAnimation(animation);
-
     }
 
     private void detailsAnimateExit() {
@@ -243,9 +266,7 @@ public class DetailsActivity extends AppCompatActivity {
 
             final File mapImage = ImageLoader.getInstance().getDiskCache().get(location);
             if (mapImage != null && mapImage.exists()) {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                bitmap = BitmapFactory.decodeFile(mapImage.getAbsolutePath(), options);
+                bitmap = PhotoUtils.bitmapFromFile(mapImage);
                 mapView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
             } else {
                 Callback callback = new Callback() {

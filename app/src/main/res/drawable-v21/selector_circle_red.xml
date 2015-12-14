@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="@color/black_transparent">
+        android:color="@color/black_transparent">
     <item android:id="@android:id/mask">
         <shape android:shape="oval">
-            <solid android:color="@android:color/black" />
+            <solid android:color="@android:color/black"/>
             <size
                 android:width="80dp"
-                android:height="80dp" />
+                android:height="80dp"/>
         </shape>
     </item>
     <item>
         <selector>
             <item
                 android:drawable="@drawable/circle_red"
-                android:state_selected="true" />
+                android:state_selected="true"/>
             <item
                 android:drawable="@drawable/circle_red"
-                android:state_pressed="true" />
-            <item android:drawable="@android:color/transparent" />
+                android:state_pressed="true"/>
+            <item android:drawable="@android:color/transparent"/>
         </selector>
     </item>
 </ripple>

@@ -73,6 +73,7 @@ public class Endpoint {
         if (findItem(itemHolder.getId()) == null) {
             return addItem(itemHolder);
         }
+
         ofy().save().entity(itemHolder).now();
         return itemHolder;
     }
@@ -191,25 +192,6 @@ public class Endpoint {
                 vote = 0;
             }
 
-//            if (vote == -1) {
-//                if (previousVote == vote) {
-//                    itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
-//                } else {
-//                    if (previousVote == 1) {
-//                        itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
-//                    }
-//                    itemHolder.setVotesDown(itemHolder.getVotesDown() + 1);
-//                }
-//            } else if (vote == 1) {
-//                if (previousVote == vote) {
-//                    itemHolder.setVotesUp(itemHolder.getVotesUp() - 1);
-//                } else {
-//                    if (previousVote == -1) {
-//                        itemHolder.setVotesDown(itemHolder.getVotesDown() - 1);
-//                    }
-//                    itemHolder.setVotesUp(itemHolder.getVotesUp() + 1);
-//                }
-//            }
             ofy().save().entity(itemHolder).now();
             ofy().save().entity(userHolder.addVote(itemId, vote)).now();
             return userHolder;

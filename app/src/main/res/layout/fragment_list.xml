@@ -24,10 +24,8 @@
     <com.marshalchen.ultimaterecyclerview.UltimateRecyclerView
         android:id="@+id/fragment_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipChildren="false"
+        android:layout_height="wrap_content"
         android:clipToPadding="false"
-        android:scrollbars="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:recyclerviewEmptyView="@layout/empty_list"/>
 
@@ -40,7 +38,7 @@
         android:src="@drawable/ic_add_white_24dp"
         app:backgroundTint="@color/fab_color"
         app:layout_anchor="@id/fragment_recycler_view"
-        app:layout_anchorGravity="bottom|center_horizontal"
+        app:layout_anchorGravity="bottom|end"
         app:layout_behavior="pt.castro.francesinhas.list.decoration.ScrollAwareFABBehavior"
         app:layout_scrollFlags="scroll|enterAlways"/>
 </android.support.design.widget.CoordinatorLayout>

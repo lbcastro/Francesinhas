@@ -80,7 +80,6 @@ public class ListActivity extends AppCompatActivity {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     private UserHolder mCurrentUser;
-    //    private ListFragment mListFragment;
     private SearchView mSearchView;
     private CustomRecyclerViewAdapter recyclerViewAdapter;
 
@@ -116,7 +115,7 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void setRecyclerView() {
-        recyclerViewAdapter = new CustomRecyclerViewAdapter();
+        recyclerViewAdapter = new CustomRecyclerViewAdapter(this);
         mainRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mainRecyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout
                 .OnRefreshListener() {
@@ -301,7 +300,9 @@ public class ListActivity extends AppCompatActivity {
 //                getPlacePhotos.getAllPhotos();
 //            }
             localItemHolders.add(localItemHolder);
-            if (itemHolder.getLatitude() == null || itemHolder.getLongitude() == null) {
+            if (itemHolder.getLatitude() == null || itemHolder.getLongitude() == null
+                    || (itemHolder.getLatitude() == 0 && itemHolder.getLongitude() ==
+                    0)) {
                 GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
                 getPlacePhotos.getLocation();
             }
@@ -354,6 +355,7 @@ public class ListActivity extends AppCompatActivity {
             View overlay = view.findViewById(R.id.backdrop_clickable);
             View statusBar = findViewById(android.R.id.statusBarBackground);
             View navigationBar = findViewById(android.R.id.navigationBarBackground);
+            View text = view.findViewById(R.id.custom_row_name);
 
             List<Pair<View, String>> pairs = new ArrayList<>();
             pairs.add(Pair.create(statusBar, Window
@@ -362,6 +364,7 @@ public class ListActivity extends AppCompatActivity {
                     .NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME));
             pairs.add(Pair.create(image, getString(R.string.transition_image)));
             pairs.add(Pair.create(overlay, getString(R.string.transition_clickable)));
+            pairs.add(Pair.create(text, getString(R.string.transition_text)));
             ActivityOptionsCompat options = ActivityOptionsCompat
                     .makeSceneTransitionAnimation(this, pairs.toArray(new Pair[pairs
                             .size()]));
@@ -418,6 +421,7 @@ public class ListActivity extends AppCompatActivity {
                 NotificationTools.toastCustomText(this, R.string.invalid_place);
             } else {
                 final ItemHolder itemHolder = PlaceUtils.getItemFromPlace(this, place);
+                Log.d("List", PlaceUtils.placeToString(itemHolder));
                 itemHolder.setUserId(mCurrentUser.getId());
                 new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(itemHolder);
             }

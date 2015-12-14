@@ -10,98 +10,88 @@
     android:layout_marginTop="@dimen/margin_s"
     android:animateLayoutChanges="true"
     android:descendantFocusability="blocksDescendants"
-    app:cardElevation="@dimen/card_elevation"
+    app:cardElevation="@dimen/margin_s"
     card_view:cardCornerRadius="@dimen/margin_xs">
 
-    <LinearLayout
-        android:id="@+id/card_view"
+    <RelativeLayout
+        android:id="@+id/clickable_parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:animateLayoutChanges="true">
+
+        <include layout="@layout/backdrop_shaded"/>
+
+        <TextView
+            android:id="@+id/custom_row_ranking"
+            style="@style/Text.Header.1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="@dimen/margin_m"
+            android:layout_marginStart="@dimen/margin_m"
+            android:layout_marginTop="@dimen/margin_m"
+            android:gravity="start|center"
+            android:shadowColor="#46000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="8"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/custom_row_name"
+            style="@style/ExpandedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/margin_xl"
+            android:transitionName="@string/transition_text"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/text_parent"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="@dimen/margin_m"
         android:animateLayoutChanges="true"
-        android:orientation="vertical">
+        android:background="@android:color/transparent"
+        android:gravity="bottom">
 
-        <RelativeLayout
-            android:id="@+id/clickable_parent"
-            android:layout_width="match_parent"
-            android:layout_height="112dp"
-            android:layout_gravity="center"
-            android:animateLayoutChanges="true">
+        <TextView
+            android:id="@+id/votes_down"
+            style="@style/Text.Header.2"
+            android:layout_width="@dimen/ranking_size"
+            android:layout_height="@dimen/ranking_size"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/circle_black"
+            android:gravity="center"
+            android:maxEms="3"
+            android:textColor="@color/red_faded"
+            android:textStyle="bold"
+            app:elevation="4dp"/>
 
-            <include layout="@layout/backdrop_shaded"/>
-
-            <TextView
-                android:id="@+id/custom_row_ranking"
-                style="@style/Text.Header.1"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_gravity="center"
-                android:layout_marginLeft="@dimen/margin_m"
-                android:layout_marginStart="@dimen/margin_m"
-                android:gravity="center"
-                android:shadowColor="#46000000"
-                android:shadowDx="2"
-                android:shadowDy="2"
-                android:shadowRadius="4"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/text_size_xl"/>
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/text_parent"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:animateLayoutChanges="true"
-            android:background="@android:color/white"
-            android:paddingEnd="@dimen/margin_m"
-            android:paddingLeft="@dimen/margin_m"
-            android:paddingRight="@dimen/margin_m"
-            android:paddingStart="@dimen/margin_m"
-            android:transitionName="@string/transition_votes">
-
-            <TextView
-                android:id="@+id/custom_row_name"
-                style="@style/Text.Header.1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:fontFamily="sans-serif-light"
-                android:gravity="start|center_vertical"
-                android:textColor="@color/dark_gray"
-                android:transitionName="@string/transition_text"/>
-
-            <TextView
-                android:id="@+id/votes_down"
-                style="@style/Text.Header.2"
-                android:layout_width="@dimen/ranking_size"
-                android:layout_height="@dimen/ranking_size"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/selector_circle_red"
-                android:gravity="center"
-                android:maxEms="3"
-                android:textColor="@color/red_faded"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/votes_up"
-                style="@style/Text.Header.2"
-                android:layout_width="@dimen/ranking_size"
-                android:layout_height="@dimen/ranking_size"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/margin_xl"
-                android:layout_marginRight="@dimen/margin_xl"
-                android:background="@drawable/selector_circle_green"
-                android:gravity="center"
-                android:maxEms="3"
-                android:textColor="@color/green_bright"
-                android:textStyle="bold"/>
-        </RelativeLayout>
-    </LinearLayout>
+        <TextView
+            android:id="@+id/votes_up"
+            style="@style/Text.Header.2"
+            android:layout_width="@dimen/ranking_size"
+            android:layout_height="@dimen/ranking_size"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/margin_xl"
+            android:layout_marginRight="@dimen/margin_xl"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/circle_black"
+            android:gravity="center"
+            android:maxEms="3"
+            android:textColor="@color/green_bright"
+            android:textStyle="bold"
+            app:elevation="4dp"/>
+    </RelativeLayout>
 </android.support.v7.widget.CardView>

@@ -1,7 +1,9 @@
 package pt.castro.francesinhas.list;
 
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +13,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,16 +39,36 @@ import pt.castro.francesinhas.tools.PhotoUtils;
 public class CustomRecyclerViewAdapter extends RecyclerView
         .Adapter<CustomRecyclerViewAdapter.ViewHolder> {
 
-//    CustomParallaxViewController parallaxViewController;
+//    ParallaxViewController parallaxViewController;
 
+    private static final String CACHED_EMPTY_BITMAP = "empty";
     private List<LocalItemHolder> items;
     private List<LocalItemHolder> visibleItems;
     private boolean votingEnabled;
+    private Bitmap emptyBitmap;
 
-    public CustomRecyclerViewAdapter() {
+    public CustomRecyclerViewAdapter(final Context context) {
         EventBus.getDefault().register(this);
         items = Collections.emptyList();
-//        parallaxViewController = new CustomParallaxViewController();
+        generateEmptyBitmap(context);
+//        parallaxViewController = new ParallaxViewController();
+    }
+
+    private void generateEmptyBitmap(final Context context) {
+        final File imageFile = ImageLoader.getInstance().getDiskCache().get
+                (CACHED_EMPTY_BITMAP);
+        if (imageFile == null || !imageFile.exists()) {
+            emptyBitmap = BitmapFactory.decodeResource(context.getResources(), R
+                    .drawable.francesinha_blur);
+            try {
+                ImageLoader.getInstance().getDiskCache().save(CACHED_EMPTY_BITMAP,
+                        emptyBitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            emptyBitmap = PhotoUtils.bitmapFromFile(imageFile);
+        }
     }
 
     @Override
@@ -107,37 +129,17 @@ public class CustomRecyclerViewAdapter extends RecyclerView
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.cancelAnimations();
         final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
+
+        final ImageLoader imageLoader = ImageLoader.getInstance();
+        final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
-            final ImageLoader imageLoader = ImageLoader.getInstance();
-            final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
             imageLoader.cancelDisplayTask(aware);
-            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils.getDisplayImageOptions(), new ImageLoadingListener() {
-                @Override
-                public void onLoadingStarted(String imageUri, View view) {
-
-                }
-
-                @Override
-                public void onLoadingFailed(String imageUri, View view, FailReason
-                        failReason) {
-
-                }
-
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap
-                        loadedImage) {
-                }
-
-                @Override
-                public void onLoadingCancelled(String imageUri, View view) {
-
-                }
-            });
+            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
+                    .getDisplayImageOptions());
         } else {
-            holder.imageView.setImageDrawable(null);
-            holder.imageView.setBackgroundColor(holder.imageView.getContext()
-                    .getResources().getColor(R.color.blue_light));
+            holder.imageView.setImageBitmap(emptyBitmap);
         }
+
         final String text = Integer.toString(items.indexOf(visibleItems.get(position))
                 + 1);
         holder.rankingTextView.setText(text);

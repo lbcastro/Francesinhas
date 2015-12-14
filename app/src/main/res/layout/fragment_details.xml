@@ -39,11 +39,22 @@
             android:layout_height="match_parent"
             app:contentScrim="?colorPrimary"
             app:expandedTitleGravity="center"
+            app:expandedTitleMarginBottom="@dimen/margin_xl"
+            app:expandedTitleTextAppearance="@style/ExpandedText"
             app:layout_collapseMode="pin"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:statusBarScrim="?colorPrimaryDark">
 
             <include layout="@layout/backdrop_shaded"/>
+
+            <TextView
+                android:id="@+id/temp_title"
+                style="@style/Text.Header.5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/margin_m"
+                android:transitionName="@string/transition_text"/>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
