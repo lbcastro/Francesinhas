@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -18,7 +17,6 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import butterknife.Bind;
@@ -49,7 +47,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView
 
     public CustomRecyclerViewAdapter(final Context context) {
         EventBus.getDefault().register(this);
-        items = Collections.emptyList();
+        items = new ArrayList<>();
         generateEmptyBitmap(context);
 //        parallaxViewController = new ParallaxViewController();
     }
@@ -83,6 +81,16 @@ public class CustomRecyclerViewAdapter extends RecyclerView
 
     public void setItems(List<LocalItemHolder> items) {
         this.items = items;
+        flushFilter();
+    }
+
+    public void add(LocalItemHolder itemHolder) {
+        items.add(itemHolder);
+        flushFilter();
+    }
+
+    public void clear() {
+        items.clear();
         flushFilter();
     }
 
@@ -134,8 +142,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
             imageLoader.cancelDisplayTask(aware);
-            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
-                    .getDisplayImageOptions());
+            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils.getDisplayImageOptions(true));
         } else {
             holder.imageView.setImageBitmap(emptyBitmap);
         }
@@ -182,8 +189,12 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         TextView votesUp;
         @Bind(R.id.votes_down)
         TextView votesDown;
-        @Bind(R.id.clickable_parent)
-        RelativeLayout clickableParent;
+        @Bind(R.id.votes_up_indicator)
+        View votesUpIndicator;
+        @Bind(R.id.votes_down_indicator)
+        View votesDownIndicator;
+//        @Bind(R.id.clickable_parent)
+//        RelativeLayout clickableParent;
 
         private boolean voting;
         private boolean translated;
@@ -197,18 +208,24 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         }
 
         private void setVoteUpSelected() {
-            votesUp.setSelected(true);
-            votesDown.setSelected(false);
+            votesUpIndicator.setVisibility(View.VISIBLE);
+            votesDownIndicator.setVisibility(View.INVISIBLE);
+//            votesUp.setSelected(true);
+//            votesDown.setSelected(false);
         }
 
         private void setVoteDownSelected() {
-            votesUp.setSelected(false);
-            votesDown.setSelected(true);
+            votesUpIndicator.setVisibility(View.INVISIBLE);
+            votesDownIndicator.setVisibility(View.VISIBLE);
+//            votesUp.setSelected(false);
+//            votesDown.setSelected(true);
         }
 
         private void resetVotes() {
-            votesUp.setSelected(false);
-            votesDown.setSelected(false);
+            votesUpIndicator.setVisibility(View.INVISIBLE);
+            votesDownIndicator.setVisibility(View.INVISIBLE);
+//            votesUp.setSelected(false);
+//            votesDown.setSelected(false);
         }
 
         private void clickVote(int vote) {
@@ -226,18 +243,28 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         private void setSelected(int vote) {
             switch (vote) {
                 case 1:
-                    votesUp.setSelected(!votesUp.isSelected());
-                    votesDown.setSelected(false);
+                    toggleVisibility(votesUpIndicator);
+                    votesDownIndicator.setVisibility(View.INVISIBLE);
+//                    votesUp.setSelected(!votesUp.isSelected());
+//                    votesDown.setSelected(false);
                     break;
                 case -1:
-                    votesUp.setSelected(false);
-                    votesDown.setSelected(!votesDown.isSelected());
+                    votesUpIndicator.setVisibility(View.INVISIBLE);
+                    toggleVisibility(votesDownIndicator);
+//                    votesUp.setSelected(false);
+//                    votesDown.setSelected(!votesDown.isSelected());
                     break;
                 default:
-                    votesUp.setSelected(false);
-                    votesDown.setSelected(false);
+                    resetVotes();
+//                    votesUp.setSelected(false);
+//                    votesDown.setSelected(false);
                     break;
             }
+        }
+
+        private void toggleVisibility(final View view) {
+            view.setVisibility(view.getVisibility() == View.VISIBLE ? View.INVISIBLE :
+                    View.VISIBLE);
         }
 
         @OnClick(R.id.votes_up)

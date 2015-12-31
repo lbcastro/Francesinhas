@@ -1,7 +1,9 @@
 /*
-   For step-by-step instructions on connecting your Android application to this backend module,
+   For step-by-step instructions on connecting your Android application to this backend
+    module,
    see "App Engine Java Endpoints Module" template documentation at
-   https://github.com/GoogleCloudPlatform/gradle-appengine-templates/tree/master/HelloEndpoints
+   https://github.com/GoogleCloudPlatform/gradle-appengine-templates/tree/master
+   /HelloEndpoints
 */
 
 package pt.castro.francesinhas.backend;
@@ -26,16 +28,19 @@ import javax.inject.Named;
 
 import static pt.castro.francesinhas.backend.OfyService.ofy;
 
-@Api(name = "myApi", version = "v1", namespace = @ApiNamespace(ownerDomain = "backend" +
-        ".francesinhas.castro.pt", ownerName = "backend.francesinhas.castro.pt", packagePath = ""))
+@Api(name = "myApi", version = "v1", namespace = @ApiNamespace(ownerDomain = "backend"
+        + ".francesinhas.castro.pt", ownerName = "backend.francesinhas.castro.pt",
+        packagePath = ""))
 public class Endpoint {
 
     private List<ItemHolder> itemList = Collections.emptyList();
 
     @ApiMethod(name = "listItems")
-    public CollectionResponse<ItemHolder> listItems(@Nullable @Named("cursor") String cursorString,
-                                                    @Nullable @Named("count") Integer count) {
-        Query<ItemHolder> query = ofy().load().type(ItemHolder.class);
+    public CollectionResponse<ItemHolder> listItems(@Nullable @Named("cursor") String
+                                                                cursorString, @Nullable
+    @Named("count") Integer count) {
+        Query<ItemHolder> query = ofy().load().type(ItemHolder.class).order("-votesUp")
+                .order("votesDown");
         if (count != null) {
             query.limit(count);
         }
@@ -54,16 +59,16 @@ public class Endpoint {
         }
 
         //Find the next cursor
-        if (cursorString != null && cursorString != "") {
-            Cursor cursor = iterator.getCursor();
-            if (cursor != null) {
-                cursorString = cursor.toWebSafeString();
-            }
+//        if (cursorString != null && cursorString != "") {
+        Cursor cursor = iterator.getCursor();
+        if (cursor != null) {
+            cursorString = cursor.toWebSafeString();
         }
+//        }
         updateRanking();
         ofy().clear();
-        return CollectionResponse.<ItemHolder>builder().setItems(itemList).setNextPageToken
-                (cursorString).build();
+        return CollectionResponse.<ItemHolder>builder().setItems(itemList)
+                .setNextPageToken(cursorString).build();
     }
 
 
@@ -79,7 +84,8 @@ public class Endpoint {
     }
 
     @ApiMethod(name = "addPhoto")
-    public ItemHolder addPhoto(@Named("itemId") String itemId, @Named("photUrl") String photoUrl) {
+    public ItemHolder addPhoto(@Named("itemId") String itemId, @Named("photUrl") String
+            photoUrl) {
         ItemHolder itemHolder;
         if ((itemHolder = findItem(itemId)) == null) {
             throw new NullPointerException("Item not found");
@@ -156,8 +162,8 @@ public class Endpoint {
     }
 
     @ApiMethod(name = "addUserVote")
-    public UserHolder addUserVote(@Named("userId") String userId, @Named("itemId") String itemId,
-                                  @Named("vote") int vote) {
+    public UserHolder addUserVote(@Named("userId") String userId, @Named("itemId")
+    String itemId, @Named("vote") int vote) {
         ItemHolder itemHolder;
         UserHolder userHolder;
         if ((userHolder = findUser(userId)) == null) {

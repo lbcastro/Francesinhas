@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<datastore-indexes autoGenerate="false">
+    <datastore-index ancestor="false" kind="ItemHolder">
+        <property name="votesUp" direction="desc"/>
+        <property name="votesDown" direction="asc"/>
+    </datastore-index>
+</datastore-indexes>

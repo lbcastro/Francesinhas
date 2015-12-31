@@ -40,7 +40,6 @@
             app:contentScrim="?colorPrimary"
             app:expandedTitleGravity="center"
             app:expandedTitleMarginBottom="@dimen/margin_xl"
-            app:expandedTitleTextAppearance="@style/ExpandedText"
             app:layout_collapseMode="pin"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:statusBarScrim="?colorPrimaryDark">
@@ -54,7 +53,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="@dimen/margin_m"
-                android:transitionName="@string/transition_text"/>
+                android:transitionName="@string/transition_text"
+                card_view:targetApi="lollipop"/>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -80,7 +80,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="top"
-            android:orientation="vertical">
+            android:background="@android:color/transparent"
+            android:orientation="vertical"
+            android:transitionName="list">
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
@@ -215,8 +217,10 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:includeFontPadding="true"
+                        android:paddingEnd="@dimen/margin_m"
                         android:paddingLeft="@dimen/margin_xl"
                         android:paddingRight="@dimen/margin_m"
+                        android:paddingStart="@dimen/margin_xl"
                         android:singleLine="true"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>

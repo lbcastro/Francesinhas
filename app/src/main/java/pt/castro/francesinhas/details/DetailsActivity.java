@@ -7,9 +7,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.SharedElementCallback;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -28,7 +27,6 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -38,7 +36,6 @@ import dmax.staticmap.Config;
 import dmax.staticmap.Marker;
 import dmax.staticmap.StaticMap;
 import pt.castro.francesinhas.R;
-import pt.castro.francesinhas.list.decoration.TransitionUtils;
 import pt.castro.francesinhas.tools.PhotoUtils;
 
 /**
@@ -78,6 +75,8 @@ public class DetailsActivity extends AppCompatActivity {
     AppBarLayout appBarLayout;
     @Bind(R.id.temp_title)
     TextView tempTitle;
+    @Bind(R.id.collapsing_toolbar)
+    CollapsingToolbarLayout collapsingToolbarLayout;
 
     private String location;
     private Bitmap bitmap;
@@ -87,31 +86,34 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_details);
         ButterKnife.bind(this);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setEnterTransition(TransitionUtils.makeFadeTransition());
-            getWindow().setExitTransition(TransitionUtils.makeFadeTransition());
-
-            setEnterSharedElementCallback(new SharedElementCallback() {
-
-                @Override
-                public void onSharedElementStart(List<String> sharedElementNames,
-                                                 List<View> sharedElements, List<View>
-                                                         sharedElementSnapshots) {
-                    super.onSharedElementStart(sharedElementNames, sharedElements,
-                            sharedElementSnapshots);
-                }
-
-                @Override
-                public void onSharedElementEnd(List<String> sharedElementNames,
-                                               List<View> sharedElements, List<View>
-                                                       sharedElementSnapshots) {
-                    super.onSharedElementEnd(sharedElementNames, sharedElements,
-                            sharedElementSnapshots);
-                    detailsAnimateEnter();
-                }
-            });
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            getWindow().setEnterTransition(TransitionUtils.makeFadeTransition());
+//            getWindow().setExitTransition(TransitionUtils.makeFadeTransition());
+//
+//            setEnterSharedElementCallback(new SharedElementCallback() {
+//
+//                @Override
+//                public void onSharedElementStart(List<String> sharedElementNames,
+//                                                 List<View> sharedElements, List<View>
+//                                                         sharedElementSnapshots) {
+//                    super.onSharedElementStart(sharedElementNames, sharedElements,
+//                            sharedElementSnapshots);
+//                    tempTitle.setVisibility(View.VISIBLE);
+//                }
+//
+//                @Override
+//                public void onSharedElementEnd(List<String> sharedElementNames,
+//                                               List<View> sharedElements, List<View>
+//                                                       sharedElementSnapshots) {
+//                    super.onSharedElementEnd(sharedElementNames, sharedElements,
+//                            sharedElementSnapshots);
+//                    tempTitle.setVisibility(View.INVISIBLE);
+////                    detailsAnimateEnter();
+//                }
+//
+//
+//            });
+//        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -137,14 +139,15 @@ public class DetailsActivity extends AppCompatActivity {
             actionBar.setHomeButtonEnabled(true);
         }
 
-        setTitle(data.getString(DetailsKeys.ITEM_NAME));
+        collapsingToolbarLayout.setTitle(data.getString(DetailsKeys.ITEM_NAME));
+//        setTitle("");
+//        setTitle(data.getString(DetailsKeys.ITEM_NAME));
 
         final String backgroundUrl = data.getString(DetailsKeys.ITEM_BACKGROUND_URL);
         if (backgroundUrl == null || backgroundUrl.equals("n/a")) {
             backdrop.setImageResource(R.drawable.francesinha_blur);
         } else {
-            ImageLoader.getInstance().displayImage(backgroundUrl, backdrop, PhotoUtils
-                    .getDisplayImageOptions());
+            ImageLoader.getInstance().displayImage(backgroundUrl, backdrop, PhotoUtils.getDisplayImageOptions(false));
         }
 
         setAddress(data);
@@ -162,17 +165,27 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        tempTitle.setVisibility(View.VISIBLE);
-        detailsAnimateExit();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                DetailsActivity.super.onBackPressed();
-            }
-        }, 100);
-    }
+//    @Override
+//    public void onBackPressed() {
+//        appBarLayout.addOnOffsetChangedListener(new AppBarLayout
+//                .OnOffsetChangedListener() {
+//            @Override
+//            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+//                if (verticalOffset == 0) {
+////                    detailsAnimateExit();
+//                    tempTitle.setVisibility(View.VISIBLE);
+//                    new Handler().postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            DetailsActivity.super.onBackPressed();
+//                        }
+//                    }, 0);
+//                }
+//            }
+//        });
+//        appBarLayout.setExpanded(true, true);
+//        collapsingToolbarLayout.setScrimsShown(true, true);
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

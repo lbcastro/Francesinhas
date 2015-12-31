@@ -11,7 +11,7 @@
     <dimen name="map_view_height">144dp</dimen>
 
     <dimen name="icon_size">32dp</dimen>
-    <dimen name="ranking_size">40dp</dimen>
+    <dimen name="ranking_size">48dp</dimen>
     <dimen name="button_size">72dp</dimen>
 
     <dimen name="text_size_s">14sp</dimen>

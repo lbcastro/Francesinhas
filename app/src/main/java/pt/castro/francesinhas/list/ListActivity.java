@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -82,6 +79,7 @@ public class ListActivity extends AppCompatActivity {
     private UserHolder mCurrentUser;
     private SearchView mSearchView;
     private CustomRecyclerViewAdapter recyclerViewAdapter;
+    private String mNextToken;
 
     private static int getVote(UserHolder userHolder, String itemId) {
         if (userHolder == null) {
@@ -136,6 +134,16 @@ public class ListActivity extends AppCompatActivity {
                 }
             }
         });
+        mainRecyclerView.setOnLoadMoreListener(new UltimateRecyclerView
+                .OnLoadMoreListener() {
+            @Override
+            public void loadMore(int itemsCount, int maxLastVisiblePosition) {
+                EndpointGetItems getItems = new EndpointGetItems();
+                getItems.setCursor(mNextToken);
+                getItems.execute();
+            }
+        });
+        mainRecyclerView.enableLoadmore();
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -279,17 +287,21 @@ public class ListActivity extends AppCompatActivity {
     }
 
     @EventBusHook
-    public void onEvent(final ConnectionFailedEvent connectionFailedEvent) {
+    public void onEventMainThread(final ConnectionFailedEvent connectionFailedEvent) {
         setEmptyList("No connection");
         setButton(false);
     }
 
     @EventBusHook
     public void onEventMainThread(final ListRetrievedEvent listRetrievedEvent) {
-        final List<LocalItemHolder> localItemHolders = new ArrayList<>();
+//        final List<LocalItemHolder> localItemHolders = new ArrayList<>();
+        mNextToken = listRetrievedEvent.getToken();
+        if (mainRecyclerView.getAdapter() == null) {
+            mainRecyclerView.setAdapter(recyclerViewAdapter);
+        }
 
         // Iterates all retrieved items and adds votes when applied.
-        for (ItemHolder itemHolder : listRetrievedEvent.list) {
+        for (ItemHolder itemHolder : listRetrievedEvent.getList()) {
             LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
             int voteInt = getVote(mCurrentUser, itemHolder.getId());
             localItemHolder.setUserVote(voteInt);
@@ -299,17 +311,18 @@ public class ListActivity extends AppCompatActivity {
 // (localItemHolder);
 //                getPlacePhotos.getAllPhotos();
 //            }
-            localItemHolders.add(localItemHolder);
+//            localItemHolders.add(localItemHolder);
             if (itemHolder.getLatitude() == null || itemHolder.getLongitude() == null
                     || (itemHolder.getLatitude() == 0 && itemHolder.getLongitude() ==
                     0)) {
                 GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
                 getPlacePhotos.getLocation();
             }
+            recyclerViewAdapter.add(localItemHolder);
         }
 
         // Passes the generated list to the adapter.
-        setItems(localItemHolders);
+//        setItems(localItemHolders);
     }
 
     @EventBusHook
@@ -349,29 +362,32 @@ public class ListActivity extends AppCompatActivity {
         intent.putExtra(DetailsKeys.USER_VOTE, localItemHolder.getUserVote());
 
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-
-            View image = view.findViewById(R.id.backdrop_image);
-            View overlay = view.findViewById(R.id.backdrop_clickable);
-            View statusBar = findViewById(android.R.id.statusBarBackground);
-            View navigationBar = findViewById(android.R.id.navigationBarBackground);
-            View text = view.findViewById(R.id.custom_row_name);
-
-            List<Pair<View, String>> pairs = new ArrayList<>();
-            pairs.add(Pair.create(statusBar, Window
-                    .STATUS_BAR_BACKGROUND_TRANSITION_NAME));
-            pairs.add(Pair.create(navigationBar, Window
-                    .NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME));
-            pairs.add(Pair.create(image, getString(R.string.transition_image)));
-            pairs.add(Pair.create(overlay, getString(R.string.transition_clickable)));
-            pairs.add(Pair.create(text, getString(R.string.transition_text)));
-            ActivityOptionsCompat options = ActivityOptionsCompat
-                    .makeSceneTransitionAnimation(this, pairs.toArray(new Pair[pairs
-                            .size()]));
-            ActivityCompat.startActivity(this, intent, options.toBundle());
-        } else {
-            startActivity(intent);
-        }
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES
+// .LOLLIPOP) {
+//
+//            View image = view.findViewById(R.id.backdrop_image);
+//            View overlay = view.findViewById(R.id.backdrop_clickable);
+//            View statusBar = findViewById(android.R.id.statusBarBackground);
+//            View navigationBar = findViewById(android.R.id.navigationBarBackground);
+//            View text = view.findViewById(R.id.custom_row_name);
+//            View temp = findViewById(R.id.temp);
+//
+//            List<Pair<View, String>> pairs = new ArrayList<>();
+//            pairs.add(Pair.create(statusBar, Window
+//                    .STATUS_BAR_BACKGROUND_TRANSITION_NAME));
+//            pairs.add(Pair.create(navigationBar, Window
+//                    .NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME));
+//            pairs.add(Pair.create(image, getString(R.string.transition_image)));
+//            pairs.add(Pair.create(overlay, getString(R.string.transition_clickable)));
+//            pairs.add(Pair.create(text, getString(R.string.transition_text)));
+//            pairs.add(Pair.create(temp, "list"));
+//            ActivityOptionsCompat options = ActivityOptionsCompat
+//                    .makeSceneTransitionAnimation(this, pairs.toArray(new Pair[pairs
+//                            .size()]));
+//            ActivityCompat.startActivity(this, intent, options.toBundle());
+//        } else {
+        startActivity(intent);
+//        }
     }
 
     @EventBusHook
@@ -383,6 +399,7 @@ public class ListActivity extends AppCompatActivity {
     public void onEvent(final ListRefreshEvent listRefreshEvent) {
         if (!listRefreshEvent.isRefreshed()) {
             // TODO: Instead of retrieving a new set of items, update the existing ones
+            recyclerViewAdapter.clear();
             new EndpointGetItems().execute();
         }
     }

@@ -19,7 +19,7 @@
                 android:drawable="@drawable/circle_green"
                 android:state_pressed="true"/>
 
-            <item android:drawable="@color/black_transparent"/>
+            <item android:drawable="@android:color/transparent"/>
         </selector>
     </item>
 </ripple>

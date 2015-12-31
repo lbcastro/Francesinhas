@@ -16,17 +16,24 @@ public class ItemHolder {
     private String name;
     private String userId;
 
-    private int votesUp;
-    private int votesDown;
     private int priceRange;
 
     @Index
     private String location;
+    @Index
     private String address;
+    @Index
     private String phone;
+    @Index
     private String url;
+    @Index
     private double latitude;
+    @Index
     private double longitude;
+    @Index
+    private int votesUp;
+    @Index
+    private int votesDown;
 
     private String photoUrl;
 

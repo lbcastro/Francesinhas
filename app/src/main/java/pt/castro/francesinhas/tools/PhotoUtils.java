@@ -13,12 +13,10 @@ import java.io.File;
  * Created by Lourenço on 23/06/2015.
  */
 public class PhotoUtils {
-    public static DisplayImageOptions getDisplayImageOptions() {
+    public static DisplayImageOptions getDisplayImageOptions(boolean fadeIn) {
         return new DisplayImageOptions.Builder().resetViewBeforeLoading(true)
                 .cacheOnDisk(true).postProcessor(null).delayBeforeLoading(0)
-                .cacheInMemory(true).bitmapConfig(Bitmap.Config.RGB_565).displayer(new
-                        FadeInBitmapDisplayer(400)).imageScaleType(ImageScaleType
-                        .EXACTLY).build();
+                .cacheInMemory(true).bitmapConfig(Bitmap.Config.RGB_565).displayer(new FadeInBitmapDisplayer(fadeIn ? 400 : 0)).imageScaleType(ImageScaleType.EXACTLY).build();
     }
 
     public static Bitmap bitmapFromFile(final File imageFile) {

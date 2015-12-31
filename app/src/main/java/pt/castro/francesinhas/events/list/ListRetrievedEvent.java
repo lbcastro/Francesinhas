@@ -8,5 +8,22 @@ import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
  * Created by lourenco.castro on 23/05/15.
  */
 public class ListRetrievedEvent {
-    public List<ItemHolder> list;
+    private String token;
+    private List<ItemHolder> list;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public List<ItemHolder> getList() {
+        return list;
+    }
+
+    public void setList(List<ItemHolder> list) {
+        this.list = list;
+    }
 }
