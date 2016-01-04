@@ -63,6 +63,13 @@
         <item name="android:textSize">18sp</item>
     </style>
 
+    <style name="Text.Votes" parent="Text.Default">
+        <item name="android:gravity">center</item>
+        <item name="android:maxEms">3</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_size_s</item>
+    </style>
+
     <style name="ExpandedText" parent="@android:style/TextAppearance.StatusBar.Title">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>

@@ -30,7 +30,7 @@ import java.util.Collections;
 import icepick.Icepick;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.list.ListActivity;
-import pt.castro.francesinhas.tools.NotificationTools;
+import pt.castro.francesinhas.tools.NotificationUtils;
 
 /**
  * Created by lourenco.castro on 07/06/15.
@@ -116,20 +116,19 @@ public class LoginActivity extends Activity {
                 rootView.setVisibility(View.GONE);
                 Log.d("LoginManager", "Success");
                 startList();
-//                NotificationTools.toastCustomText(LoginActivity.this, "Logged in as " + Profile.getCurrentProfile().getName());
             }
 
             @Override
             public void onCancel() {
                 Log.d("LoginManager", "Cancel");
-                NotificationTools.toastLoginFailed(LoginActivity.this);
+                NotificationUtils.toastLoginFailed(LoginActivity.this);
             }
 
             @Override
             public void onError(FacebookException e) {
                 Log.d("LoginManager", "Error");
                 e.printStackTrace();
-                NotificationTools.toastLoginFailed(LoginActivity.this);
+                NotificationUtils.toastLoginFailed(LoginActivity.this);
             }
         });
         final View guestButton = findViewById(R.id.guest_button);

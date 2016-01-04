@@ -1,6 +1,5 @@
 package pt.castro.francesinhas.list;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.florent37.beautifulparallax.ParallaxViewController;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 
@@ -37,9 +37,8 @@ import pt.castro.francesinhas.tools.PhotoUtils;
 public class CustomRecyclerViewAdapter extends RecyclerView
         .Adapter<CustomRecyclerViewAdapter.ViewHolder> {
 
-//    ParallaxViewController parallaxViewController;
-
     private static final String CACHED_EMPTY_BITMAP = "empty";
+    private ParallaxViewController parallaxViewController;
     private List<LocalItemHolder> items;
     private List<LocalItemHolder> visibleItems;
     private boolean votingEnabled;
@@ -49,7 +48,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         EventBus.getDefault().register(this);
         items = new ArrayList<>();
         generateEmptyBitmap(context);
-//        parallaxViewController = new ParallaxViewController();
+        parallaxViewController = new ParallaxViewController();
     }
 
     private void generateEmptyBitmap(final Context context) {
@@ -72,9 +71,10 @@ public class CustomRecyclerViewAdapter extends RecyclerView
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-//        parallaxViewController.registerImageParallax(recyclerView);
+        parallaxViewController.registerImageParallax(recyclerView);
     }
 
+    @EventBusHook
     public void onEvent(final PhotoUpdateEvent photoUpdateEvent) {
         notifyItemChanged(visibleItems.indexOf(photoUpdateEvent.getLocalItemHolder()));
     }
@@ -123,7 +123,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         final View row = LayoutInflater.from(parent.getContext()).inflate(R.layout
                 .row_main, parent, false);
         ViewHolder viewHolder = new ViewHolder(row);
-//        parallaxViewController.imageParallax(viewHolder.imageView);
+        parallaxViewController.imageParallax(viewHolder.imageView);
         return viewHolder;
     }
 
@@ -135,14 +135,14 @@ public class CustomRecyclerViewAdapter extends RecyclerView
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.cancelAnimations();
         final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
 
         final ImageLoader imageLoader = ImageLoader.getInstance();
         final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
             imageLoader.cancelDisplayTask(aware);
-            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils.getDisplayImageOptions(true));
+            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
+                    .getDisplayImageOptions(true));
         } else {
             holder.imageView.setImageBitmap(emptyBitmap);
         }
@@ -154,7 +154,6 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         holder.locationTextView.setText(itemHolder.getLocation());
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
-        holder.translated = true;
         switch (visibleItems.get(position).getUserVote()) {
             case -1:
                 holder.setVoteDownSelected();
@@ -196,13 +195,8 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         View votesUpIndicator;
         @Bind(R.id.votes_down_indicator)
         View votesDownIndicator;
-//        @Bind(R.id.clickable_parent)
-//        RelativeLayout clickableParent;
 
         private boolean voting;
-        private boolean translated;
-
-        private ObjectAnimator textAnimator;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -213,22 +207,16 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         private void setVoteUpSelected() {
             votesUpIndicator.setVisibility(View.VISIBLE);
             votesDownIndicator.setVisibility(View.INVISIBLE);
-//            votesUp.setSelected(true);
-//            votesDown.setSelected(false);
         }
 
         private void setVoteDownSelected() {
             votesUpIndicator.setVisibility(View.INVISIBLE);
             votesDownIndicator.setVisibility(View.VISIBLE);
-//            votesUp.setSelected(false);
-//            votesDown.setSelected(true);
         }
 
         private void resetVotes() {
             votesUpIndicator.setVisibility(View.INVISIBLE);
             votesDownIndicator.setVisibility(View.INVISIBLE);
-//            votesUp.setSelected(false);
-//            votesDown.setSelected(false);
         }
 
         private void clickVote(int vote) {
@@ -248,19 +236,13 @@ public class CustomRecyclerViewAdapter extends RecyclerView
                 case 1:
                     toggleVisibility(votesUpIndicator);
                     votesDownIndicator.setVisibility(View.INVISIBLE);
-//                    votesUp.setSelected(!votesUp.isSelected());
-//                    votesDown.setSelected(false);
                     break;
                 case -1:
                     votesUpIndicator.setVisibility(View.INVISIBLE);
                     toggleVisibility(votesDownIndicator);
-//                    votesUp.setSelected(false);
-//                    votesDown.setSelected(!votesDown.isSelected());
                     break;
                 default:
                     resetVotes();
-//                    votesUp.setSelected(false);
-//                    votesDown.setSelected(false);
                     break;
             }
         }
@@ -330,12 +312,6 @@ public class CustomRecyclerViewAdapter extends RecyclerView
             userClickEvent.setUserVote(vote);
             userClickEvent.setView(titleTextView);
             EventBus.getDefault().post(userClickEvent);
-        }
-
-        public void cancelAnimations() {
-            if (textAnimator != null) {
-                textAnimator.cancel();
-            }
         }
 
         private void postClick(int position) {

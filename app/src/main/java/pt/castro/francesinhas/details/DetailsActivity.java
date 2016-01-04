@@ -7,9 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -40,16 +38,10 @@ import pt.castro.francesinhas.tools.PhotoUtils;
  */
 public class DetailsActivity extends AppCompatActivity {
 
-    @Bind(R.id.details_address_label)
-    TextView addressLabel;
     @Bind(R.id.details_address_content)
     TextView addressTextView;
-    @Bind(R.id.details_phone_label)
-    TextView phoneLabel;
     @Bind(R.id.details_phone_content)
     TextView phoneTextView;
-    @Bind(R.id.details_url_label)
-    TextView urlLabel;
     @Bind(R.id.details_url_content)
     TextView urlTextView;
     @Bind(R.id.map_view)
@@ -64,14 +56,8 @@ public class DetailsActivity extends AppCompatActivity {
     LinearLayout urlParent;
     @Bind(R.id.details_address_parent)
     LinearLayout addressParent;
-    @Bind(R.id.details_parent)
-    LinearLayout detailsParent;
-    @Bind(R.id.appbar)
-    AppBarLayout appBarLayout;
     @Bind(R.id.collapsing_toolbar)
     CollapsingToolbarLayout collapsingToolbarLayout;
-    @Bind(R.id.main_content)
-    CoordinatorLayout coordinatorLayout;
 
     private String location;
     private Bitmap bitmap;
@@ -81,41 +67,32 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_details);
         ButterKnife.bind(this);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            getWindow().setEnterTransition(TransitionUtils.makeFadeTransition());
-//            getWindow().setExitTransition(TransitionUtils.makeFadeTransition());
-//
-//            setEnterSharedElementCallback(new SharedElementCallback() {
-//
-//                @Override
-//                public void onSharedElementStart(List<String> sharedElementNames,
-//                                                 List<View> sharedElements, List<View>
-//                                                         sharedElementSnapshots) {
-//                    super.onSharedElementStart(sharedElementNames, sharedElements,
-//                            sharedElementSnapshots);
-//                    tempTitle.setVisibility(View.VISIBLE);
-//                }
-//
-//                @Override
-//                public void onSharedElementEnd(List<String> sharedElementNames,
-//                                               List<View> sharedElements, List<View>
-//                                                       sharedElementSnapshots) {
-//                    super.onSharedElementEnd(sharedElementNames, sharedElements,
-//                            sharedElementSnapshots);
-//                    tempTitle.setVisibility(View.INVISIBLE);
-////                    detailsAnimateEnter();
-//                }
-//
-//
-//            });
-//        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
 
-        final Bundle data = getIntent().getExtras();
+        setActionBar();
 
+        final Bundle data = getIntent().getExtras();
+        collapsingToolbarLayout.setTitle(data.getString(DetailsKeys.ITEM_NAME));
+        setBackdrop(data);
+        setAddress(data);
+        setPhone(data);
+        setUrl(data);
+    }
+
+    private void setBackdrop(final Bundle data) {
+        final String backgroundUrl = data.getString(DetailsKeys.ITEM_BACKGROUND_URL);
+        if (backgroundUrl == null || backgroundUrl.equals("n/a")) {
+            backdrop.setImageResource(R.drawable.francesinha_blur);
+        } else {
+            ImageLoader.getInstance().displayImage(backgroundUrl, backdrop, PhotoUtils
+                    .getDisplayImageOptions(false));
+        }
+    }
+
+    private void setActionBar() {
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -125,22 +102,6 @@ public class DetailsActivity extends AppCompatActivity {
             actionBar.setDisplayUseLogoEnabled(false);
             actionBar.setHomeButtonEnabled(true);
         }
-
-        collapsingToolbarLayout.setTitle(data.getString(DetailsKeys.ITEM_NAME));
-//        setTitle("");
-//        setTitle(data.getString(DetailsKeys.ITEM_NAME));
-
-        final String backgroundUrl = data.getString(DetailsKeys.ITEM_BACKGROUND_URL);
-        if (backgroundUrl == null || backgroundUrl.equals("n/a")) {
-            backdrop.setImageResource(R.drawable.francesinha_blur);
-        } else {
-            ImageLoader.getInstance().displayImage(backgroundUrl, backdrop, PhotoUtils
-                    .getDisplayImageOptions(false));
-        }
-
-        setAddress(data);
-        setPhone(data);
-        setUrl(data);
     }
 
     @Override
@@ -153,28 +114,6 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
-    //    @Override
-//    public void onBackPressed() {
-//        appBarLayout.addOnOffsetChangedListener(new AppBarLayout
-//                .OnOffsetChangedListener() {
-//            @Override
-//            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-//                if (verticalOffset == 0) {
-////                    detailsAnimateExit();
-//                    tempTitle.setVisibility(View.VISIBLE);
-//                    new Handler().postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            DetailsActivity.super.onBackPressed();
-//                        }
-//                    }, 0);
-//                }
-//            }
-//        });
-//        appBarLayout.setExpanded(true, true);
-//        collapsingToolbarLayout.setScrimsShown(true, true);
-//    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -185,17 +124,6 @@ public class DetailsActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-//    private void detailsAnimateEnter() {
-//        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_up);
-//        scrollView.startAnimation(animation);
-//    }
-//
-//    private void detailsAnimateExit() {
-//        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_bottom);
-//        scrollView.startAnimation(animation);
-//
-//    }
 
     @OnClick(R.id.details_phone_parent)
     public void onClickPhoneParent() {

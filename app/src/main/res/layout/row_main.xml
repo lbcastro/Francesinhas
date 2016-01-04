@@ -37,14 +37,12 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="@dimen/margin_l"
             android:layout_marginLeft="@dimen/margin_m"
             android:layout_marginStart="@dimen/margin_m"
             android:gravity="start|center"
             android:text="5"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:visibility="visible"/>
+            android:textSize="18sp"/>
 
         <TextView
             android:id="@+id/custom_row_name"
@@ -57,7 +55,6 @@
             android:layout_toEndOf="@id/custom_row_ranking"
             android:layout_toRightOf="@id/custom_row_ranking"
             android:text="Nome"
-            android:textColor="@android:color/white"
             android:transitionName="@string/transition_text"/>
 
         <TextView
@@ -74,7 +71,7 @@
 
         <TextView
             android:id="@+id/votes_down"
-            style="@style/Text.Header.2"
+            style="@style/Text.Votes"
             android:layout_width="@dimen/ranking_size"
             android:layout_height="@dimen/ranking_size"
             android:layout_alignBottom="@id/custom_row_ranking"
@@ -84,19 +81,18 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/margin_m"
             android:layout_marginRight="@dimen/margin_m"
-            android:gravity="center"
-            android:maxEms="3"
             android:text="3"
             android:textColor="@color/red_faded"
-            android:textStyle="bold"
             app:elevation="4dp"/>
 
         <View
             android:id="@+id/votes_down_indicator"
             android:layout_width="wrap_content"
             android:layout_height="1px"
+            android:layout_alignEnd="@id/votes_down"
             android:layout_alignLeft="@id/votes_down"
             android:layout_alignRight="@id/votes_down"
+            android:layout_alignStart="@id/votes_down"
             android:layout_below="@id/votes_down"
             android:layout_marginLeft="@dimen/margin_s"
             android:layout_marginRight="@dimen/margin_s"
@@ -106,7 +102,7 @@
 
         <TextView
             android:id="@+id/votes_up"
-            style="@style/Text.Header.2"
+            style="@style/Text.Votes"
             android:layout_width="@dimen/ranking_size"
             android:layout_height="@dimen/ranking_size"
             android:layout_alignBottom="@id/custom_row_ranking"
@@ -116,11 +112,8 @@
             android:layout_marginRight="@dimen/margin_s"
             android:layout_toLeftOf="@id/votes_down"
             android:layout_toStartOf="@id/votes_down"
-            android:gravity="center"
-            android:maxEms="3"
             android:text="1"
             android:textColor="@color/green_bright"
-            android:textStyle="bold"
             app:elevation="4dp"/>
 
         <View
@@ -128,8 +121,10 @@
             layout="@layout/vote_indicator"
             android:layout_width="wrap_content"
             android:layout_height="1px"
+            android:layout_alignEnd="@id/votes_up"
             android:layout_alignLeft="@id/votes_up"
             android:layout_alignRight="@id/votes_up"
+            android:layout_alignStart="@id/votes_up"
             android:layout_below="@id/votes_up"
             android:layout_marginLeft="@dimen/margin_s"
             android:layout_marginRight="@dimen/margin_s"

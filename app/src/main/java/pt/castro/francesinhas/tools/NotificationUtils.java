@@ -8,7 +8,7 @@ import pt.castro.francesinhas.R;
 /**
  * Created by lourenco on 09/06/15.
  */
-public class NotificationTools {
+public class NotificationUtils {
 
     private static Toast sActiveToast;
 

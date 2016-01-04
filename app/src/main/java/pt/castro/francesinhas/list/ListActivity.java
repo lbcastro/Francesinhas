@@ -61,21 +61,23 @@ import pt.castro.francesinhas.events.place.ScoreChangeEvent;
 import pt.castro.francesinhas.events.user.NoUserEvent;
 import pt.castro.francesinhas.events.user.UserClickEvent;
 import pt.castro.francesinhas.events.user.UserDataEvent;
-import pt.castro.francesinhas.list.decoration.TransitionUtils;
 import pt.castro.francesinhas.tools.LayoutUtils;
-import pt.castro.francesinhas.tools.NotificationTools;
+import pt.castro.francesinhas.tools.NotificationUtils;
 import pt.castro.francesinhas.tools.PlaceUtils;
+import pt.castro.francesinhas.tools.TransitionUtils;
 
 public class ListActivity extends AppCompatActivity {
 
     private static final int PLACE_PICKER_REQUEST = 1;
     private final String TAG = getClass().getName();
+
     @Bind(R.id.fragment_recycler_view)
     UltimateRecyclerView mainRecyclerView;
     @Bind(R.id.floating_action_button)
     FloatingActionButton floatingActionButton;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
+
     private UserHolder mCurrentUser;
     private SearchView mSearchView;
     private CustomRecyclerViewAdapter recyclerViewAdapter;
@@ -95,15 +97,14 @@ public class ListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-        super.onCreate(savedInstanceState);
-        Icepick.restoreInstanceState(this, savedInstanceState);
-        setContentView(R.layout.fragment_list);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
             getWindow().setEnterTransition(TransitionUtils.makeFadeTransition());
             getWindow().setExitTransition(TransitionUtils.makeFadeTransition());
         }
+        super.onCreate(savedInstanceState);
+        Icepick.restoreInstanceState(this, savedInstanceState);
+        setContentView(R.layout.fragment_list);
 
         ButterKnife.bind(this);
         LayoutUtils.initImageLoader(getApplicationContext());
@@ -305,13 +306,6 @@ public class ListActivity extends AppCompatActivity {
             LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
             int voteInt = getVote(mCurrentUser, itemHolder.getId());
             localItemHolder.setUserVote(voteInt);
-//            if (itemHolder.getPhotoUrl() == null || itemHolder.getPhotoUrl().equals
-// ("n/a")) {
-//                final GetPlacePhotos getPlacePhotos = new GetPlacePhotos
-// (localItemHolder);
-//                getPlacePhotos.getAllPhotos();
-//            }
-//            localItemHolders.add(localItemHolder);
             if (itemHolder.getLatitude() == null || itemHolder.getLongitude() == null
                     || (itemHolder.getLatitude() == 0 && itemHolder.getLongitude() ==
                     0)) {
@@ -320,16 +314,13 @@ public class ListActivity extends AppCompatActivity {
             }
             recyclerViewAdapter.add(localItemHolder);
         }
-
-        // Passes the generated list to the adapter.
-//        setItems(localItemHolders);
     }
 
     @EventBusHook
     public void onEvent(final UserClickEvent userClickEvent) {
         if (userClickEvent.getLocalItemHolder() == null || userClickEvent
                 .getLocalItemHolder().getItemHolder() == null) {
-            NotificationTools.toastLoggedVote(this);
+            NotificationUtils.toastLoggedVote(this);
             return;
         }
         if (userClickEvent.getUserVote() != 0 && mCurrentUser != null) {
@@ -338,12 +329,11 @@ public class ListActivity extends AppCompatActivity {
             new EndpointUserVote(mCurrentUser.getId(), itemHolder.getId()).execute
                     (userClickEvent.getUserVote());
         } else {
-            showDetailsFragment(userClickEvent.getLocalItemHolder(), userClickEvent
-                    .getView());
+            showDetailsFragment(userClickEvent.getLocalItemHolder());
         }
     }
 
-    private void showDetailsFragment(final LocalItemHolder localItemHolder, View view) {
+    private void showDetailsFragment(final LocalItemHolder localItemHolder) {
         floatingActionButton.hide();
         final ItemHolder itemHolder = localItemHolder.getItemHolder();
         final Intent intent = new Intent(this, DetailsActivity.class);
@@ -360,34 +350,7 @@ public class ListActivity extends AppCompatActivity {
         intent.putExtra(DetailsKeys.USER_ID, mCurrentUser != null ? mCurrentUser.getId
                 () : "");
         intent.putExtra(DetailsKeys.USER_VOTE, localItemHolder.getUserVote());
-
-
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES
-// .LOLLIPOP) {
-//
-//            View image = view.findViewById(R.id.backdrop_image);
-//            View overlay = view.findViewById(R.id.backdrop_clickable);
-//            View statusBar = findViewById(android.R.id.statusBarBackground);
-//            View navigationBar = findViewById(android.R.id.navigationBarBackground);
-//            View text = view.findViewById(R.id.custom_row_name);
-//            View temp = findViewById(R.id.temp);
-//
-//            List<Pair<View, String>> pairs = new ArrayList<>();
-//            pairs.add(Pair.create(statusBar, Window
-//                    .STATUS_BAR_BACKGROUND_TRANSITION_NAME));
-//            pairs.add(Pair.create(navigationBar, Window
-//                    .NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME));
-//            pairs.add(Pair.create(image, getString(R.string.transition_image)));
-//            pairs.add(Pair.create(overlay, getString(R.string.transition_clickable)));
-//            pairs.add(Pair.create(text, getString(R.string.transition_text)));
-//            pairs.add(Pair.create(temp, "list"));
-//            ActivityOptionsCompat options = ActivityOptionsCompat
-//                    .makeSceneTransitionAnimation(this, pairs.toArray(new Pair[pairs
-//                            .size()]));
-//            ActivityCompat.startActivity(this, intent, options.toBundle());
-//        } else {
         startActivity(intent);
-//        }
     }
 
     @EventBusHook
@@ -407,7 +370,7 @@ public class ListActivity extends AppCompatActivity {
     @EventBusHook
     public void onEvent(final PlacePickerEvent placePickerEvent) {
         if (mCurrentUser == null) {
-            NotificationTools.toastLoggedAdd(this);
+            NotificationUtils.toastLoggedAdd(this);
             return;
         }
 
@@ -416,7 +379,7 @@ public class ListActivity extends AppCompatActivity {
             startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
         } catch (GooglePlayServicesRepairableException |
                 GooglePlayServicesNotAvailableException e) {
-            NotificationTools.toastGoogleConnectionFailed(this);
+            NotificationUtils.toastGoogleConnectionFailed(this);
             // TODO
             e.printStackTrace();
         }
@@ -424,7 +387,7 @@ public class ListActivity extends AppCompatActivity {
 
     @EventBusHook
     public void onEventMainThread(final PlaceAlreadyExistsEvent placeAlreadyExistsEvent) {
-        NotificationTools.toastCustomText(this, R.string.place_exists);
+        NotificationUtils.toastCustomText(this, R.string.place_exists);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -435,7 +398,7 @@ public class ListActivity extends AppCompatActivity {
             if (!place.getPlaceTypes().contains(Place.TYPE_RESTAURANT) && !place
                     .getPlaceTypes().contains(Place.TYPE_CAFE) && !place.getPlaceTypes
                     ().contains(Place.TYPE_FOOD)) {
-                NotificationTools.toastCustomText(this, R.string.invalid_place);
+                NotificationUtils.toastCustomText(this, R.string.invalid_place);
             } else {
                 final ItemHolder itemHolder = PlaceUtils.getItemFromPlace(this, place);
                 Log.d("List", PlaceUtils.placeToString(itemHolder));

@@ -10,9 +10,14 @@
     <string name="details_website">Página web</string>
     <string name="google_play_failed">Falha na ligação ao Google Play</string>
     <string name="invalid_place">Local inválido</string>
-    <string name="loading_map">A carregar o mapa...</string>
+    <string name="loading_map">A carregar o mapa…</string>
     <string name="log_in_failed">Falha no log in</string>
     <string name="logged_in_to_add">Log in para adicionar novos locais</string>
     <string name="logged_in_to_vote">Log in para começar a votar</string>
     <string name="place_exists">Este local já existe</string>
+    <string name="francesinhas">Francesinhas</string>
+    <string name="no_places">Nenhum local encontrado!</string>
+    <string name="refresh">Actualizar</string>
+    <string name="search">Procurar</string>
+    <string name="continue_as_guest">Continuar sem login</string>
 </resources>

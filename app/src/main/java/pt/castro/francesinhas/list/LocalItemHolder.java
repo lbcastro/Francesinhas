@@ -25,8 +25,4 @@ public class LocalItemHolder {
     public void setUserVote(final int userVote) {
         this.userVote = userVote;
     }
-
-    public void update(final ItemHolder itemHolder) {
-        this.itemHolder = itemHolder;
-    }
 }

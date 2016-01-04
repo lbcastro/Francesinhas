@@ -8,6 +8,7 @@
 
     <dimen name="row_bottom_bar_height">48dp</dimen>
     <dimen name="row_main_height">160dp</dimen>
+    <dimen name="details_header_height">240dp</dimen>
     <dimen name="map_view_height">144dp</dimen>
 
     <dimen name="icon_size">32dp</dimen>
