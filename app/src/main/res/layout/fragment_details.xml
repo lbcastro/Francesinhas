@@ -13,7 +13,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
 -->
-
 <android.support.design.widget.CoordinatorLayout
     android:id="@+id/main_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -45,16 +44,6 @@
             app:statusBarScrim="?colorPrimaryDark">
 
             <include layout="@layout/backdrop_shaded"/>
-
-            <TextView
-                android:id="@+id/temp_title"
-                style="@style/Text.Header.5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/margin_m"
-                android:transitionName="@string/transition_text"
-                card_view:targetApi="lollipop"/>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"

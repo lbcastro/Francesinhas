@@ -25,7 +25,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="88dp"
             android:layout_alignParentBottom="true"
             android:background="@drawable/black_gradient"/>
 
@@ -37,10 +37,11 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="32dp"
             android:layout_marginLeft="@dimen/margin_m"
             android:layout_marginStart="@dimen/margin_m"
             android:gravity="start|center"
+            android:text="5"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:visibility="visible"/>
@@ -55,33 +56,37 @@
             android:layout_marginStart="@dimen/margin_s"
             android:layout_toEndOf="@id/custom_row_ranking"
             android:layout_toRightOf="@id/custom_row_ranking"
+            android:text="Nome"
             android:textColor="@android:color/white"
             android:transitionName="@string/transition_text"/>
-    </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/text_parent"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/margin_s"
-        android:layout_marginEnd="@dimen/margin_s"
-        android:layout_marginRight="@dimen/margin_s"
-        android:animateLayoutChanges="true"
-        android:background="@android:color/transparent"
-        android:gravity="bottom">
+        <TextView
+            android:id="@+id/custom_row_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/custom_row_name"
+            android:layout_alignStart="@id/custom_row_name"
+            android:layout_below="@id/custom_row_name"
+            android:fontFamily="sans-serif-light"
+            android:text="Porto"
+            android:textColor="@android:color/white"
+            android:textSize="13sp"/>
 
         <TextView
             android:id="@+id/votes_down"
             style="@style/Text.Header.2"
             android:layout_width="@dimen/ranking_size"
             android:layout_height="@dimen/ranking_size"
+            android:layout_alignBottom="@id/custom_row_ranking"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/custom_row_ranking"
             android:layout_centerVertical="true"
-            android:background="@drawable/selector_circle"
+            android:layout_marginEnd="@dimen/margin_m"
+            android:layout_marginRight="@dimen/margin_m"
             android:gravity="center"
             android:maxEms="3"
+            android:text="3"
             android:textColor="@color/red_faded"
             android:textStyle="bold"
             app:elevation="4dp"/>
@@ -93,9 +98,9 @@
             android:layout_alignLeft="@id/votes_down"
             android:layout_alignRight="@id/votes_down"
             android:layout_below="@id/votes_down"
-            android:layout_marginBottom="@dimen/margin_s"
             android:layout_marginLeft="@dimen/margin_s"
             android:layout_marginRight="@dimen/margin_s"
+            android:layout_marginTop="@dimen/margin_s"
             android:background="@color/red_faded"
             android:visibility="invisible"/>
 
@@ -104,15 +109,16 @@
             style="@style/Text.Header.2"
             android:layout_width="@dimen/ranking_size"
             android:layout_height="@dimen/ranking_size"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
+            android:layout_alignBottom="@id/custom_row_ranking"
+            android:layout_alignTop="@id/custom_row_ranking"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/margin_xl"
-            android:layout_marginRight="@dimen/margin_xl"
-            android:layout_marginTop="2dp"
-            android:background="@drawable/selector_circle"
+            android:layout_marginEnd="@dimen/margin_s"
+            android:layout_marginRight="@dimen/margin_s"
+            android:layout_toLeftOf="@id/votes_down"
+            android:layout_toStartOf="@id/votes_down"
             android:gravity="center"
             android:maxEms="3"
+            android:text="1"
             android:textColor="@color/green_bright"
             android:textStyle="bold"
             app:elevation="4dp"/>
@@ -125,11 +131,10 @@
             android:layout_alignLeft="@id/votes_up"
             android:layout_alignRight="@id/votes_up"
             android:layout_below="@id/votes_up"
-            android:layout_marginBottom="@dimen/margin_s"
             android:layout_marginLeft="@dimen/margin_s"
             android:layout_marginRight="@dimen/margin_s"
+            android:layout_marginTop="@dimen/margin_s"
             android:background="@color/green_faded"
             android:visibility="invisible"/>
-
     </RelativeLayout>
 </android.support.v7.widget.CardView>

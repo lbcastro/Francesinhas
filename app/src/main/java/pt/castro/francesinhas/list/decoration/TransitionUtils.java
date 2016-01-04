@@ -48,7 +48,7 @@ public class TransitionUtils {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Transition makeFadeTransition() {
         Transition fade = new Fade();
-        fade.excludeTarget(R.id.nested_scroll, true);
+//        fade.excludeTarget(R.id.nested_scroll, true);
         fade.excludeTarget(android.R.id.navigationBarBackground, true);
         fade.excludeTarget(android.R.id.statusBarBackground, true);
         return fade;

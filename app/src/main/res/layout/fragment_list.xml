@@ -3,8 +3,8 @@
                                                  xmlns:tools="http://schemas.android.com/tools"
                                                  android:layout_width="match_parent"
                                                  android:layout_height="match_parent"
+                                                 android:background="@color/background"
                                                  android:clipToPadding="false"
-                                                 android:paddingBottom="8dp"
                                                  app:statusBarBackground="@android:color/transparent"
                                                  tools:context=".list.ListActivity">
 
@@ -31,13 +31,6 @@
         android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:recyclerviewEmptyView="@layout/empty_list"/>
-
-    <FrameLayout
-        android:id="@+id/temp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:transitionName="list"
-        android:translationY="1000dp"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floating_action_button"

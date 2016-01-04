@@ -151,6 +151,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView
                 + 1);
         holder.rankingTextView.setText(text);
         holder.titleTextView.setText(itemHolder.getName());
+        holder.locationTextView.setText(itemHolder.getLocation());
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
         holder.translated = true;
@@ -181,6 +182,8 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         TextView rankingTextView;
         @Bind(R.id.custom_row_name)
         TextView titleTextView;
+        @Bind(R.id.custom_row_location)
+        TextView locationTextView;
         @Bind(R.id.backdrop_image)
         ImageView imageView;
         @Bind(R.id.backdrop_clickable)

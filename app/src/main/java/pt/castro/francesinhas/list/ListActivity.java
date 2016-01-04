@@ -256,7 +256,7 @@ public class ListActivity extends AppCompatActivity {
             logOut();
             startLoginActivity();
         } else if (item.getItemId() == R.id.action_refresh) {
-            new EndpointGetItems().execute();
+            EventBus.getDefault().post(new ListRefreshEvent(false));
         }
         return super.onOptionsItemSelected(item);
     }

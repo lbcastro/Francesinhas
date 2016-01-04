@@ -9,17 +9,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.widget.NestedScrollView;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -69,14 +66,12 @@ public class DetailsActivity extends AppCompatActivity {
     LinearLayout addressParent;
     @Bind(R.id.details_parent)
     LinearLayout detailsParent;
-    @Bind(R.id.nested_scroll)
-    NestedScrollView scrollView;
     @Bind(R.id.appbar)
     AppBarLayout appBarLayout;
-    @Bind(R.id.temp_title)
-    TextView tempTitle;
     @Bind(R.id.collapsing_toolbar)
     CollapsingToolbarLayout collapsingToolbarLayout;
+    @Bind(R.id.main_content)
+    CoordinatorLayout coordinatorLayout;
 
     private String location;
     private Bitmap bitmap;
@@ -120,14 +115,6 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         final Bundle data = getIntent().getExtras();
-        tempTitle.setText(data.getString(DetailsKeys.ITEM_NAME));
-        tempTitle.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
-                .OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                tempTitle.setVisibility(View.INVISIBLE);
-            }
-        });
 
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
@@ -147,7 +134,8 @@ public class DetailsActivity extends AppCompatActivity {
         if (backgroundUrl == null || backgroundUrl.equals("n/a")) {
             backdrop.setImageResource(R.drawable.francesinha_blur);
         } else {
-            ImageLoader.getInstance().displayImage(backgroundUrl, backdrop, PhotoUtils.getDisplayImageOptions(false));
+            ImageLoader.getInstance().displayImage(backgroundUrl, backdrop, PhotoUtils
+                    .getDisplayImageOptions(false));
         }
 
         setAddress(data);
@@ -165,7 +153,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
+    //    @Override
 //    public void onBackPressed() {
 //        appBarLayout.addOnOffsetChangedListener(new AppBarLayout
 //                .OnOffsetChangedListener() {
@@ -198,16 +186,16 @@ public class DetailsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void detailsAnimateEnter() {
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_up);
-        scrollView.startAnimation(animation);
-    }
-
-    private void detailsAnimateExit() {
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_bottom);
-        scrollView.startAnimation(animation);
-
-    }
+//    private void detailsAnimateEnter() {
+//        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_up);
+//        scrollView.startAnimation(animation);
+//    }
+//
+//    private void detailsAnimateExit() {
+//        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_bottom);
+//        scrollView.startAnimation(animation);
+//
+//    }
 
     @OnClick(R.id.details_phone_parent)
     public void onClickPhoneParent() {
