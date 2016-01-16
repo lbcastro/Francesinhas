@@ -44,10 +44,9 @@ public class LayoutUtils {
         Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
-                v.getLayoutParams().height = interpolatedTime == 1
-                        ? targetHeight
-                        : (int) (((targetHeight - initialHeight) * interpolatedTime) +
-                        initialHeight);
+                v.getLayoutParams().height = interpolatedTime == 1 ? targetHeight :
+                        (int) (((targetHeight - initialHeight) * interpolatedTime) +
+                                initialHeight);
                 v.requestLayout();
             }
 
@@ -58,8 +57,8 @@ public class LayoutUtils {
         };
 
         // 1dp/ms
-        a.setDuration((int) (targetHeight / v.getContext().getResources().getDisplayMetrics()
-                .density));
+        a.setDuration((int) (targetHeight / v.getContext().getResources()
+                .getDisplayMetrics().density));
         v.startAnimation(a);
     }
 
@@ -86,8 +85,8 @@ public class LayoutUtils {
         };
 
         // 1dp/ms
-        a.setDuration((int) (initialHeight / v.getContext().getResources().getDisplayMetrics()
-                .density));
+        a.setDuration((int) (initialHeight / v.getContext().getResources()
+                .getDisplayMetrics().density));
         v.startAnimation(a);
     }
 

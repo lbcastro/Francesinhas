@@ -13,29 +13,28 @@ public class ItemHolder {
 
     @Id
     private String id;
+
+    @Index
     private String name;
     private String userId;
 
+    @Index
     private int priceRange;
 
-    @Index
-    private String location;
-    @Index
-    private String address;
-    @Index
-    private String phone;
-    @Index
-    private String url;
-    @Index
-    private double latitude;
-    @Index
-    private double longitude;
     @Index
     private int votesUp;
     @Index
     private int votesDown;
 
     private String photoUrl;
+    private String location;
+    private String address;
+    private String phone;
+    private String url;
+    private String zomatoUrl;
+    private String googleUrl;
+    private double latitude;
+    private double longitude;
 
     public ItemHolder increaseRanking() {
         this.votesUp++;
@@ -152,5 +151,21 @@ public class ItemHolder {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getZomatoUrl() {
+        return zomatoUrl;
+    }
+
+    public void setZomatoUrl(String zomatoUrl) {
+        this.zomatoUrl = zomatoUrl;
+    }
+
+    public String getGoogleUrl() {
+        return googleUrl;
+    }
+
+    public void setGoogleUrl(String googleUrl) {
+        this.googleUrl = googleUrl;
     }
 }

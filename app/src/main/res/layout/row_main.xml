@@ -20,14 +20,34 @@
         android:layout_gravity="center"
         android:animateLayoutChanges="true">
 
-        <include
-            layout="@layout/backdrop_shaded"/>
-
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="88dp"
+            android:layout_height="@dimen/details_header_height"
+            android:fitsSystemWindows="true">
+
+            <ImageView
+                android:id="@+id/backdrop_image"
+                android:layout_width="match_parent"
+                android:layout_height="280dp"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop"
+                android:transitionName="@string/transition_image"/>
+
+            <View
+                android:id="@+id/backdrop_clickable"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/selector"
+                android:transitionName="@string/transition_clickable"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/custom_row_bottom_shadow"
+            android:layout_width="match_parent"
+            android:layout_height="104dp"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/black_gradient"/>
+            android:background="@drawable/black_gradient"
+            android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/custom_row_ranking"
@@ -53,7 +73,11 @@
             android:layout_marginLeft="@dimen/margin_s"
             android:layout_marginStart="@dimen/margin_s"
             android:layout_toEndOf="@id/custom_row_ranking"
+            android:layout_toLeftOf="@+id/votes_up"
             android:layout_toRightOf="@id/custom_row_ranking"
+            android:layout_toStartOf="@+id/votes_up"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="Nome"
             android:transitionName="@string/transition_text"/>
 
@@ -101,7 +125,7 @@
             android:visibility="invisible"/>
 
         <TextView
-            android:id="@+id/votes_up"
+            android:id="@id/votes_up"
             style="@style/Text.Votes"
             android:layout_width="@dimen/ranking_size"
             android:layout_height="@dimen/ranking_size"

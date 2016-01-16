@@ -1,5 +1,7 @@
 package pt.castro.francesinhas.list;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,12 +9,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.florent37.beautifulparallax.ParallaxViewController;
+import com.marshalchen.ultimaterecyclerview.animators.internal.ViewHelper;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +30,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
+import pt.castro.francesinhas.CustomApplication;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.events.EventBusHook;
@@ -38,17 +46,27 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         .Adapter<CustomRecyclerViewAdapter.ViewHolder> {
 
     private static final String CACHED_EMPTY_BITMAP = "empty";
+
     private ParallaxViewController parallaxViewController;
-    private List<LocalItemHolder> items;
     private List<LocalItemHolder> visibleItems;
     private boolean votingEnabled;
     private Bitmap emptyBitmap;
+    private int mLastPosition;
 
     public CustomRecyclerViewAdapter(final Context context) {
         EventBus.getDefault().register(this);
-        items = new ArrayList<>();
+        visibleItems = new ArrayList<>();
         generateEmptyBitmap(context);
         parallaxViewController = new ParallaxViewController();
+    }
+
+    private static Bitmap getCachedBitmap(final String url) {
+        List<Bitmap> list = MemoryCacheUtils.findCachedBitmapsForImageUri(url,
+                ImageLoader.getInstance().getMemoryCache());
+        if (list != null && list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
     }
 
     private void generateEmptyBitmap(final Context context) {
@@ -74,35 +92,44 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         parallaxViewController.registerImageParallax(recyclerView);
     }
 
+//    public void setItems(List<LocalItemHolder> items) {
+//        this.items = items;
+//        flushFilter();
+//    }
+
     @EventBusHook
     public void onEvent(final PhotoUpdateEvent photoUpdateEvent) {
         notifyItemChanged(visibleItems.indexOf(photoUpdateEvent.getLocalItemHolder()));
     }
 
-    public void setItems(List<LocalItemHolder> items) {
-        this.items = items;
-        flushFilter();
-    }
-
-    public void add(LocalItemHolder itemHolder) {
-        items.add(itemHolder);
-        flushFilter();
+    public void add(LocalItemHolder localItemHolder) {
+//        items.add(itemHolder);
+//        CustomApplication.getPlacesManager().add(localItemHolder.getItemHolder().getId
+//                (), localItemHolder);
+        visibleItems.add(localItemHolder);
+        notifyItemInserted(visibleItems.indexOf(localItemHolder));
     }
 
     public void clear() {
-        items.clear();
+        mLastPosition = 0;
+//        items.clear();
         flushFilter();
     }
 
     private void flushFilter() {
+        final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager()
+                .getList();
         visibleItems = new ArrayList<>();
-        visibleItems.addAll(items);
+//        visibleItems.addAll(items);
+        visibleItems.addAll(tempList);
         notifyDataSetChanged();
     }
 
     public void setFilter(String query) {
+        final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager()
+                .getList();
         visibleItems = new ArrayList<>();
-        for (LocalItemHolder localItemHolder : items) {
+        for (LocalItemHolder localItemHolder : tempList) {
             if (localItemHolder.getItemHolder().getName().toLowerCase().contains(query
                     .toLowerCase())) {
                 visibleItems.add(localItemHolder);
@@ -127,31 +154,60 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         return viewHolder;
     }
 
-    @Override
-    public void onViewRecycled(ViewHolder holder) {
-        super.onViewRecycled(holder);
-
+    protected Animator[] getAnimators(View view) {
+        return new Animator[]{ObjectAnimator.ofFloat(view, "translationY", view
+                .getMeasuredHeight(), 0)};
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
 
-        final ImageLoader imageLoader = ImageLoader.getInstance();
-        final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
-            imageLoader.cancelDisplayTask(aware);
-            imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
-                    .getDisplayImageOptions(true));
+            Bitmap cachedBitmap = getCachedBitmap(itemHolder.getPhotoUrl());
+            if (cachedBitmap != null) {
+                holder.imageView.setImageBitmap(cachedBitmap);
+            } else if (holder.imageView.getTag() == null || !holder.imageView.getTag()
+                    .equals(itemHolder.getPhotoUrl())) {
+                final ImageLoader imageLoader = ImageLoader.getInstance();
+                final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
+                imageLoader.cancelDisplayTask(aware);
+                imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
+                        .getDisplayImageOptions(true), new ImageLoadingListener() {
+
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                        holder.bottomShadow.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason
+                            failReason) {
+                        holder.imageView.setImageBitmap(emptyBitmap);
+                        holder.bottomShadow.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap
+                            loadedImage) {
+                        holder.bottomShadow.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onLoadingCancelled(String imageUri, View view) {
+                        holder.imageView.setImageBitmap(emptyBitmap);
+                        holder.bottomShadow.setVisibility(View.VISIBLE);
+                    }
+                });
+                holder.imageView.setTag(itemHolder.getPhotoUrl());
+            }
         } else {
             holder.imageView.setImageBitmap(emptyBitmap);
+            holder.bottomShadow.setVisibility(View.VISIBLE);
         }
-
-        final String text = Integer.toString(items.indexOf(visibleItems.get(position))
-                + 1);
-        holder.rankingTextView.setText(text);
+        holder.rankingTextView.setText(Integer.toString(position + 1));
         holder.titleTextView.setText(itemHolder.getName());
-        holder.locationTextView.setText(itemHolder.getLocation());
+        holder.locationTextView.setText(itemHolder.getLocation().trim());
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
         switch (visibleItems.get(position).getUserVote()) {
@@ -164,6 +220,16 @@ public class CustomRecyclerViewAdapter extends RecyclerView
             default:
                 holder.resetVotes();
                 break;
+        }
+
+        if (position > mLastPosition) {
+            for (Animator anim : getAnimators(holder.itemView)) {
+                anim.setInterpolator(new DecelerateInterpolator());
+                anim.setDuration(300).start();
+            }
+            mLastPosition = position;
+        } else {
+            ViewHelper.clear(holder.itemView);
         }
     }
 
@@ -195,6 +261,8 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         View votesUpIndicator;
         @Bind(R.id.votes_down_indicator)
         View votesDownIndicator;
+        @Bind(R.id.custom_row_bottom_shadow)
+        View bottomShadow;
 
         private boolean voting;
 

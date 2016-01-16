@@ -3,6 +3,8 @@ package pt.castro.francesinhas.list;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -31,14 +33,13 @@ import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import icepick.Icepick;
+import pt.castro.francesinhas.CustomApplication;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.backend.myApi.model.JsonMap;
@@ -46,7 +47,8 @@ import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 import pt.castro.francesinhas.communication.EndpointGetItems;
 import pt.castro.francesinhas.communication.EndpointUserVote;
 import pt.castro.francesinhas.communication.EndpointsAsyncTask;
-import pt.castro.francesinhas.communication.GetPlacePhotos;
+import pt.castro.francesinhas.communication.GetGoogleData;
+import pt.castro.francesinhas.communication.GetZomatoData;
 import pt.castro.francesinhas.communication.UserEndpointActions;
 import pt.castro.francesinhas.communication.login.LoginActivity;
 import pt.castro.francesinhas.details.DetailsActivity;
@@ -61,6 +63,7 @@ import pt.castro.francesinhas.events.place.ScoreChangeEvent;
 import pt.castro.francesinhas.events.user.NoUserEvent;
 import pt.castro.francesinhas.events.user.UserClickEvent;
 import pt.castro.francesinhas.events.user.UserDataEvent;
+import pt.castro.francesinhas.list.decoration.CustomItemDecoration;
 import pt.castro.francesinhas.tools.LayoutUtils;
 import pt.castro.francesinhas.tools.NotificationUtils;
 import pt.castro.francesinhas.tools.PlaceUtils;
@@ -82,6 +85,8 @@ public class ListActivity extends AppCompatActivity {
     private SearchView mSearchView;
     private CustomRecyclerViewAdapter recyclerViewAdapter;
     private String mNextToken;
+
+    private boolean mConnectedState;
 
     private static int getVote(UserHolder userHolder, String itemId) {
         if (userHolder == null) {
@@ -110,7 +115,30 @@ public class ListActivity extends AppCompatActivity {
         LayoutUtils.initImageLoader(getApplicationContext());
         setRecyclerView();
 
-        getUserData();
+        if (checkConnection()) {
+            getUserData();
+        } else {
+            notConnectedState();
+        }
+    }
+
+    private void notConnectedState() {
+        setEmptyList("You're not connected!");
+        floatingActionButton.hide();
+    }
+
+    private void connectedState() {
+        mainRecyclerView.hideEmptyView();
+        floatingActionButton.show();
+    }
+
+    private boolean checkConnection() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context
+                .CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        mConnectedState = activeNetwork != null && activeNetwork
+                .isConnectedOrConnecting();
+        return mConnectedState;
     }
 
     private void setRecyclerView() {
@@ -120,7 +148,16 @@ public class ListActivity extends AppCompatActivity {
                 .OnRefreshListener() {
             @Override
             public void onRefresh() {
-                EventBus.getDefault().post(new ListRefreshEvent(false));
+                if (!mConnectedState) {
+                    if (!checkConnection()) {
+                        notConnectedState();
+                    } else {
+                        connectedState();
+                        getUserData();
+                    }
+                } else {
+                    EventBus.getDefault().post(new ListRefreshEvent(false));
+                }
             }
         });
         mainRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -144,7 +181,10 @@ public class ListActivity extends AppCompatActivity {
                 getItems.execute();
             }
         });
+        mainRecyclerView.setAdapter(recyclerViewAdapter);
         mainRecyclerView.enableLoadmore();
+        setEmptyList("Loading...");
+        mainRecyclerView.addItemDecoration(new CustomItemDecoration());
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -157,18 +197,13 @@ public class ListActivity extends AppCompatActivity {
         EventBus.getDefault().post(new PlacePickerEvent());
     }
 
-    public void setItems(final List<LocalItemHolder> items) {
-        recyclerViewAdapter.setItems(items);
-        if (mainRecyclerView.getAdapter() == null) {
-            mainRecyclerView.setAdapter(recyclerViewAdapter);
-        }
-    }
-
     public void setEmptyList(final String message) {
-        setItems(new ArrayList<LocalItemHolder>());
+//        CustomApplication.getPlacesManager().clear();
+        recyclerViewAdapter.clear();
         final TextView emptyText = (TextView) mainRecyclerView.findViewById(R.id
                 .empty_text);
         emptyText.setText(message);
+        mainRecyclerView.showEmptyView();
     }
 
     public void setButton(final boolean enabled) {
@@ -201,7 +236,9 @@ public class ListActivity extends AppCompatActivity {
             EventBus.getDefault().register(this);
         }
         AppEventsLogger.activateApp(this);
-        floatingActionButton.show();
+        if (mConnectedState) {
+            floatingActionButton.show();
+        }
     }
 
     @Override
@@ -289,13 +326,12 @@ public class ListActivity extends AppCompatActivity {
 
     @EventBusHook
     public void onEventMainThread(final ConnectionFailedEvent connectionFailedEvent) {
-        setEmptyList("No connection");
-        setButton(false);
+        notConnectedState();
     }
 
     @EventBusHook
     public void onEventMainThread(final ListRetrievedEvent listRetrievedEvent) {
-//        final List<LocalItemHolder> localItemHolders = new ArrayList<>();
+        mainRecyclerView.hideEmptyView();
         mNextToken = listRetrievedEvent.getToken();
         if (mainRecyclerView.getAdapter() == null) {
             mainRecyclerView.setAdapter(recyclerViewAdapter);
@@ -309,9 +345,29 @@ public class ListActivity extends AppCompatActivity {
             if (itemHolder.getLatitude() == null || itemHolder.getLongitude() == null
                     || (itemHolder.getLatitude() == 0 && itemHolder.getLongitude() ==
                     0)) {
-                GetPlacePhotos getPlacePhotos = new GetPlacePhotos(localItemHolder);
-                getPlacePhotos.getLocation();
+                GetGoogleData getGoogleData = new GetGoogleData(localItemHolder);
+                getGoogleData.getLocation();
             }
+            if (itemHolder.getGoogleUrl() == null) {
+                GetGoogleData getGoogleData = new GetGoogleData(localItemHolder);
+                getGoogleData.getRating();
+            }
+            if (itemHolder.getZomatoUrl() == null) {
+                GetZomatoData getZomatoData = new GetZomatoData(localItemHolder);
+                getZomatoData.getData(itemHolder.getName());
+            }
+            String address = itemHolder.getAddress();
+            String[] data = address.split(",");
+            if (data[data.length - 2].equals(data[data.length - 1])) {
+                itemHolder.setLocation(data[data.length - 1].trim());
+                address = address.substring(0, address.lastIndexOf(","));
+                itemHolder.setAddress(address.trim());
+                EndpointsAsyncTask task = new EndpointsAsyncTask(EndpointsAsyncTask
+                        .UPDATE);
+                task.execute(itemHolder);
+            }
+            CustomApplication.getPlacesManager().add(itemHolder.getId(), localItemHolder);
+            new GetGoogleData(localItemHolder).getAllPhotos();
             recyclerViewAdapter.add(localItemHolder);
         }
     }
@@ -337,6 +393,7 @@ public class ListActivity extends AppCompatActivity {
         floatingActionButton.hide();
         final ItemHolder itemHolder = localItemHolder.getItemHolder();
         final Intent intent = new Intent(this, DetailsActivity.class);
+        intent.putExtra("id", itemHolder.getId());
         intent.putExtra(DetailsKeys.ITEM_NAME, itemHolder.getName());
         intent.putExtra(DetailsKeys.ITEM_ADDRESS, itemHolder.getAddress());
         intent.putExtra(DetailsKeys.ITEM_PHONE, itemHolder.getPhone());
@@ -347,6 +404,7 @@ public class ListActivity extends AppCompatActivity {
         intent.putExtra(DetailsKeys.ITEM_LATITUDE, itemHolder.getLatitude());
         intent.putExtra(DetailsKeys.ITEM_LONGITUDE, itemHolder.getLongitude());
         intent.putExtra(DetailsKeys.ITEM_ID, itemHolder.getId());
+        intent.putExtra(DetailsKeys.ITEM_PRICE, itemHolder.getPriceRange());
         intent.putExtra(DetailsKeys.USER_ID, mCurrentUser != null ? mCurrentUser.getId
                 () : "");
         intent.putExtra(DetailsKeys.USER_VOTE, localItemHolder.getUserVote());
@@ -362,6 +420,7 @@ public class ListActivity extends AppCompatActivity {
     public void onEvent(final ListRefreshEvent listRefreshEvent) {
         if (!listRefreshEvent.isRefreshed()) {
             // TODO: Instead of retrieving a new set of items, update the existing ones
+            CustomApplication.getPlacesManager().clear();
             recyclerViewAdapter.clear();
             new EndpointGetItems().execute();
         }
@@ -394,7 +453,7 @@ public class ListActivity extends AppCompatActivity {
         Log.d("ActivityResult", "Request code: " + requestCode + "\tResult code: " +
                 resultCode);
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
-            final Place place = PlacePicker.getPlace(data, this);
+            final Place place = PlacePicker.getPlace(this, data);
             if (!place.getPlaceTypes().contains(Place.TYPE_RESTAURANT) && !place
                     .getPlaceTypes().contains(Place.TYPE_CAFE) && !place.getPlaceTypes
                     ().contains(Place.TYPE_FOOD)) {

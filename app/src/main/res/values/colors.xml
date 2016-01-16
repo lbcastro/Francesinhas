@@ -9,6 +9,7 @@
     <color name="black_transparent">#1e000000</color>
     <color name="blue_light">#335EAE</color>
     <color name="dark_gray">#6b6464</color>
+    <color name="light_gray">#ccbfbf</color>
     <color name="background">#e1e1e1</color>
     <color name="orange_best">#FD9E0D</color>
     <color name="red_transparent">#32FF5252</color>

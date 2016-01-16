@@ -1,23 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Base.Theme"/>
+
+    <style name="Base.Theme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blue_dark</item>
-        <item name="android:windowActionBarOverlay">true</item>
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
 
         <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="android:textColorPrimaryInverse">@android:color/black</item>
 
         <item name="android:windowContentOverlay">@null</item>
-        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowNoTitle">true</item>
 
-        <item name="colorControlNormal">@android:color/white</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="actionBarTheme">@style/AppTheme.ActionBarTheme</item>
 
-        <item name="android:windowDrawsSystemBarBackgrounds" tools:targetApi="21">true
-        </item>
-        <item name="android:textColorPrimaryInverse">@android:color/black</item>
-        <item name="android:colorBackground">@color/background</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
     </style>
 
     <style name="Animation.Dialog" parent="@android:style/Animation.Activity">
@@ -52,7 +55,6 @@
     <style name="Text.Header.4" parent="Text.Default">
         <item name="android:textColor">@color/dark_gray</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:layout_marginTop">24dp</item>
         <item name="android:drawablePadding">@dimen/margin_m</item>
         <item name="android:paddingLeft">@dimen/margin_m</item>
         <item name="android:paddingStart" tools:targetApi="17">@dimen/margin_l</item>
@@ -73,6 +75,13 @@
     <style name="ExpandedText" parent="@android:style/TextAppearance.StatusBar.Title">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="NewExpandedText" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:ellipsize">marquee</item>
     </style>
 
     <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">

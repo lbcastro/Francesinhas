@@ -4,7 +4,6 @@
                                                  android:layout_width="match_parent"
                                                  android:layout_height="match_parent"
                                                  android:background="@color/background"
-                                                 android:clipToPadding="false"
                                                  app:statusBarBackground="@android:color/transparent"
                                                  tools:context=".list.ListActivity">
 
@@ -28,7 +27,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:recyclerviewEmptyView="@layout/empty_list"/>
 

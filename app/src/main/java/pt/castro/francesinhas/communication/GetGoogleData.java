@@ -32,10 +32,11 @@ import pt.castro.francesinhas.list.PhotoReference;
  * Asynchronous task used to communicate with the backend server.
  * Created by lourenco.castro on 01-04-2015.
  */
-public class GetPlacePhotos extends AsyncTask<String, Void, String> {
+public class GetGoogleData extends AsyncTask<String, Void, String> {
 
     private final static int MODE_LOCATION = 0;
     private final static int MODE_PHOTOS = 1;
+    private final static int MODE_RATING = 2;
 
     private final static String METHOD_DETAILS = "details";
     private final static String BROWSER_KEY = "AIzaSyDSQ408Gts6XQxTEaec8b38sCIMSQWuoc4";
@@ -45,7 +46,7 @@ public class GetPlacePhotos extends AsyncTask<String, Void, String> {
     private int activeMode;
     private LocalItemHolder localItemHolder;
 
-    public GetPlacePhotos(final LocalItemHolder localItemHolder) {
+    public GetGoogleData(final LocalItemHolder localItemHolder) {
         this.localItemHolder = localItemHolder;
     }
 
@@ -64,13 +65,21 @@ public class GetPlacePhotos extends AsyncTask<String, Void, String> {
         final String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s",
                 localItemHolder.getItemHolder().getId(), BROWSER_KEY));
         this.activeMode = MODE_PHOTOS;
-        this.execute(uri);
+        Log.d("GetPlace", uri);
+//        this.execute(uri);
     }
 
     public void getLocation() {
         final String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s",
                 localItemHolder.getItemHolder().getId(), BROWSER_KEY));
         this.activeMode = MODE_LOCATION;
+        this.execute(uri);
+    }
+
+    public void getRating() {
+        final String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s",
+                localItemHolder.getItemHolder().getId(), BROWSER_KEY));
+        this.activeMode = MODE_RATING;
         this.execute(uri);
     }
 
@@ -115,11 +124,20 @@ public class GetPlacePhotos extends AsyncTask<String, Void, String> {
                     processLocation(result.getJSONObject("geometry").getJSONObject
                             ("location"));
                     break;
+                case MODE_RATING:
+                    processRating(result);
+                    break;
             }
-        } catch (JSONException e) {
-//            e.printStackTrace();
+        } catch (JSONException ignored) {
         }
+    }
 
+    private void processRating(final JSONObject jsonObject) throws JSONException {
+        String rating = jsonObject.getString("rating");
+        String url = jsonObject.getString("url");
+        localItemHolder.getItemHolder().setGoogleUrl(rating + ";" + url);
+        EndpointsAsyncTask a = new EndpointsAsyncTask(EndpointsAsyncTask.UPDATE);
+        a.execute(localItemHolder.getItemHolder());
     }
 
     private void processPhotos(final JSONArray jsonPhotos) throws JSONException {
