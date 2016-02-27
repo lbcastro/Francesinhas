@@ -65,7 +65,7 @@ public class GetGoogleData extends AsyncTask<String, Void, String> {
         final String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s",
                 localItemHolder.getItemHolder().getId(), BROWSER_KEY));
         this.activeMode = MODE_PHOTOS;
-        Log.d("GetPlace", uri);
+//        Log.d("GetPlace", uri);
 //        this.execute(uri);
     }
 

@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.appevents.AppEventsLogger;
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.github.ppamorim.dragger.DraggerPosition;
 import com.github.ppamorim.dragger.DraggerView;
@@ -91,8 +92,9 @@ public class DetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        overridePendingTransition(0, 0);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_details);
+        setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -105,30 +107,26 @@ public class DetailsActivity extends AppCompatActivity {
         item = CustomApplication.getPlacesManager().getPlaces().get(data.getString("id"));
         collapsingToolbarLayout.setTitle(item.getItemHolder().getName());
 
+        setScroll();
         setBackdrop();
         setAddress();
         setPhone();
         setRatings();
         setPriceRange();
         setUrl();
-        setScroll();
     }
 
     @Override
     public void onBackPressed() {
-//        super.onBackPressed();
         draggerView.closeActivity();
     }
 
     private void setScroll() {
+        draggerView.setAnimationDuration(200, 300);
         draggerView.setSlideEnabled(false);
-        draggerView.setDraggerLimit(0.75f);
+        draggerView.setDraggerLimit(0.7f);
         draggerView.setFriction(6);
-
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout
-                .OnOffsetChangedListener() {
-
-
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 if (verticalOffset == 0) {
@@ -140,17 +138,28 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             }
         });
-
-        final View view = nestedScrollView.getChildAt(nestedScrollView.getChildCount()
-                - 1);
-        nestedScrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+        final View view = nestedScrollView.getChildAt(nestedScrollView.getChildCount() - 1);
+        nestedScrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver
+                .OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
-                draggerView.setSlideEnabled(view.getBottom() - (nestedScrollView
-                        .getHeight() + nestedScrollView.getScrollY()) == 0);
+                draggerView.setSlideEnabled(view.getBottom() - (nestedScrollView.getHeight() +
+                        nestedScrollView.getScrollY()) == 0);
             }
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppEventsLogger.activateApp(this);
+    }
+
+    @Override
+    protected void onPause() {
+        overridePendingTransition(0, 0);
+        super.onPause();
+        AppEventsLogger.activateApp(this);
     }
 
     private void setBackdrop() {
@@ -168,13 +177,11 @@ public class DetailsActivity extends AppCompatActivity {
         if (price <= 0) {
             ((ViewGroup) priceContent.getParent()).setVisibility(View.GONE);
         } else {
-            String s = "€";
-
-            String text = "<font color='#335EAE'>" + new String(new char[price])
-                    .replace("\0", s) + "</font><font color='#ccbfbf'>" + new String
-                    (new char[5 - price]).replace("\0", s) + "</font>";
+            final String currency = "€";
+            final String text = "<font color='#335EAE'>" + new String(new char[price]).replace
+                    ("\0", currency) + "</font><font color='#ccbfbf'>" + new String(new char[5 -
+                    price]).replace("\0", currency) + "</font>";
             priceContent.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
-
         }
     }
 
@@ -207,7 +214,6 @@ public class DetailsActivity extends AppCompatActivity {
                 onBackPressed();
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -220,15 +226,15 @@ public class DetailsActivity extends AppCompatActivity {
 
     @OnClick(R.id.details_url_parent)
     public void onUrlClick() {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlTextView
-                .getText().toString()));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlTextView.getText()
+                .toString()));
         startActivity(browserIntent);
     }
 
-    private LinearLayout addRatingBar(final ViewGroup parent, final int
-            drawableResource, final float rating, final String url) {
-        final LinearLayout ratingBar = (LinearLayout) LayoutInflater.from(this).inflate
-                (R.layout.rating_bar, parent, false);
+    private LinearLayout addRatingBar(final ViewGroup parent, final int drawableResource, final
+    float rating, final String url) {
+        final LinearLayout ratingBar = (LinearLayout) LayoutInflater.from(this).inflate(R.layout
+                .rating_bar, parent, false);
         final ImageView logo = (ImageView) ratingBar.findViewById(R.id.rating_logo);
         logo.setBackgroundResource(drawableResource);
         ratingBar.setOnClickListener(new View.OnClickListener() {
@@ -269,14 +275,14 @@ public class DetailsActivity extends AppCompatActivity {
 
         if (googleUrl != null) {
             final String[] googleData = googleUrl.split(";");
-            final LinearLayout bar = addRatingBar(ratingParent, R.drawable.google,
-                    Float.parseFloat(googleData[0]), googleData[1]);
+            final LinearLayout bar = addRatingBar(ratingParent, R.drawable.google, Float
+                    .parseFloat(googleData[0]), googleData[1]);
             ratingParent.addView(bar);
         }
 
         if (googleUrl != null && zomatoUrl != null) {
-            final View separator = LayoutInflater.from(this).inflate(R.layout
-                    .white_separator, ratingParent, false);
+            final View separator = LayoutInflater.from(this).inflate(R.layout.white_separator,
+                    ratingParent, false);
             ratingParent.addView(separator);
         } else {
             ((ViewGroup) ratingParent.getParent()).setVisibility(View.GONE);
@@ -284,8 +290,8 @@ public class DetailsActivity extends AppCompatActivity {
 
         if (zomatoUrl != null) {
             final String[] zomatoData = zomatoUrl.split(";");
-            final LinearLayout bar = addRatingBar(ratingParent, R.drawable.zomato,
-                    Float.parseFloat(zomatoData[0]), zomatoData[1]);
+            final LinearLayout bar = addRatingBar(ratingParent, R.drawable.zomato, Float
+                    .parseFloat(zomatoData[0]), zomatoData[1]);
             ratingParent.addView(bar);
         }
     }
@@ -297,10 +303,8 @@ public class DetailsActivity extends AppCompatActivity {
         } else {
             ((ViewGroup) addressParent.getParent()).setVisibility(View.VISIBLE);
             addressTextView.setText(address);
-            final float latitude = (float) item.getItemHolder().getLatitude()
-                    .doubleValue();
-            final float longitude = (float) item.getItemHolder().getLongitude()
-                    .doubleValue();
+            final float latitude = (float) item.getItemHolder().getLatitude().doubleValue();
+            final float longitude = (float) item.getItemHolder().getLongitude().doubleValue();
             setMapView(address, latitude, longitude);
         }
     }
@@ -357,13 +361,12 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void setMapView(final String address, final float latitude, final float
-            longitude) {
+    private void setMapView(final String address, final float latitude, final float longitude) {
 
         Config config = new Config();
-        config.setImageSize((int) getResources().getDimension(R.dimen.map_view_height),
-                (int) (getResources().getDimension(R.dimen.map_view_height) * 1.5))
-                .setZoom(16).setScale(2).setCenter(latitude, longitude);
+        config.setImageSize((int) getResources().getDimension(R.dimen.map_view_height), (int)
+                (getResources().getDimension(R.dimen.map_view_height) * 1.5)).setZoom(16)
+                .setScale(2).setCenter(latitude, longitude);
 
         final Marker marker = config.addMarker();
         marker.setLocation(latitude, longitude);
@@ -377,8 +380,6 @@ public class DetailsActivity extends AppCompatActivity {
             location = "" + latitude + "," + longitude;
             gmmIntentUri = Uri.parse("google.navigation:q=" + location);
 
-//            ((ViewGroup) mapView.getParent()).setVisibility(View.VISIBLE);
-
             final File mapImage = ImageLoader.getInstance().getDiskCache().get(location);
             if (mapImage != null && mapImage.exists()) {
                 bitmap = PhotoUtils.bitmapFromFile(mapImage);
@@ -389,8 +390,7 @@ public class DetailsActivity extends AppCompatActivity {
                     }
 
                     public void onMapGenerated(Bitmap bitmap) {
-                        mapView.setImageDrawable(new BitmapDrawable(getResources(),
-                                bitmap));
+                        mapView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
                     }
                 };
                 StaticMap.requestMapImage(this, config, callback);
@@ -406,8 +406,8 @@ public class DetailsActivity extends AppCompatActivity {
                 try {
                     startActivity(mapsAppIntent);
                 } catch (ActivityNotFoundException e) {
-                    final Intent intent = new Intent(android.content.Intent
-                            .ACTION_VIEW, Uri.parse("http://maps.google" +
+                    final Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri
+                            .parse("http://maps.google" +
                             ".com/maps?daddr=" + latitude + "," + longitude));
                     startActivity(intent);
                 }

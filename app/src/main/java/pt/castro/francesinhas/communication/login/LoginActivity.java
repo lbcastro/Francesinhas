@@ -11,17 +11,20 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.ImageView;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.flaviofaria.kenburnsview.KenBurnsView;
+import com.flaviofaria.kenburnsview.RandomTransitionGenerator;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -40,10 +43,13 @@ public class LoginActivity extends Activity {
     private CallbackManager mCallbackManager;
     private AccessTokenTracker mAccessTokenTracker;
 
+    private KenBurnsView mBackground;
+
     private void getKey() {
         PackageInfo info;
         try {
-            info = getPackageManager().getPackageInfo("pt.castro.francesinhas", PackageManager.GET_SIGNATURES);
+            info = getPackageManager().getPackageInfo("pt.castro.francesinhas", PackageManager
+                    .GET_SIGNATURES);
             for (Signature signature : info.signatures) {
                 MessageDigest md;
                 md = MessageDigest.getInstance("SHA");
@@ -65,37 +71,50 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         getKey();
         Icepick.restoreInstanceState(this, savedInstanceState);
+        setContentView(R.layout.fragment_login);
+        View rootView = findViewById(R.id.fragment_login_parent);
+        setKenBurns();
+        rootView.setVisibility(View.VISIBLE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
-        FacebookSdk.sdkInitialize(getApplicationContext());
         trackAccessToken();
+        mCallbackManager = CallbackManager.Factory.create();
         if (AccessToken.getCurrentAccessToken() != null || Profile.getCurrentProfile() != null) {
-            LoginManager.getInstance().logInWithReadPermissions(this, Collections
-                    .singletonList("public_profile"));
+            Log.d("LoginActivity", "Had token, logged in");
+            LoginManager.getInstance().logInWithReadPermissions(this, Collections.singletonList
+                    ("public_profile"));
             startList();
         } else {
             Log.d("LoginActivity", "No login found");
-            setContentView(R.layout.fragment_login);
-            View rootView = findViewById(R.id.fragment_login_parent);
-            rootView.setVisibility(View.VISIBLE);
-            mCallbackManager = CallbackManager.Factory.create();
             startLogin();
         }
     }
 
+    private void setKenBurns() {
+        mBackground = (KenBurnsView) findViewById(R.id.background);
+        mBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        mBackground.setTransitionGenerator(new RandomTransitionGenerator(20000, new
+                AccelerateDecelerateInterpolator()));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
+    }
+
     private void startList() {
         Intent intent = new Intent(this, ListActivity.class);
-        finish();
         startActivity(intent);
+        this.finish();
     }
 
     private void trackAccessToken() {
         mAccessTokenTracker = new AccessTokenTracker() {
             @Override
-            protected void onCurrentAccessTokenChanged(
-                    AccessToken oldAccessToken,
-                    AccessToken currentAccessToken) {
+            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken
+                    currentAccessToken) {
                 Log.d("LoginActivity", "Token has changed");
                 if (currentAccessToken != null && !currentAccessToken.isExpired()) {
                     LoginManager.getInstance().logInWithReadPermissions(LoginActivity
@@ -109,11 +128,13 @@ public class LoginActivity extends Activity {
     private void startLogin() {
         final LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("public_profile");
-        LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+        loginButton.setVisibility(View.VISIBLE);
+        LoginManager.getInstance().registerCallback(mCallbackManager, new
+                FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                View rootView = findViewById(R.id.fragment_login_parent);
-                rootView.setVisibility(View.GONE);
+//                View rootView = findViewById(R.id.fragment_login_parent);
+//                rootView.setVisibility(View.GONE);
                 Log.d("LoginManager", "Success");
                 startList();
             }
@@ -138,6 +159,7 @@ public class LoginActivity extends Activity {
                 startList();
             }
         });
+        guestButton.setVisibility(View.VISIBLE);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

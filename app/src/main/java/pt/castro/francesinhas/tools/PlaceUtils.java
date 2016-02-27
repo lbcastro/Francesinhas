@@ -8,11 +8,18 @@ import android.location.Location;
 import com.google.android.gms.location.places.Place;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
+import pt.castro.francesinhas.backend.myApi.model.JsonMap;
+import pt.castro.francesinhas.backend.myApi.model.UserHolder;
+import pt.castro.francesinhas.communication.EndpointsAsyncTask;
+import pt.castro.francesinhas.communication.GetGoogleData;
+import pt.castro.francesinhas.communication.GetZomatoData;
+import pt.castro.francesinhas.list.LocalItemHolder;
 
 /**
  * Created by lourenco.castro on 02-06-2015.
@@ -61,5 +68,53 @@ public class PlaceUtils {
         return itemHolder.getName() + "\t" + itemHolder.getLocation() + "\t" +
                 itemHolder.getAddress() + "\t" + itemHolder.getPhone() + "\t" +
                 itemHolder.getLatitude() + "\t" + itemHolder.getLongitude();
+    }
+
+    private static int getVote(UserHolder userHolder, String itemId) {
+        if (userHolder == null) {
+            return 0;
+        }
+        JsonMap map = userHolder.getVotes();
+        if (map == null || map.get(itemId) == null) {
+            return 0;
+        }
+        final BigDecimal vote = (BigDecimal) map.get(itemId);
+        return vote != null ? vote.intValueExact() : 0;
+    }
+
+    public static LocalItemHolder processItem(final ItemHolder itemHolder, final UserHolder
+            userHolder) {
+        LocalItemHolder localItemHolder = new LocalItemHolder(itemHolder);
+        final int voteInt = getVote(userHolder, itemHolder.getId());
+        localItemHolder.setUserVote(voteInt);
+
+        // Google data
+        if (itemHolder.getLatitude() == null || itemHolder.getLongitude() == null ||
+                (itemHolder.getLatitude() == 0 && itemHolder.getLongitude() == 0)) {
+            GetGoogleData getGoogleData = new GetGoogleData(localItemHolder);
+            getGoogleData.getLocation();
+        }
+        if (itemHolder.getGoogleUrl() == null) {
+            GetGoogleData getGoogleData = new GetGoogleData(localItemHolder);
+            getGoogleData.getRating();
+        }
+
+        // Zomato data
+        if (itemHolder.getZomatoUrl() == null) {
+            GetZomatoData getZomatoData = new GetZomatoData(localItemHolder);
+            getZomatoData.getData(itemHolder.getName());
+        }
+
+        // Post-process
+        String address = itemHolder.getAddress();
+        final String[] data = address.split(",");
+        if (data[data.length - 2].equals(data[data.length - 1])) {
+            itemHolder.setLocation(data[data.length - 1].trim());
+            address = address.substring(0, address.lastIndexOf(","));
+            itemHolder.setAddress(address.trim());
+            EndpointsAsyncTask task = new EndpointsAsyncTask(EndpointsAsyncTask.UPDATE);
+            task.execute(itemHolder);
+        }
+        return localItemHolder;
     }
 }

@@ -14,12 +14,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.florent37.beautifulparallax.ParallaxViewController;
+import com.marshalchen.ultimaterecyclerview.UltimateViewAdapter;
 import com.marshalchen.ultimaterecyclerview.animators.internal.ViewHelper;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,8 +42,8 @@ import pt.castro.francesinhas.tools.PhotoUtils;
 /**
  * Created by lourenco.castro on 07/05/15.
  */
-public class CustomRecyclerViewAdapter extends RecyclerView
-        .Adapter<CustomRecyclerViewAdapter.ViewHolder> {
+public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecyclerViewAdapter
+        .ViewHolder> {
 
     private static final String CACHED_EMPTY_BITMAP = "empty";
 
@@ -60,24 +60,13 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         parallaxViewController = new ParallaxViewController();
     }
 
-    private static Bitmap getCachedBitmap(final String url) {
-        List<Bitmap> list = MemoryCacheUtils.findCachedBitmapsForImageUri(url,
-                ImageLoader.getInstance().getMemoryCache());
-        if (list != null && list.size() > 0) {
-            return list.get(0);
-        }
-        return null;
-    }
-
     private void generateEmptyBitmap(final Context context) {
-        final File imageFile = ImageLoader.getInstance().getDiskCache().get
-                (CACHED_EMPTY_BITMAP);
+        final File imageFile = ImageLoader.getInstance().getDiskCache().get(CACHED_EMPTY_BITMAP);
         if (imageFile == null || !imageFile.exists()) {
-            emptyBitmap = BitmapFactory.decodeResource(context.getResources(), R
-                    .drawable.francesinha_blur);
+            emptyBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable
+                    .francesinha_blur);
             try {
-                ImageLoader.getInstance().getDiskCache().save(CACHED_EMPTY_BITMAP,
-                        emptyBitmap);
+                ImageLoader.getInstance().getDiskCache().save(CACHED_EMPTY_BITMAP, emptyBitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,49 +81,46 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         parallaxViewController.registerImageParallax(recyclerView);
     }
 
-//    public void setItems(List<LocalItemHolder> items) {
-//        this.items = items;
-//        flushFilter();
-//    }
-
     @EventBusHook
     public void onEvent(final PhotoUpdateEvent photoUpdateEvent) {
         notifyItemChanged(visibleItems.indexOf(photoUpdateEvent.getLocalItemHolder()));
     }
 
     public void add(LocalItemHolder localItemHolder) {
-//        items.add(itemHolder);
-//        CustomApplication.getPlacesManager().add(localItemHolder.getItemHolder().getId
-//                (), localItemHolder);
-        visibleItems.add(localItemHolder);
-        notifyItemInserted(visibleItems.indexOf(localItemHolder));
+        if (!visibleItems.contains(localItemHolder)) {
+            visibleItems.add(localItemHolder);
+            notifyItemInserted(visibleItems.indexOf(localItemHolder));
+        }
     }
 
     public void clear() {
         mLastPosition = 0;
-//        items.clear();
+        visibleItems = new ArrayList<>();
+        notifyDataSetChanged();
+//        flushFilter();
+    }
+
+    public void reset() {
+        mLastPosition = 0;
         flushFilter();
     }
 
     private void flushFilter() {
-        final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager()
-                .getList();
+        final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager().getList();
         visibleItems = new ArrayList<>();
-//        visibleItems.addAll(items);
         visibleItems.addAll(tempList);
         notifyDataSetChanged();
     }
 
     public void setFilter(String query) {
-        final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager()
-                .getList();
+        final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager().getList();
         visibleItems = new ArrayList<>();
         for (LocalItemHolder localItemHolder : tempList) {
             if (localItemHolder.getItemHolder().getName().toLowerCase().contains(query
                     .toLowerCase())) {
                 visibleItems.add(localItemHolder);
-            } else if (localItemHolder.getItemHolder().getLocation().toLowerCase()
-                    .contains(query.toLowerCase())) {
+            } else if (localItemHolder.getItemHolder().getLocation().toLowerCase().contains(query
+                    .toLowerCase())) {
                 visibleItems.add(localItemHolder);
             }
         }
@@ -147,28 +133,40 @@ public class CustomRecyclerViewAdapter extends RecyclerView
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View row = LayoutInflater.from(parent.getContext()).inflate(R.layout
-                .row_main, parent, false);
+        final View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_main,
+                parent, false);
         ViewHolder viewHolder = new ViewHolder(row);
         parallaxViewController.imageParallax(viewHolder.imageView);
         return viewHolder;
     }
 
+    @Override
+    public ViewHolder getViewHolder(View view) {
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent) {
+        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_main,
+                parent, false);
+        return new ViewHolder(view);
+    }
+
     protected Animator[] getAnimators(View view) {
-        return new Animator[]{ObjectAnimator.ofFloat(view, "translationY", view
-                .getMeasuredHeight(), 0)};
+        return new Animator[]{ObjectAnimator.ofFloat(view, "translationY", view.getMeasuredHeight
+                (), 0)};
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        final ItemHolder itemHolder = visibleItems.get(position).getItemHolder();
-
+        final int adapterPosition = holder.getAdapterPosition();
+        final ItemHolder itemHolder = visibleItems.get(adapterPosition).getItemHolder();
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
-            Bitmap cachedBitmap = getCachedBitmap(itemHolder.getPhotoUrl());
+            Bitmap cachedBitmap = PhotoUtils.getCachedBitmap(itemHolder.getPhotoUrl());
             if (cachedBitmap != null) {
                 holder.imageView.setImageBitmap(cachedBitmap);
-            } else if (holder.imageView.getTag() == null || !holder.imageView.getTag()
-                    .equals(itemHolder.getPhotoUrl())) {
+            } else if (holder.imageView.getTag() == null || !holder.imageView.getTag().equals
+                    (itemHolder.getPhotoUrl())) {
                 final ImageLoader imageLoader = ImageLoader.getInstance();
                 final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
                 imageLoader.cancelDisplayTask(aware);
@@ -181,15 +179,13 @@ public class CustomRecyclerViewAdapter extends RecyclerView
                     }
 
                     @Override
-                    public void onLoadingFailed(String imageUri, View view, FailReason
-                            failReason) {
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
                         holder.imageView.setImageBitmap(emptyBitmap);
                         holder.bottomShadow.setVisibility(View.VISIBLE);
                     }
 
                     @Override
-                    public void onLoadingComplete(String imageUri, View view, Bitmap
-                            loadedImage) {
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                         holder.bottomShadow.setVisibility(View.VISIBLE);
                     }
 
@@ -210,7 +206,7 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         holder.locationTextView.setText(itemHolder.getLocation().trim());
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
-        switch (visibleItems.get(position).getUserVote()) {
+        switch (visibleItems.get(adapterPosition).getUserVote()) {
             case -1:
                 holder.setVoteDownSelected();
                 break;
@@ -222,15 +218,25 @@ public class CustomRecyclerViewAdapter extends RecyclerView
                 break;
         }
 
-        if (position > mLastPosition) {
+        if (adapterPosition > mLastPosition) {
             for (Animator anim : getAnimators(holder.itemView)) {
                 anim.setInterpolator(new DecelerateInterpolator());
                 anim.setDuration(300).start();
             }
-            mLastPosition = position;
+            mLastPosition = adapterPosition;
         } else {
             ViewHelper.clear(holder.itemView);
         }
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
+        return null;
+    }
+
+    @Override
+    public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
+
     }
 
     @Override
@@ -240,6 +246,16 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         } catch (NullPointerException e) {
             return 0;
         }
+    }
+
+    @Override
+    public int getAdapterItemCount() {
+        return visibleItems.size();
+    }
+
+    @Override
+    public long generateHeaderId(int position) {
+        return 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -316,8 +332,8 @@ public class CustomRecyclerViewAdapter extends RecyclerView
         }
 
         private void toggleVisibility(final View view) {
-            view.setVisibility(view.getVisibility() == View.VISIBLE ? View.INVISIBLE :
-                    View.VISIBLE);
+            view.setVisibility(view.getVisibility() == View.VISIBLE ? View.INVISIBLE : View
+                    .VISIBLE);
         }
 
         @OnClick(R.id.votes_up)

@@ -4,12 +4,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by Lourenço on 23/06/2015.
@@ -34,5 +37,14 @@ public class PhotoUtils {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         return BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
+    }
+
+    public static Bitmap getCachedBitmap(final String url) {
+        List<Bitmap> list = MemoryCacheUtils.findCachedBitmapsForImageUri(url, ImageLoader
+                .getInstance().getMemoryCache());
+        if (list != null && list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
     }
 }
