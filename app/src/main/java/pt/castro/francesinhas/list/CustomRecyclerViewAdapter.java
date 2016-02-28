@@ -203,7 +203,13 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
         }
         holder.rankingTextView.setText(Integer.toString(position + 1));
         holder.titleTextView.setText(itemHolder.getName());
-        holder.locationTextView.setText(itemHolder.getLocation().trim());
+
+        float distance = visibleItems.get(adapterPosition).getDistance();
+        if (distance == -1) {
+            holder.locationTextView.setText(itemHolder.getLocation().trim());
+        } else {
+            holder.locationTextView.setText(Float.toString(distance) + "km");
+        }
         holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
         holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
         switch (visibleItems.get(adapterPosition).getUserVote()) {

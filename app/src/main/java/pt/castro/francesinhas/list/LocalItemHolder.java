@@ -7,8 +7,8 @@ import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
  */
 public class LocalItemHolder {
     private ItemHolder itemHolder;
-
     private int userVote;
+    private float distance = -1;
 
     public LocalItemHolder(ItemHolder itemHolder) {
         this.itemHolder = itemHolder;
@@ -24,5 +24,13 @@ public class LocalItemHolder {
 
     public void setUserVote(final int userVote) {
         this.userVote = userVote;
+    }
+
+    public float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(float distance) {
+        this.distance = distance;
     }
 }

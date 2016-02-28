@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +31,8 @@ import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import icepick.Icepick;
 import pt.castro.francesinhas.CustomApplication;
+import pt.castro.francesinhas.LocationFinder;
+import pt.castro.francesinhas.PermissionsManager;
 import pt.castro.francesinhas.R;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
@@ -60,16 +63,22 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
     private static final int PLACE_PICKER_REQUEST = 1;
     private final String TAG = getClass().getName();
+
     @Bind(R.id.fragment_recycler_view)
     UltimateRecyclerView mainRecyclerView;
     @Bind(R.id.floating_action_button)
     FloatingActionButton floatingActionButton;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
+
     private RecyclerViewManager mRecyclerViewManager;
     private UserHolder mCurrentUser;
     private SearchView mSearchView;
     private String mNextToken;
+
+    private LocationFinder mLocationFinder;
+
+    private PermissionsManager mPermissionsManager;
 
     private boolean mConnectedState;
     private NetworkChangeReceiver mConnectionMonitor;
@@ -80,6 +89,14 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         super.onCreate(savedInstanceState);
         Icepick.restoreInstanceState(this, savedInstanceState);
         setContentView(R.layout.activity_list);
+
+        mLocationFinder = new LocationFinder();
+        mPermissionsManager = new PermissionsManager();
+        mPermissionsManager.verifyPermissions(this);
+        if (mPermissionsManager.hasLocationPermission(this)) {
+            mLocationFinder.setup(this);
+            mLocationFinder.start();
+        }
 
         ButterKnife.bind(this);
         LayoutUtils.initImageLoader(getApplicationContext());
@@ -95,73 +112,14 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         }
     }
 
-    private void registerConnectionMonitor() {
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        mConnectionMonitor = new NetworkChangeReceiver(this);
-        registerReceiver(mConnectionMonitor, filter);
-    }
-
-    private void unregisterConnectionMonitor() {
-        if (mConnectionMonitor != null) {
-            try {
-                unregisterReceiver(mConnectionMonitor);
-            } catch (IllegalArgumentException ignored) {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        if (requestCode == 0) {
+            if (mPermissionsManager.hasLocationPermission(this)) {
+                mLocationFinder.setup(this);
+                mLocationFinder.start();
             }
-        }
-    }
-
-    private void notConnectedState() {
-        floatingActionButton.hide();
-        mRecyclerViewManager.setNotConnected();
-    }
-
-    private void connectedState() {
-        mainRecyclerView.hideEmptyView();
-        floatingActionButton.show();
-    }
-
-    private boolean checkConnection() {
-        mConnectedState = ConnectionUtils.checkConnection(this);
-        return mConnectedState;
-    }
-
-    private void setToolbar() {
-        setSupportActionBar(toolbar);
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(false);
-        }
-    }
-
-    private void getItems() {
-        if (mNextToken != null) {
-            EndpointGetItems getItems = new EndpointGetItems();
-            getItems.setCursor(mNextToken);
-            getItems.execute();
-        } else {
-            new EndpointGetItems().execute();
-        }
-    }
-
-    @OnClick(R.id.floating_action_button)
-    void onClickFloatingActionButton() {
-        EventBus.getDefault().post(new PlacePickerEvent());
-    }
-
-    public void setButton(final boolean enabled) {
-        floatingActionButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
-    }
-
-    private void getUserData() {
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        if (accessToken != null) {
-            new UserEndpointActions(UserEndpointActions.GET_USER).execute(AccessToken
-                    .getCurrentAccessToken().getUserId());
-        } else {
-            mCurrentUser = null;
-            CustomApplication.getPlacesManager().clear();
-            mRecyclerViewManager.setVoting(false);
-            getItems();
         }
     }
 
@@ -184,10 +142,18 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         overridePendingTransition(0, 0);
         super.onPause();
         AppEventsLogger.deactivateApp(this);
+        unregisterConnectionMonitor();
+    }
+
+    @Override
+    protected void onStart() {
+        mLocationFinder.start();
+        super.onStart();
     }
 
     @Override
     public void onStop() {
+        mLocationFinder.stop();
         super.onStop();
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
@@ -217,23 +183,38 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         return true;
     }
 
-    private void setSearchView(final SearchView searchView) {
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        mSearchView = searchView;
-        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                mRecyclerViewManager.setFilter(query);
-                return false;
-            }
+    @Override
+    public void onBackPressed() {
+        if (!mSearchView.isIconified()) {
+            mSearchView.setQuery("", true);
+            mSearchView.setIconified(true);
+            mSearchView.clearFocus();
+        } else if (AccessToken.getCurrentAccessToken() == null) {
+            startLoginActivity();
+            CustomApplication.getPlacesManager().clear();
+            unregisterConnectionMonitor();
+        } else {
+            super.onBackPressed();
+            CustomApplication.getPlacesManager().clear();
+            unregisterConnectionMonitor();
+        }
+    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                mRecyclerViewManager.setFilter(newText);
-                return false;
-            }
-        });
+    @Override
+    public void onConnectionChange(boolean connected) {
+        if (!mConnectedState && connected) {
+            connectedState();
+            getUserData();
+        }
+        if (!connected) {
+            notConnectedState();
+        }
+        mConnectedState = connected;
+    }
+
+    @OnClick(R.id.floating_action_button)
+    void onClickFloatingActionButton() {
+        EventBus.getDefault().post(new PlacePickerEvent());
     }
 
     @Override
@@ -247,15 +228,20 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         return super.onOptionsItemSelected(item);
     }
 
-    private void startLoginActivity() {
-        Intent intent = new Intent(this, LoginActivity.class);
-        finish();
-        startActivity(intent);
-    }
-
-    private void logOut() {
-        LoginManager.getInstance().logOut();
-        mRecyclerViewManager.setVoting(false);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
+            final Place place = PlacePicker.getPlace(this, data);
+            if (!place.getPlaceTypes().contains(Place.TYPE_RESTAURANT) && !place.getPlaceTypes()
+                    .contains(Place.TYPE_CAFE) && !place.getPlaceTypes().contains(Place
+                    .TYPE_FOOD)) {
+                NotificationUtils.toastCustomText(this, R.string.invalid_place);
+            } else {
+                final ItemHolder itemHolder = PlaceUtils.getItemFromPlace(this, place);
+                itemHolder.setUserId(mCurrentUser.getId());
+                new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(itemHolder);
+            }
+        }
     }
 
     @EventBusHook
@@ -304,15 +290,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         } else {
             showDetails(userClickEvent.getLocalItemHolder());
         }
-    }
-
-    private void showDetails(final LocalItemHolder localItemHolder) {
-        floatingActionButton.hide();
-        final ItemHolder itemHolder = localItemHolder.getItemHolder();
-        final Intent intent = new Intent(this, DetailsActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        intent.putExtra("id", itemHolder.getId());
-        startActivity(intent);
     }
 
     @EventBusHook
@@ -372,45 +349,108 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         getItems();
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
-            final Place place = PlacePicker.getPlace(this, data);
-            if (!place.getPlaceTypes().contains(Place.TYPE_RESTAURANT) && !place.getPlaceTypes()
-                    .contains(Place.TYPE_CAFE) && !place.getPlaceTypes().contains(Place
-                    .TYPE_FOOD)) {
-                NotificationUtils.toastCustomText(this, R.string.invalid_place);
-            } else {
-                final ItemHolder itemHolder = PlaceUtils.getItemFromPlace(this, place);
-                itemHolder.setUserId(mCurrentUser.getId());
-                new EndpointsAsyncTask(EndpointsAsyncTask.ADD).execute(itemHolder);
+    private void registerConnectionMonitor() {
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        mConnectionMonitor = new NetworkChangeReceiver(this);
+        registerReceiver(mConnectionMonitor, filter);
+    }
+
+    private void unregisterConnectionMonitor() {
+        if (mConnectionMonitor != null) {
+            try {
+                unregisterReceiver(mConnectionMonitor);
+            } catch (IllegalArgumentException ignored) {
             }
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (!mSearchView.isIconified()) {
-            mSearchView.setQuery("", true);
-            mSearchView.setIconified(true);
-            mSearchView.clearFocus();
-        } else if (AccessToken.getCurrentAccessToken() == null) {
-            startLoginActivity();
-            CustomApplication.getPlacesManager().clear();
-        } else {
-            super.onBackPressed();
-            CustomApplication.getPlacesManager().clear();
+    private void notConnectedState() {
+        floatingActionButton.hide();
+        mRecyclerViewManager.setNotConnected();
+    }
+
+    private void connectedState() {
+        mainRecyclerView.hideEmptyView();
+        floatingActionButton.show();
+    }
+
+    private boolean checkConnection() {
+        mConnectedState = ConnectionUtils.checkConnection(this);
+        return mConnectedState;
+    }
+
+    private void setToolbar() {
+        setSupportActionBar(toolbar);
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
         }
     }
 
-    @Override
-    public void onConnectionChange(boolean connected) {
-        if (!mConnectedState && connected) {
-            connectedState();
-            getUserData();
+    private void getItems() {
+        if (mNextToken != null) {
+            EndpointGetItems getItems = new EndpointGetItems();
+            getItems.setCursor(mNextToken);
+            getItems.execute();
+        } else {
+            new EndpointGetItems().execute();
         }
-        if (!connected) {
-            notConnectedState();
+    }
+
+    public void setButton(final boolean enabled) {
+        floatingActionButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
+    }
+
+    private void getUserData() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if (accessToken != null) {
+            new UserEndpointActions(UserEndpointActions.GET_USER).execute(AccessToken
+                    .getCurrentAccessToken().getUserId());
+        } else {
+            mCurrentUser = null;
+            CustomApplication.getPlacesManager().clear();
+            mRecyclerViewManager.setVoting(false);
+            getItems();
         }
-        mConnectedState = connected;
+    }
+
+    private void setSearchView(final SearchView searchView) {
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        mSearchView = searchView;
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                mRecyclerViewManager.setFilter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                mRecyclerViewManager.setFilter(newText);
+                return false;
+            }
+        });
+    }
+
+
+    private void startLoginActivity() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        finish();
+        startActivity(intent);
+    }
+
+    private void logOut() {
+        LoginManager.getInstance().logOut();
+        mRecyclerViewManager.setVoting(false);
+    }
+
+    private void showDetails(final LocalItemHolder localItemHolder) {
+        floatingActionButton.hide();
+        final ItemHolder itemHolder = localItemHolder.getItemHolder();
+        final Intent intent = new Intent(this, DetailsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.putExtra("id", itemHolder.getId());
+        startActivity(intent);
     }
 }

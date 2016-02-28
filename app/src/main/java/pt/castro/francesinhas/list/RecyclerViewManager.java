@@ -90,7 +90,7 @@ public class RecyclerViewManager {
         mainRecyclerView.enableLoadmore();
         recyclerViewAdapter.setCustomLoadMoreView(LayoutInflater.from(context).inflate(R.layout
                 .custom_progress_bar, mainRecyclerView, false));
-        setEmptyList("Loading...");
+        setEmptyList(context.getString(R.string.loading));
         mainRecyclerView.addItemDecoration(new CustomItemDecoration());
     }
 
