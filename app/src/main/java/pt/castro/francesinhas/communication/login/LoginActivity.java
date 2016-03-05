@@ -133,8 +133,6 @@ public class LoginActivity extends Activity {
                 FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-//                View rootView = findViewById(R.id.fragment_login_parent);
-//                rootView.setVisibility(View.GONE);
                 Log.d("LoginManager", "Success");
                 startList();
             }

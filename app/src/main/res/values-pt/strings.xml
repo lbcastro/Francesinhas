@@ -20,4 +20,6 @@
     <string name="refresh">Actualizar</string>
     <string name="search">Procurar</string>
     <string name="continue_as_guest">Continuar sem login</string>
+    <string name="price_range">Gama de preços</string>
+    <string name="loading">A carregar…</string>
 </resources>

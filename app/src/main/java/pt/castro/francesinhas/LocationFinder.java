@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -41,8 +40,9 @@ public class LocationFinder implements GoogleApiClient.ConnectionCallbacks, Goog
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        Log.d("Location", "GOT LOCATION " + location.toString());
-        CustomApplication.getPlacesManager().setLocation(location);
+        if (location != null) {
+            CustomApplication.getPlacesManager().setLocation(location);
+        }
     }
 
     @Override

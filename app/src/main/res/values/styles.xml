@@ -57,7 +57,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:drawablePadding">@dimen/margin_m</item>
         <item name="android:paddingLeft">@dimen/margin_m</item>
-        <item name="android:paddingStart" tools:targetApi="17">@dimen/margin_l</item>
+        <item name="android:paddingStart">@dimen/margin_l</item>
         <item name="android:drawableTint" tools:targetApi="23">@color/blue</item>
     </style>
 

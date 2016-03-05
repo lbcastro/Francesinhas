@@ -30,15 +30,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="280dp"
                 android:contentDescription="@null"
-                android:scaleType="centerCrop"
-                android:transitionName="@string/transition_image"/>
+                android:scaleType="centerCrop"/>
 
             <View
                 android:id="@+id/backdrop_clickable"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/selector"
-                android:transitionName="@string/transition_clickable"/>
+                android:background="@drawable/selector"/>
         </FrameLayout>
 
         <FrameLayout
@@ -55,13 +53,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginBottom="@dimen/margin_l"
-            android:layout_marginLeft="@dimen/margin_m"
             android:layout_marginStart="@dimen/margin_m"
             android:gravity="start|center"
-            android:text="5"
             android:textSize="18sp"/>
 
         <TextView
@@ -70,26 +65,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/custom_row_ranking"
-            android:layout_marginLeft="@dimen/margin_s"
             android:layout_marginStart="@dimen/margin_s"
             android:layout_toEndOf="@id/custom_row_ranking"
-            android:layout_toLeftOf="@+id/votes_up"
-            android:layout_toRightOf="@id/custom_row_ranking"
             android:layout_toStartOf="@+id/votes_up"
             android:ellipsize="end"
-            android:maxLines="1"
-            android:text="Nome"
-            android:transitionName="@string/transition_text"/>
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/custom_row_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/custom_row_name"
             android:layout_alignStart="@id/custom_row_name"
             android:layout_below="@id/custom_row_name"
             android:fontFamily="sans-serif-light"
-            android:text="Porto"
             android:textColor="@android:color/white"
             android:textSize="13sp"/>
 
@@ -100,12 +88,9 @@
             android:layout_height="@dimen/ranking_size"
             android:layout_alignBottom="@id/custom_row_ranking"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_alignTop="@id/custom_row_ranking"
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/margin_m"
-            android:layout_marginRight="@dimen/margin_m"
-            android:text="3"
             android:textColor="@color/red_faded"
             app:elevation="4dp"/>
 
@@ -114,8 +99,6 @@
             android:layout_width="wrap_content"
             android:layout_height="1px"
             android:layout_alignEnd="@id/votes_down"
-            android:layout_alignLeft="@id/votes_down"
-            android:layout_alignRight="@id/votes_down"
             android:layout_alignStart="@id/votes_down"
             android:layout_below="@id/votes_down"
             android:layout_marginLeft="@dimen/margin_s"
@@ -133,10 +116,7 @@
             android:layout_alignTop="@id/custom_row_ranking"
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/margin_s"
-            android:layout_marginRight="@dimen/margin_s"
-            android:layout_toLeftOf="@id/votes_down"
             android:layout_toStartOf="@id/votes_down"
-            android:text="1"
             android:textColor="@color/green_bright"
             app:elevation="4dp"/>
 
@@ -146,8 +126,6 @@
             android:layout_width="wrap_content"
             android:layout_height="1px"
             android:layout_alignEnd="@id/votes_up"
-            android:layout_alignLeft="@id/votes_up"
-            android:layout_alignRight="@id/votes_up"
             android:layout_alignStart="@id/votes_up"
             android:layout_below="@id/votes_up"
             android:layout_marginLeft="@dimen/margin_s"
