@@ -108,6 +108,7 @@
                     android:layout_marginLeft="@dimen/margin_s"
                     android:layout_marginRight="@dimen/margin_s"
                     android:layout_marginTop="@dimen/margin_s"
+                    android:animateLayoutChanges="true"
                     android:background="@android:color/white"
                     app:cardElevation="@dimen/card_elevation">
 
@@ -146,7 +147,7 @@
                             style="@style/Text.Header.4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:drawableStart="@drawable/ic_map_black_24dp"
+
                             android:text="@string/details_address"/>
 
                         <TextView

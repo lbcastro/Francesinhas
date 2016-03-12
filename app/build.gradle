@@ -13,8 +13,8 @@ android {
         applicationId "pt.castro.francesinhas"
         minSdkVersion 20
         targetSdkVersion 23
-        versionCode 4
-        versionName "0.4"
+        versionCode 5
+        versionName "0.5"
 
         renderscriptTargetApi 20
         renderscriptSupportModeEnabled true

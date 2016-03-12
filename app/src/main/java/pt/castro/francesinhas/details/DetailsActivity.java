@@ -1,14 +1,18 @@
 package pt.castro.francesinhas.details;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -89,6 +93,13 @@ public class DetailsActivity extends AppCompatActivity {
     private Bitmap bitmap;
 
     private LocalItemHolder item;
+
+    private static Drawable tintedDrawable(final Context context, final int resource) {
+        Drawable normalDrawable = ContextCompat.getDrawable(context, resource);
+        Drawable wrapDrawable = DrawableCompat.wrap(normalDrawable);
+        DrawableCompat.setTint(wrapDrawable, ContextCompat.getColor(context, R.color.blue));
+        return wrapDrawable;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,6 +193,10 @@ public class DetailsActivity extends AppCompatActivity {
                     ("\0", currency) + "</font><font color='#ccbfbf'>" + new String(new char[5 -
                     price]).replace("\0", currency) + "</font>";
             priceContent.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
+            final TextView textView = (TextView) ((ViewGroup) priceContent.getParent())
+                    .findViewById(R.id.details_price_label);
+            textView.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
+                    .ic_account_balance_wallet_black_24dp), null, null, null);
         }
     }
 
@@ -302,6 +317,9 @@ public class DetailsActivity extends AppCompatActivity {
             ((ViewGroup) addressParent.getParent()).setVisibility(View.GONE);
         } else {
             ((ViewGroup) addressParent.getParent()).setVisibility(View.VISIBLE);
+            final TextView text = (TextView) addressParent.findViewById(R.id.details_address_label);
+            text.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
+                    .ic_map_black_24dp), null, null, null);
             addressTextView.setText(address);
             final float latitude = (float) item.getItemHolder().getLatitude().doubleValue();
             final float longitude = (float) item.getItemHolder().getLongitude().doubleValue();
@@ -346,6 +364,9 @@ public class DetailsActivity extends AppCompatActivity {
             ((ViewGroup) phoneParent.getParent()).setVisibility(View.GONE);
         } else {
             ((ViewGroup) phoneParent.getParent()).setVisibility(View.VISIBLE);
+            final TextView text = (TextView) phoneParent.findViewById(R.id.details_phone_label);
+            text.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
+                    .ic_local_phone_black_24dp), null, null, null);
             phoneTextView.setText(phone);
         }
     }
@@ -356,6 +377,9 @@ public class DetailsActivity extends AppCompatActivity {
             ((ViewGroup) urlParent.getParent()).setVisibility(View.GONE);
         } else {
             ((ViewGroup) urlParent.getParent()).setVisibility(View.VISIBLE);
+            final TextView text = (TextView) urlParent.findViewById(R.id.details_url_label);
+            text.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
+                    .ic_public_black_24dp), null, null, null);
             urlTextView.setText(url);
             urlTextView.setVisibility(View.VISIBLE);
         }
