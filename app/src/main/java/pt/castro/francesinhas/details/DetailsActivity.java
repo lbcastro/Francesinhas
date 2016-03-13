@@ -293,6 +293,7 @@ public class DetailsActivity extends AppCompatActivity {
             final LinearLayout bar = addRatingBar(ratingParent, R.drawable.google, Float
                     .parseFloat(googleData[0]), googleData[1]);
             ratingParent.addView(bar);
+            ((ViewGroup) ratingParent.getParent()).setVisibility(View.VISIBLE);
         }
 
         if (googleUrl != null && zomatoUrl != null) {
@@ -308,6 +309,7 @@ public class DetailsActivity extends AppCompatActivity {
             final LinearLayout bar = addRatingBar(ratingParent, R.drawable.zomato, Float
                     .parseFloat(zomatoData[0]), zomatoData[1]);
             ratingParent.addView(bar);
+            ((ViewGroup) ratingParent.getParent()).setVisibility(View.VISIBLE);
         }
     }
 

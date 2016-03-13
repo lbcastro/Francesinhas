@@ -48,9 +48,9 @@ public class PermissionsManager {
     }
 
     public boolean hasLocationPermission(final Activity activity) {
-        return ActivityCompat.checkSelfPermission(activity, android.Manifest.permission
-                .ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat
-                .checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED;
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ActivityCompat
+                .checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(activity,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 }

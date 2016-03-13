@@ -38,6 +38,7 @@ public class PlacesManager {
         if (location != null) {
             setLocation(localItemHolder, location);
         }
+        localItemHolder.getItemHolder().getName().replaceAll("Restaurante", "");
         items.put(placeId, localItemHolder);
         sortedList = null;
     }

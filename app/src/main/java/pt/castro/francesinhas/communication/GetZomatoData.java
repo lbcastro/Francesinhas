@@ -28,6 +28,7 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
 
     private LocalItemHolder localItemHolder;
     private String placeName;
+    private boolean reverse;
 
     public GetZomatoData(final LocalItemHolder localItemHolder) {
         this.localItemHolder = localItemHolder;
@@ -35,17 +36,14 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
 
     public static double similarity(String s1, String s2) {
         String longer = s1, shorter = s2;
-        if (s1.length() < s2.length()) { // longer should always have greater length
+        if (s1.length() < s2.length()) {
             longer = s2;
             shorter = s1;
         }
         int longerLength = longer.length();
         if (longerLength == 0) {
-            return 1.0; /* both strings are zero length */
+            return 1.0;
         }
-    /* // If you have StringUtils, you can use it to calculate the edit distance:
-    return (longerLength - StringUtils.getLevenshteinDistance(longer, shorter)) /
-                               (double) longerLength; */
         return (longerLength - editDistance(longer, shorter)) / (double) longerLength;
 
     }
@@ -63,8 +61,7 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
                     if (j > 0) {
                         int newValue = costs[j - 1];
                         if (s1.charAt(i - 1) != s2.charAt(j - 1))
-                            newValue = Math.min(Math.min(newValue, lastValue),
-                                    costs[j]) + 1;
+                            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
                         costs[j - 1] = lastValue;
                         lastValue = newValue;
                     }
@@ -79,21 +76,30 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
         this.placeName = Normalizer.normalize(placeName, Normalizer.Form.NFD);
         this.placeName = this.placeName.replaceAll("[^\\p{ASCII}]", "");
 
-        Log.d("Zomato", "GET: " + placeName);
-
-        final String latitude = Double.toString(localItemHolder.getItemHolder()
-                .getLatitude());
-        final String longitude = Double.toString(localItemHolder.getItemHolder()
-                .getLongitude());
+        final String latitude = Double.toString(localItemHolder.getItemHolder().getLatitude());
+        final String longitude = Double.toString(localItemHolder.getItemHolder().getLongitude());
         final String url = "https://developers.zomato.com/api/v2.1/search?q=" +
                 this.placeName.replaceAll(" ", "%20") +
                 "&lat=" + latitude + "&lon=" + longitude;
 
-        int index = this.placeName.lastIndexOf(" ");
+        int index = reverse ? this.placeName.indexOf(" ") : this.placeName.lastIndexOf(" ");
         if (index > 0) {
-            this.placeName = this.placeName.substring(0, index);
+            if (reverse) {
+                this.placeName = this.placeName.substring(index, placeName.length());
+            } else {
+                this.placeName = this.placeName.substring(0, index);
+            }
         } else {
             this.placeName = "";
+        }
+
+        if (placeName.isEmpty()) {
+            if (!reverse) {
+                reverse = true;
+                this.placeName = localItemHolder.getItemHolder().getName();
+                getData(this.placeName);
+            }
+            return;
         }
 
         this.execute(url);
@@ -107,8 +113,8 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("user_key", ZOMATO_API_KEY);
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                final BufferedReader reader = new BufferedReader(new InputStreamReader
-                        (connection.getInputStream()));
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(connection
+                        .getInputStream()));
                 String line;
                 while ((line = reader.readLine()) != null) {
                     stringBuilder.append(line);
@@ -131,8 +137,8 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
                 new GetZomatoData(localItemHolder).getData(placeName);
             } else {
                 localItemHolder.getItemHolder().setPriceRange(-2);
-                EndpointsAsyncTask endpointsAsyncTask = new EndpointsAsyncTask
-                        (EndpointsAsyncTask.UPDATE);
+                EndpointsAsyncTask endpointsAsyncTask = new EndpointsAsyncTask(EndpointsAsyncTask
+                        .UPDATE);
                 endpointsAsyncTask.execute(localItemHolder.getItemHolder());
             }
             Log.d("Zomato", "Result was null");
@@ -151,22 +157,11 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
         try {
             JSONArray restaurantsArray = jsonObject.getJSONArray("restaurants");
 
-            if (restaurantsArray.length() <= 0) {
-                Log.d("Zomato", "No restaurants");
-            }
-
-            JSONObject restaurant = restaurantsArray.getJSONObject(0).getJSONObject
-                    ("restaurant");
+            JSONObject restaurant = restaurantsArray.getJSONObject(0).getJSONObject("restaurant");
             String name = restaurant.getString("name");
 
-            Log.d("Zomato", restaurant.toString());
-            Log.d("Zomato", "Process:" + name);
-
-            double similarity = similarity(name, localItemHolder.getItemHolder()
-                    .getName());
-            Log.d("Zomato", "" + similarity);
-
-            if (similarity < 0.55) {
+            double similarity = similarity(name, this.placeName);
+            if (similarity < 0.51) {
                 new GetZomatoData(localItemHolder).getData(placeName);
                 return;
             }
@@ -179,8 +174,7 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
             JSONObject location = restaurant.getJSONObject("location");
             String address = location.getString("address");
             String city = location.getString("city");
-            String rating = restaurant.getJSONObject("user_rating").getString
-                    ("aggregate_rating");
+            String rating = restaurant.getJSONObject("user_rating").getString("aggregate_rating");
             String url = restaurant.getString("url");
 
             localItemHolder.getItemHolder().setName(name.trim());
@@ -190,8 +184,8 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
             localItemHolder.getItemHolder().setLocation(city.trim());
             localItemHolder.getItemHolder().setZomatoUrl(rating + ";" + url);
 
-            EndpointsAsyncTask endpointsAsyncTask = new EndpointsAsyncTask
-                    (EndpointsAsyncTask.UPDATE);
+            EndpointsAsyncTask endpointsAsyncTask = new EndpointsAsyncTask(EndpointsAsyncTask
+                    .UPDATE);
             endpointsAsyncTask.execute(localItemHolder.getItemHolder());
 
             EventBus.getDefault().post(new PhotoUpdateEvent(localItemHolder));

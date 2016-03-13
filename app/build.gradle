@@ -13,8 +13,8 @@ android {
         applicationId "pt.castro.francesinhas"
         minSdkVersion 20
         targetSdkVersion 23
-        versionCode 5
-        versionName "0.5"
+        versionCode 6
+        versionName "0.6"
 
         renderscriptTargetApi 20
         renderscriptSupportModeEnabled true
@@ -57,6 +57,7 @@ dependencies {
     compile 'frankiesardo:icepick:3.0.2'
     provided 'frankiesardo:icepick-processor:3.0.2'
     compile 'com.github.d-max:static-map:0.1+@aar'
+    compile 'ch.acra:acra:4.5.0'
 
     // Authentication
     compile 'com.facebook.android:facebook-android-sdk:4.7.+'
