@@ -5,7 +5,7 @@
                                                  android:layout_height="match_parent"
                                                  android:background="@color/background"
                                                  app:statusBarBackground="@android:color/transparent"
-                                                 tools:context=".list.ListActivity">
+                                                 tools:context="pt.castro.tops.list.ListActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -40,6 +40,6 @@
         app:backgroundTint="@color/fab_color"
         app:layout_anchor="@id/fragment_recycler_view"
         app:layout_anchorGravity="bottom|end"
-        app:layout_behavior="pt.castro.francesinhas.list.decoration.ScrollAwareFABBehavior"
+        app:layout_behavior="pt.castro.tops.list.decoration.ScrollAwareFABBehavior"
         app:layout_scrollFlags="scroll|enterAlways"/>
 </android.support.design.widget.CoordinatorLayout>

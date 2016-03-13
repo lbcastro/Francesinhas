@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "pt.castro.francesinhas"
+        applicationId "pt.castro.tops"
         minSdkVersion 20
         targetSdkVersion 23
         versionCode 6
