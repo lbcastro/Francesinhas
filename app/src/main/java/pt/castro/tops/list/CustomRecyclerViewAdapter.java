@@ -46,9 +46,8 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
         .ViewHolder> {
 
     private static final String CACHED_EMPTY_BITMAP = "empty";
-
+    private final List<LocalItemHolder> visibleItems;
     private ParallaxViewController parallaxViewController;
-    private List<LocalItemHolder> visibleItems;
     private boolean votingEnabled;
     private Bitmap emptyBitmap;
     private int mLastPosition;
@@ -87,17 +86,20 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
     }
 
     public void add(LocalItemHolder localItemHolder) {
-        if (!visibleItems.contains(localItemHolder)) {
-            visibleItems.add(localItemHolder);
-            notifyItemInserted(visibleItems.indexOf(localItemHolder));
+        synchronized (visibleItems) {
+            if (!visibleItems.contains(localItemHolder)) {
+                visibleItems.add(localItemHolder);
+                notifyItemInserted(visibleItems.indexOf(localItemHolder));
+            }
         }
     }
 
     public void clear() {
-        mLastPosition = 0;
-        visibleItems = new ArrayList<>();
-        notifyDataSetChanged();
-//        flushFilter();
+        synchronized (visibleItems) {
+            mLastPosition = 0;
+            visibleItems.clear();
+            notifyDataSetChanged();
+        }
     }
 
     public void reset() {
@@ -106,25 +108,29 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
     }
 
     private void flushFilter() {
-        final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager().getList();
-        visibleItems = new ArrayList<>();
-        visibleItems.addAll(tempList);
-        notifyDataSetChanged();
+        synchronized (visibleItems) {
+            final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager().getList();
+            visibleItems.clear();
+            visibleItems.addAll(tempList);
+            notifyDataSetChanged();
+        }
     }
 
     public void setFilter(String query) {
-        final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager().getList();
-        visibleItems = new ArrayList<>();
-        for (LocalItemHolder localItemHolder : tempList) {
-            if (localItemHolder.getItemHolder().getName().toLowerCase().contains(query
-                    .toLowerCase())) {
-                visibleItems.add(localItemHolder);
-            } else if (localItemHolder.getItemHolder().getLocation().toLowerCase().contains(query
-                    .toLowerCase())) {
-                visibleItems.add(localItemHolder);
+        synchronized (visibleItems) {
+            final List<LocalItemHolder> tempList = CustomApplication.getPlacesManager().getList();
+            visibleItems.clear();
+            for (LocalItemHolder localItemHolder : tempList) {
+                if (localItemHolder.getItemHolder().getName().toLowerCase().contains(query
+                        .toLowerCase())) {
+                    visibleItems.add(localItemHolder);
+                } else if (localItemHolder.getItemHolder().getLocation().toLowerCase().contains
+                        (query.toLowerCase())) {
+                    visibleItems.add(localItemHolder);
+                }
             }
+            notifyDataSetChanged();
         }
-        notifyDataSetChanged();
     }
 
     public void setVoting(boolean enabled) {
@@ -161,9 +167,10 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final int adapterPosition = holder.getAdapterPosition();
         final ItemHolder itemHolder = visibleItems.get(adapterPosition).getItemHolder();
+        holder.imageView.setImageBitmap(null);
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
             Bitmap cachedBitmap = PhotoUtils.getCachedBitmap(itemHolder.getPhotoUrl());
-            if (cachedBitmap != null) {
+            if (cachedBitmap != null && !cachedBitmap.isRecycled() && cachedBitmap != emptyBitmap) {
                 holder.imageView.setImageBitmap(cachedBitmap);
             } else if (holder.imageView.getTag() == null || !holder.imageView.getTag().equals
                     (itemHolder.getPhotoUrl())) {

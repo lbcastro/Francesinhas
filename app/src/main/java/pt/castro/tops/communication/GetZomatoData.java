@@ -1,7 +1,7 @@
 package pt.castro.tops.communication;
 
+import android.location.Location;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -133,7 +133,6 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String string) {
         if (string == null || string.isEmpty()) {
             if (!placeName.trim().isEmpty()) {
-                Log.d("Zomato", "Place: " + placeName + "," + placeName.length());
                 new GetZomatoData(localItemHolder).getData(placeName);
             } else {
                 localItemHolder.getItemHolder().setPriceRange(-2);
@@ -141,7 +140,6 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
                         .UPDATE);
                 endpointsAsyncTask.execute(localItemHolder.getItemHolder());
             }
-            Log.d("Zomato", "Result was null");
             return;
         }
 
@@ -156,12 +154,55 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
     private void process(final JSONObject jsonObject) {
         try {
             JSONArray restaurantsArray = jsonObject.getJSONArray("restaurants");
+            boolean match = false;
+            JSONObject restaurant = null;
+            String name = "";
 
-            JSONObject restaurant = restaurantsArray.getJSONObject(0).getJSONObject("restaurant");
-            String name = restaurant.getString("name");
+            final Location localLocation = new Location("");
+            localLocation.setLatitude(localItemHolder.getItemHolder().getLatitude());
+            localLocation.setLongitude(localItemHolder.getItemHolder().getLongitude());
 
-            double similarity = similarity(name, this.placeName);
-            if (similarity < 0.51) {
+            for (int x = 0; x < Math.min(restaurantsArray.length(), 5); x++) {
+                restaurant = restaurantsArray.getJSONObject(x).getJSONObject("restaurant");
+                JSONObject location = restaurant.getJSONObject("location");
+                final Location temp = new Location("");
+                temp.setLatitude(location.getDouble("latitude"));
+                temp.setLongitude(location.getDouble("longitude"));
+                if (localLocation.distanceTo(temp) < 200) {
+                    match = true;
+                    name = restaurant.getString("name");
+                    break;
+                }
+            }
+
+            if (!match && !localItemHolder.getItemHolder().getPhone().isEmpty()) {
+                for (int x = 0; x < Math.min(restaurantsArray.length(), 5); x++) {
+                    restaurant = restaurantsArray.getJSONObject(x).getJSONObject("restaurant");
+                    try {
+                        final String phone = restaurant.getString("phone_numbers");
+                        if (similarity(localItemHolder.getItemHolder().getPhone(), phone) > 0.51) {
+                            match = true;
+                            break;
+                        }
+                    } catch (JSONException ignored) {
+                        // No phone number on Zomato
+                    }
+                }
+            }
+
+            if (!match) {
+                for (int x = 0; x < Math.min(restaurantsArray.length(), 5); x++) {
+                    restaurant = restaurantsArray.getJSONObject(x).getJSONObject("restaurant");
+                    name = restaurant.getString("name");
+                    double similarity = similarity(name, this.placeName);
+                    if (similarity > 0.51) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!match) {
                 new GetZomatoData(localItemHolder).getData(placeName);
                 return;
             }

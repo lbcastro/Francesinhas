@@ -14,34 +14,13 @@
         android:glEsVersion="0x00020000"
         android:required="true"/>
 
-    <compatible-screens>
-        <!-- all small size screens -->
-        <screen
-            android:screenDensity="ldpi"
-            android:screenSize="small"/>
-        <screen
-            android:screenDensity="mdpi"
-            android:screenSize="small"/>
-        <screen
-            android:screenDensity="hdpi"
-            android:screenSize="small"/>
-        <screen
-            android:screenDensity="xhdpi"
-            android:screenSize="small"/>
-        <!-- all normal size screens -->
-        <screen
-            android:screenDensity="ldpi"
-            android:screenSize="normal"/>
-        <screen
-            android:screenDensity="mdpi"
-            android:screenSize="normal"/>
-        <screen
-            android:screenDensity="hdpi"
-            android:screenSize="normal"/>
-        <screen
-            android:screenDensity="xhdpi"
-            android:screenSize="normal"/>
-    </compatible-screens>
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="false"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true"
+        android:xlargeScreens="false"/>
 
     <application
         android:name="pt.castro.tops.CustomApplication"

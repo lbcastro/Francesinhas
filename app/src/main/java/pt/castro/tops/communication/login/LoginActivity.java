@@ -55,7 +55,6 @@ public class LoginActivity extends Activity {
                 md = MessageDigest.getInstance("SHA");
                 md.update(signature.toByteArray());
                 String something = new String(Base64.encode(md.digest(), 0));
-                Log.e("hash key", something);
             }
         } catch (PackageManager.NameNotFoundException e1) {
             Log.e("name not found", e1.toString());
@@ -81,12 +80,10 @@ public class LoginActivity extends Activity {
         trackAccessToken();
         mCallbackManager = CallbackManager.Factory.create();
         if (AccessToken.getCurrentAccessToken() != null || Profile.getCurrentProfile() != null) {
-            Log.d("LoginActivity", "Had token, logged in");
             LoginManager.getInstance().logInWithReadPermissions(this, Collections.singletonList
                     ("public_profile"));
             startList();
         } else {
-            Log.d("LoginActivity", "No login found");
             startLogin();
         }
     }
