@@ -3,8 +3,7 @@ package pt.castro.tops.list;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,13 +15,8 @@ import android.widget.TextView;
 import com.github.florent37.beautifulparallax.ParallaxViewController;
 import com.marshalchen.ultimaterecyclerview.UltimateViewAdapter;
 import com.marshalchen.ultimaterecyclerview.animators.internal.ViewHelper;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.squareup.picasso.Picasso;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +31,6 @@ import pt.castro.tops.events.EventBusHook;
 import pt.castro.tops.events.place.PhotoUpdateEvent;
 import pt.castro.tops.events.place.ScoreChangeEvent;
 import pt.castro.tops.events.user.UserClickEvent;
-import pt.castro.tops.tools.PhotoUtils;
 
 /**
  * Created by lourenco.castro on 07/05/15.
@@ -49,30 +42,31 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
     private final List<LocalItemHolder> visibleItems;
     private ParallaxViewController parallaxViewController;
     private boolean votingEnabled;
-    private Bitmap emptyBitmap;
+    //    private Bitmap emptyBitmap;
     private int mLastPosition;
 
     public CustomRecyclerViewAdapter(final Context context) {
         EventBus.getDefault().register(this);
         visibleItems = new ArrayList<>();
-        generateEmptyBitmap(context);
+//        generateEmptyBitmap(context);
         parallaxViewController = new ParallaxViewController();
     }
 
-    private void generateEmptyBitmap(final Context context) {
-        final File imageFile = ImageLoader.getInstance().getDiskCache().get(CACHED_EMPTY_BITMAP);
-        if (imageFile == null || !imageFile.exists()) {
-            emptyBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable
-                    .francesinha_blur);
-            try {
-                ImageLoader.getInstance().getDiskCache().save(CACHED_EMPTY_BITMAP, emptyBitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            emptyBitmap = PhotoUtils.bitmapFromFile(imageFile);
-        }
-    }
+//    private void generateEmptyBitmap(final Context context) {
+//
+//        final File imageFile = ImageLoader.getInstance().getDiskCache().get(CACHED_EMPTY_BITMAP);
+//        if (imageFile == null || !imageFile.exists()) {
+//            emptyBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable
+//                    .francesinha_blur);
+//            try {
+//                ImageLoader.getInstance().getDiskCache().save(CACHED_EMPTY_BITMAP, emptyBitmap);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            emptyBitmap = PhotoUtils.bitmapFromFile(imageFile);
+//        }
+//    }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -167,45 +161,54 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final int adapterPosition = holder.getAdapterPosition();
         final ItemHolder itemHolder = visibleItems.get(adapterPosition).getItemHolder();
-        holder.imageView.setImageBitmap(null);
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
-            Bitmap cachedBitmap = PhotoUtils.getCachedBitmap(itemHolder.getPhotoUrl());
-            if (cachedBitmap != null && !cachedBitmap.isRecycled() && cachedBitmap != emptyBitmap) {
-                holder.imageView.setImageBitmap(cachedBitmap);
-            } else if (holder.imageView.getTag() == null || !holder.imageView.getTag().equals
-                    (itemHolder.getPhotoUrl())) {
-                final ImageLoader imageLoader = ImageLoader.getInstance();
-                final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
-                imageLoader.cancelDisplayTask(aware);
-                imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
-                        .getDisplayImageOptions(true), new ImageLoadingListener() {
+            if (holder.imageView.getTag() == null || !holder.imageView.getTag().equals(itemHolder
+                    .getPhotoUrl())) {
 
-                    @Override
-                    public void onLoadingStarted(String imageUri, View view) {
-                        holder.bottomShadow.setVisibility(View.INVISIBLE);
-                    }
+                Uri uri = Uri.parse(itemHolder.getPhotoUrl());
 
-                    @Override
-                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                        holder.imageView.setImageBitmap(emptyBitmap);
-                        holder.bottomShadow.setVisibility(View.VISIBLE);
-                    }
+                Picasso.with(holder.imageView.getContext()).load(uri).tag(this).into(holder
+                        .imageView);
 
-                    @Override
-                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        holder.bottomShadow.setVisibility(View.VISIBLE);
-                    }
+//                holder.imageView.setImageURI(uri);
+                holder.bottomShadow.setVisibility(View.VISIBLE);
 
-                    @Override
-                    public void onLoadingCancelled(String imageUri, View view) {
-                        holder.imageView.setImageBitmap(emptyBitmap);
-                        holder.bottomShadow.setVisibility(View.VISIBLE);
-                    }
-                });
+//                final ImageLoader imageLoader = ImageLoader.getInstance();
+//                final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
+//                imageLoader.cancelDisplayTask(aware);
+//                imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
+//                        .getDisplayImageOptions(true), new ImageLoadingListener() {
+//
+//                    @Override
+//                    public void onLoadingStarted(String imageUri, View view) {
+//                        holder.bottomShadow.setVisibility(View.INVISIBLE);
+//                    }
+//
+//                    @Override
+//                    public void onLoadingFailed(String imageUri, View view, FailReason
+// failReason) {
+//                        holder.imageView.setImageBitmap(emptyBitmap);
+//                        holder.bottomShadow.setVisibility(View.VISIBLE);
+//                    }
+//
+//                    @Override
+//                    public void onLoadingComplete(String imageUri, View view, Bitmap
+// loadedImage) {
+//                        holder.bottomShadow.setVisibility(View.VISIBLE);
+//                    }
+//
+//                    @Override
+//                    public void onLoadingCancelled(String imageUri, View view) {
+//                        holder.imageView.setImageBitmap(emptyBitmap);
+//                        holder.bottomShadow.setVisibility(View.VISIBLE);
+//                    }
+//                });
                 holder.imageView.setTag(itemHolder.getPhotoUrl());
             }
         } else {
-            holder.imageView.setImageBitmap(emptyBitmap);
+            Picasso.with(holder.imageView.getContext()).load(R.drawable.francesinha_blur).into
+                    (holder.imageView);
+//            holder.imageView.setImageBitmap(emptyBitmap);
             holder.bottomShadow.setVisibility(View.VISIBLE);
         }
         holder.rankingTextView.setText(Integer.toString(position + 1));
@@ -292,6 +295,8 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
         View votesDownIndicator;
         @Bind(R.id.custom_row_bottom_shadow)
         View bottomShadow;
+//        @Bind(R.id.my_image_view)
+//        SimpleDraweeView imageView;
 
         private boolean voting;
 

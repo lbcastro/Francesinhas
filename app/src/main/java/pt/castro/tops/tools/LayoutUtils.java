@@ -6,16 +6,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
-import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
-import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.nostra13.universalimageloader.utils.StorageUtils;
-
-import java.io.File;
 import java.util.Random;
 
 import pt.castro.tops.R;
@@ -90,28 +80,28 @@ public class LayoutUtils {
         v.startAnimation(a);
     }
 
-    public static void initImageLoader(Context context) {
-        if (ImageLoader.getInstance().isInited()) {
-            return;
-        }
-
-        final DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .cacheInMemory(true).cacheOnDisk(true).build();
-
-        final File cacheDir = StorageUtils.getCacheDirectory(context);
-        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder
-                (context);
-        config.threadPriority(Thread.NORM_PRIORITY - 2);
-        config.denyCacheImageMultipleSizesInMemory();
-        config.diskCache(new UnlimitedDiskCache(cacheDir));
-        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
-        config.diskCacheSize(50 * 1024 * 1024);
-        config.memoryCache(new LruMemoryCache(2 * 1024 * 1024));
-        config.memoryCacheSize(2 * 1024 * 1024);
-        config.defaultDisplayImageOptions(defaultOptions);
-        config.tasksProcessingOrder(QueueProcessingType.FIFO);
-
-        // Initialize ImageLoader with configuration.
-        ImageLoader.getInstance().init(config.build());
-    }
+//    public static void initImageLoader(Context context) {
+//        if (ImageLoader.getInstance().isInited()) {
+//            return;
+//        }
+//
+//        final DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+//                .cacheInMemory(true).cacheOnDisk(true).build();
+//
+//        final File cacheDir = StorageUtils.getCacheDirectory(context);
+//        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder
+//                (context);
+//        config.threadPriority(Thread.NORM_PRIORITY - 2);
+//        config.denyCacheImageMultipleSizesInMemory();
+//        config.diskCache(new UnlimitedDiskCache(cacheDir));
+//        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
+//        config.diskCacheSize(50 * 1024 * 1024);
+//        config.memoryCache(new LruMemoryCache(2 * 1024 * 1024));
+//        config.memoryCacheSize(2 * 1024 * 1024);
+//        config.defaultDisplayImageOptions(defaultOptions);
+//        config.tasksProcessingOrder(QueueProcessingType.FIFO);
+//
+//        // Initialize ImageLoader with configuration.
+//        ImageLoader.getInstance().init(config.build());
+//    }
 }

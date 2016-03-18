@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -32,26 +31,40 @@ import com.facebook.appevents.AppEventsLogger;
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.github.ppamorim.dragger.DraggerPosition;
 import com.github.ppamorim.dragger.DraggerView;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.squareup.picasso.Picasso;
 
-import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import dmax.staticmap.Callback;
 import dmax.staticmap.Config;
 import dmax.staticmap.Marker;
-import dmax.staticmap.StaticMap;
+import dmax.staticmap.builder.HeadSegment;
+import dmax.staticmap.builder.MapTypeSegment;
+import dmax.staticmap.builder.MarkerSegment;
+import dmax.staticmap.builder.PositionSegment;
+import dmax.staticmap.builder.ScaleSegment;
+import dmax.staticmap.builder.Segment;
 import pt.castro.tops.CustomApplication;
 import pt.castro.tops.R;
 import pt.castro.tops.list.LocalItemHolder;
-import pt.castro.tops.tools.PhotoUtils;
 
 /**
  * Created by lourenco on 03/12/15.
  */
 public class DetailsActivity extends AppCompatActivity {
+
+    private static List<Segment> segments = new LinkedList<Segment>();
+
+    static {
+        segments.add(new HeadSegment()); // must be first
+        segments.add(new MapTypeSegment());
+        segments.add(new ScaleSegment());
+        segments.add(new MarkerSegment());
+        segments.add(new PositionSegment());
+    }
 
     @Bind(R.id.details_address_content)
     TextView addressTextView;
@@ -81,17 +94,14 @@ public class DetailsActivity extends AppCompatActivity {
     LinearLayout detailsParent;
     @Bind(R.id.details_rating_parent)
     LinearLayout ratingParent;
-
     @Bind(R.id.nested_scroll)
     NestedScrollView nestedScrollView;
     @Bind(R.id.dragger_view)
     DraggerView draggerView;
     @Bind(R.id.appbar)
     AppBarLayout appBarLayout;
-
     private String location;
     private Bitmap bitmap;
-
     private LocalItemHolder item;
 
     private static Drawable tintedDrawable(final Context context, final int resource) {
@@ -99,6 +109,16 @@ public class DetailsActivity extends AppCompatActivity {
         Drawable wrapDrawable = DrawableCompat.wrap(normalDrawable);
         DrawableCompat.setTint(wrapDrawable, ContextCompat.getColor(context, R.color.blue));
         return wrapDrawable;
+    }
+
+    private static String buildUrl(Config config, Context context) {
+        StringBuilder urlBuilder = new StringBuilder();
+
+        for (Segment segment : segments) {
+            segment.append(config, urlBuilder, context);
+        }
+
+        return urlBuilder.toString();
     }
 
     @Override
@@ -173,13 +193,23 @@ public class DetailsActivity extends AppCompatActivity {
         AppEventsLogger.activateApp(this);
     }
 
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        try {
+//            ImageLoader.getInstance().getDiskCache().save(location, bitmap);
+//        } catch (Exception ignored) {
+//            // This happens when the bitmap was null, which means it was already cached.
+//        }
+//    }
+
     private void setBackdrop() {
         final String backgroundUrl = item.getItemHolder().getPhotoUrl();
         if (backgroundUrl == null || backgroundUrl.equals("n/a")) {
             backdrop.setImageResource(R.drawable.francesinha_blur);
         } else {
-            ImageLoader.getInstance().displayImage(backgroundUrl, backdrop, PhotoUtils
-                    .getDisplayImageOptions(false));
+            Uri uri = Uri.parse(backgroundUrl);
+            Picasso.with(this).load(uri).into(backdrop);
         }
     }
 
@@ -209,16 +239,6 @@ public class DetailsActivity extends AppCompatActivity {
             actionBar.setDisplayShowTitleEnabled(true);
             actionBar.setDisplayUseLogoEnabled(false);
             actionBar.setHomeButtonEnabled(true);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        try {
-            ImageLoader.getInstance().getDiskCache().save(location, bitmap);
-        } catch (Exception ignored) {
-            // This happens when the bitmap was null, which means it was already cached.
         }
     }
 
@@ -276,59 +296,6 @@ public class DetailsActivity extends AppCompatActivity {
         return ratingBar;
     }
 
-    private void addStarImage(final ViewGroup parent, final int drawableResource) {
-        final ImageView star = (ImageView) LayoutInflater.from(this).inflate(R.layout
-                .rating_star, parent, false);
-        star.setBackgroundResource(drawableResource);
-        parent.addView(star);
-    }
-
-    private void setRatings() {
-
-        final String googleUrl = item.getItemHolder().getGoogleUrl();
-        final String zomatoUrl = item.getItemHolder().getZomatoUrl();
-
-        if (googleUrl != null) {
-            final String[] googleData = googleUrl.split(";");
-            final LinearLayout bar = addRatingBar(ratingParent, R.drawable.google, Float
-                    .parseFloat(googleData[0]), googleData[1]);
-            ratingParent.addView(bar);
-            ((ViewGroup) ratingParent.getParent()).setVisibility(View.VISIBLE);
-        }
-
-        if (googleUrl != null && zomatoUrl != null) {
-            final View separator = LayoutInflater.from(this).inflate(R.layout.white_separator,
-                    ratingParent, false);
-            ratingParent.addView(separator);
-        } else {
-            ((ViewGroup) ratingParent.getParent()).setVisibility(View.GONE);
-        }
-
-        if (zomatoUrl != null) {
-            final String[] zomatoData = zomatoUrl.split(";");
-            final LinearLayout bar = addRatingBar(ratingParent, R.drawable.zomato, Float
-                    .parseFloat(zomatoData[0]), zomatoData[1]);
-            ratingParent.addView(bar);
-            ((ViewGroup) ratingParent.getParent()).setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void setAddress() {
-        final String address = item.getItemHolder().getAddress();
-        if (address == null || address.isEmpty()) {
-            ((ViewGroup) addressParent.getParent()).setVisibility(View.GONE);
-        } else {
-            ((ViewGroup) addressParent.getParent()).setVisibility(View.VISIBLE);
-            final TextView text = (TextView) addressParent.findViewById(R.id.details_address_label);
-            text.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
-                    .ic_map_black_24dp), null, null, null);
-            addressTextView.setText(address);
-            final float latitude = (float) item.getItemHolder().getLatitude().doubleValue();
-            final float longitude = (float) item.getItemHolder().getLongitude().doubleValue();
-            setMapView(address, latitude, longitude);
-        }
-    }
-
 //    private void setAddress(final Bundle data) {
 //        final String address = data.getString(DetailsKeys.ITEM_ADDRESS);
 //        if (address != null && !address.isEmpty()) {
@@ -359,6 +326,57 @@ public class DetailsActivity extends AppCompatActivity {
 //            setMapView(address, latitude, longitude);
 //        }
 //    }
+
+    private void addStarImage(final ViewGroup parent, final int drawableResource) {
+        final ImageView star = (ImageView) LayoutInflater.from(this).inflate(R.layout
+                .rating_star, parent, false);
+        star.setBackgroundResource(drawableResource);
+        parent.addView(star);
+    }
+
+    private void setRatings() {
+
+        final String googleUrl = item.getItemHolder().getGoogleUrl();
+        final String zomatoUrl = item.getItemHolder().getZomatoUrl();
+
+        if (googleUrl != null) {
+            final String[] googleData = googleUrl.split(";");
+            final LinearLayout bar = addRatingBar(ratingParent, R.drawable.google, Float
+                    .parseFloat(googleData[0]), googleData[1]);
+            ratingParent.addView(bar);
+            ((ViewGroup) ratingParent.getParent()).setVisibility(View.VISIBLE);
+        }
+
+        if (googleUrl != null && zomatoUrl != null) {
+            final View separator = LayoutInflater.from(this).inflate(R.layout.white_separator,
+                    ratingParent, false);
+            ratingParent.addView(separator);
+        }
+
+        if (zomatoUrl != null) {
+            final String[] zomatoData = zomatoUrl.split(";");
+            final LinearLayout bar = addRatingBar(ratingParent, R.drawable.zomato, Float
+                    .parseFloat(zomatoData[0]), zomatoData[1]);
+            ratingParent.addView(bar);
+            ((ViewGroup) ratingParent.getParent()).setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setAddress() {
+        final String address = item.getItemHolder().getAddress();
+        if (address == null || address.isEmpty()) {
+            ((ViewGroup) addressParent.getParent()).setVisibility(View.GONE);
+        } else {
+            ((ViewGroup) addressParent.getParent()).setVisibility(View.VISIBLE);
+            final TextView text = (TextView) addressParent.findViewById(R.id.details_address_label);
+            text.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
+                    .ic_map_black_24dp), null, null, null);
+            addressTextView.setText(address);
+            final float latitude = (float) item.getItemHolder().getLatitude().doubleValue();
+            final float longitude = (float) item.getItemHolder().getLongitude().doubleValue();
+            setMapView(address, latitude, longitude);
+        }
+    }
 
     private void setPhone() {
         final String phone = item.getItemHolder().getPhone();
@@ -405,22 +423,8 @@ public class DetailsActivity extends AppCompatActivity {
         } else {
             location = "" + latitude + "," + longitude;
             gmmIntentUri = Uri.parse("google.navigation:q=" + location);
-
-            final File mapImage = ImageLoader.getInstance().getDiskCache().get(location);
-            if (mapImage != null && mapImage.exists()) {
-                bitmap = PhotoUtils.bitmapFromFile(mapImage);
-                mapView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
-            } else {
-                Callback callback = new Callback() {
-                    public void onFailed(int errorCode, String errorMessage) {
-                    }
-
-                    public void onMapGenerated(Bitmap bitmap) {
-                        mapView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
-                    }
-                };
-                StaticMap.requestMapImage(this, config, callback);
-            }
+            final Uri uri = Uri.parse(buildUrl(config, this));
+            Picasso.with(this).load(uri).into(mapView);
         }
 
         final Intent mapsAppIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);

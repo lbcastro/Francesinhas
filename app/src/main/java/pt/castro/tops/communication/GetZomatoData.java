@@ -225,6 +225,14 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
             localItemHolder.getItemHolder().setLocation(city.trim());
             localItemHolder.getItemHolder().setZomatoUrl(rating + ";" + url);
 
+            if (localItemHolder.getItemHolder().getPhone().isEmpty()) {
+                try {
+                    String phone = restaurant.getString("phone_numbers");
+                    localItemHolder.getItemHolder().setPhone(phone);
+                } catch (JSONException ignored) {
+                }
+            }
+
             EndpointsAsyncTask endpointsAsyncTask = new EndpointsAsyncTask(EndpointsAsyncTask
                     .UPDATE);
             endpointsAsyncTask.execute(localItemHolder.getItemHolder());

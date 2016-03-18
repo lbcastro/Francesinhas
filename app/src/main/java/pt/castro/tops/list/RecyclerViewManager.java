@@ -4,11 +4,10 @@ import android.content.Context;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.widget.TextView;
 
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.squareup.picasso.Picasso;
 
 import java.math.BigDecimal;
 
@@ -74,9 +73,9 @@ public class RecyclerViewManager {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
-                    ImageLoader.getInstance().pause();
+                    Picasso.with(context).pauseTag(recyclerViewAdapter);
                 } else {
-                    ImageLoader.getInstance().resume();
+                    Picasso.with(context).resumeTag(recyclerViewAdapter);
                 }
             }
         });
@@ -87,9 +86,8 @@ public class RecyclerViewManager {
             }
         });
         mainRecyclerView.enableLoadmore();
-        recyclerViewAdapter.setCustomLoadMoreView(LayoutInflater.from(context).inflate(pt.castro
-                .tops.R.layout
-                .custom_progress_bar, mainRecyclerView, false));
+//        recyclerViewAdapter.setCustomLoadMoreView(LayoutInflater.from(context).inflate(pt.castro
+//                .tops.R.layout.custom_progress_bar, mainRecyclerView, false));
         setEmptyList(context.getString(pt.castro.tops.R.string.loading));
         mainRecyclerView.addItemDecoration(new CustomItemDecoration());
     }
@@ -97,7 +95,8 @@ public class RecyclerViewManager {
     public void setEmptyList(final String message) {
         recyclerViewAdapter.clear();
         mainRecyclerView.setAdapter(null);
-        final TextView emptyText = (TextView) mainRecyclerView.findViewById(pt.castro.tops.R.id.empty_text);
+        final TextView emptyText = (TextView) mainRecyclerView.findViewById(pt.castro.tops.R.id
+                .empty_text);
         emptyText.setText(message);
         mainRecyclerView.showEmptyView();
     }

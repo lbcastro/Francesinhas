@@ -55,7 +55,6 @@ import pt.castro.tops.events.user.NoUserEvent;
 import pt.castro.tops.events.user.UserClickEvent;
 import pt.castro.tops.events.user.UserDataEvent;
 import pt.castro.tops.tools.ConnectionUtils;
-import pt.castro.tops.tools.LayoutUtils;
 import pt.castro.tops.tools.NotificationUtils;
 import pt.castro.tops.tools.PlaceUtils;
 
@@ -98,7 +97,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         }
 
         ButterKnife.bind(this);
-        LayoutUtils.initImageLoader(getApplicationContext());
         setToolbar();
 
         mRecyclerViewManager = new RecyclerViewManager();

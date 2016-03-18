@@ -43,8 +43,6 @@ public class LoginActivity extends Activity {
     private CallbackManager mCallbackManager;
     private AccessTokenTracker mAccessTokenTracker;
 
-    private KenBurnsView mBackground;
-
     private void getKey() {
         PackageInfo info;
         try {
@@ -89,7 +87,7 @@ public class LoginActivity extends Activity {
     }
 
     private void setKenBurns() {
-        mBackground = (KenBurnsView) findViewById(R.id.background);
+        KenBurnsView mBackground = (KenBurnsView) findViewById(R.id.background);
         mBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mBackground.setTransitionGenerator(new RandomTransitionGenerator(20000, new
                 AccelerateDecelerateInterpolator()));
