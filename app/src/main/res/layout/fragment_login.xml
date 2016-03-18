@@ -7,7 +7,7 @@
                 android:layout_gravity="center"
                 android:animateLayoutChanges="true"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
     <com.flaviofaria.kenburnsview.KenBurnsView
         android:id="@+id/background"

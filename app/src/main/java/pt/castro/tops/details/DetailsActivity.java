@@ -3,15 +3,11 @@ package pt.castro.tops.details;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -47,9 +43,10 @@ import dmax.staticmap.builder.MarkerSegment;
 import dmax.staticmap.builder.PositionSegment;
 import dmax.staticmap.builder.ScaleSegment;
 import dmax.staticmap.builder.Segment;
+import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.tops.CustomApplication;
 import pt.castro.tops.R;
-import pt.castro.tops.list.LocalItemHolder;
+import pt.castro.tops.tools.PhotoUtils;
 
 /**
  * Created by lourenco on 03/12/15.
@@ -100,30 +97,26 @@ public class DetailsActivity extends AppCompatActivity {
     DraggerView draggerView;
     @Bind(R.id.appbar)
     AppBarLayout appBarLayout;
-    private String location;
-    private Bitmap bitmap;
-    private LocalItemHolder item;
-
-    private static Drawable tintedDrawable(final Context context, final int resource) {
-        Drawable normalDrawable = ContextCompat.getDrawable(context, resource);
-        Drawable wrapDrawable = DrawableCompat.wrap(normalDrawable);
-        DrawableCompat.setTint(wrapDrawable, ContextCompat.getColor(context, R.color.blue));
-        return wrapDrawable;
-    }
 
     private static String buildUrl(Config config, Context context) {
-        StringBuilder urlBuilder = new StringBuilder();
-
+        final StringBuilder urlBuilder = new StringBuilder();
         for (Segment segment : segments) {
             segment.append(config, urlBuilder, context);
         }
-
         return urlBuilder.toString();
+    }
+
+    private static void addStarImage(final Context context, final ViewGroup parent, final int
+            drawableResource) {
+        final ImageView star = (ImageView) LayoutInflater.from(context).inflate(R.layout
+                .rating_star, parent, false);
+        star.setBackgroundResource(drawableResource);
+        parent.addView(star);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        overridePendingTransition(0, 0);
+//        overridePendingTransition(0, 0);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
@@ -133,23 +126,63 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         setActionBar();
+        setScroll();
 
         final Bundle data = getIntent().getExtras();
-        item = CustomApplication.getPlacesManager().getPlaces().get(data.getString("id"));
-        collapsingToolbarLayout.setTitle(item.getItemHolder().getName());
+        final ItemHolder item = CustomApplication.getPlacesManager().getPlaces().get(data
+                .getString("id")).getItemHolder();
+        collapsingToolbarLayout.setTitle(item.getName());
+        setTitle(item.getName());
 
-        setScroll();
-        setBackdrop();
-        setAddress();
-        setPhone();
-        setRatings();
-        setPriceRange();
-        setUrl();
+        setBackdrop(item);
+        setAddress(item);
+        setPhone(item);
+        setRatings(item);
+        setPriceRange(item);
+        setUrl(item);
     }
 
     @Override
     public void onBackPressed() {
         draggerView.closeActivity();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppEventsLogger.activateApp(this);
+    }
+
+    @Override
+    protected void onPause() {
+//        overridePendingTransition(0, 0);
+        super.onPause();
+        AppEventsLogger.deactivateApp(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @OnClick(R.id.details_phone_parent)
+    public void onClickPhoneParent() {
+        final Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phoneTextView.getText()));
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.details_url_parent)
+    public void onUrlClick() {
+        final Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlTextView.getText
+                ().toString()));
+        startActivity(browserIntent);
     }
 
     private void setScroll() {
@@ -180,31 +213,8 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AppEventsLogger.activateApp(this);
-    }
-
-    @Override
-    protected void onPause() {
-        overridePendingTransition(0, 0);
-        super.onPause();
-        AppEventsLogger.activateApp(this);
-    }
-
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        try {
-//            ImageLoader.getInstance().getDiskCache().save(location, bitmap);
-//        } catch (Exception ignored) {
-//            // This happens when the bitmap was null, which means it was already cached.
-//        }
-//    }
-
-    private void setBackdrop() {
-        final String backgroundUrl = item.getItemHolder().getPhotoUrl();
+    private void setBackdrop(final ItemHolder item) {
+        final String backgroundUrl = item.getPhotoUrl();
         if (backgroundUrl == null || backgroundUrl.equals("n/a")) {
             backdrop.setImageResource(R.drawable.francesinha_blur);
         } else {
@@ -213,8 +223,8 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void setPriceRange() {
-        final int price = item.getItemHolder().getPriceRange();
+    private void setPriceRange(final ItemHolder item) {
+        final int price = item.getPriceRange();
         if (price <= 0) {
             ((ViewGroup) priceContent.getParent()).setVisibility(View.GONE);
         } else {
@@ -225,8 +235,8 @@ public class DetailsActivity extends AppCompatActivity {
             priceContent.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
             final TextView textView = (TextView) ((ViewGroup) priceContent.getParent())
                     .findViewById(R.id.details_price_label);
-            textView.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
-                    .ic_account_balance_wallet_black_24dp), null, null, null);
+            textView.setCompoundDrawablesWithIntrinsicBounds(PhotoUtils.tintedDrawable(this, R
+                    .drawable.ic_account_balance_wallet_black_24dp), null, null, null);
         }
     }
 
@@ -240,30 +250,6 @@ public class DetailsActivity extends AppCompatActivity {
             actionBar.setDisplayUseLogoEnabled(false);
             actionBar.setHomeButtonEnabled(true);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @OnClick(R.id.details_phone_parent)
-    public void onClickPhoneParent() {
-        Intent intent = new Intent(Intent.ACTION_DIAL);
-        intent.setData(Uri.parse("tel:" + phoneTextView.getText()));
-        startActivity(intent);
-    }
-
-    @OnClick(R.id.details_url_parent)
-    public void onUrlClick() {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlTextView.getText()
-                .toString()));
-        startActivity(browserIntent);
     }
 
     private LinearLayout addRatingBar(final ViewGroup parent, final int drawableResource, final
@@ -282,62 +268,24 @@ public class DetailsActivity extends AppCompatActivity {
         int total = 0;
         final int roundedRating = (int) rating;
         for (int x = 0; x < roundedRating; x++) {
-            addStarImage(ratingBar, R.drawable.ic_star_white_18dp);
+            addStarImage(this, ratingBar, R.drawable.ic_star_white_18dp);
             total++;
         }
         if (rating - roundedRating >= 0.5) {
-            addStarImage(ratingBar, R.drawable.ic_star_half_white_18dp);
+            addStarImage(this, ratingBar, R.drawable.ic_star_half_white_18dp);
             total++;
         }
         int rest = Math.round(5 - total);
         for (int x = 0; x < rest; x++) {
-            addStarImage(ratingBar, R.drawable.ic_star_border_white_18dp);
+            addStarImage(this, ratingBar, R.drawable.ic_star_border_white_18dp);
         }
         return ratingBar;
     }
 
-//    private void setAddress(final Bundle data) {
-//        final String address = data.getString(DetailsKeys.ITEM_ADDRESS);
-//        if (address != null && !address.isEmpty()) {
-//            final CardView addressCard = (CardView) LayoutInflater.from(this).inflate(R
-//                    .layout.details_card, detailsParent, false);
-//            final LinearLayout addressParent = (LinearLayout) addressCard.findViewById
-//                    (R.id.details_parent);
-//            final TextView addressLabel = (TextView) addressParent.findViewById(R.id
-//                    .details_label);
-//            addressLabel.setText(getString(R.string.details_address));
-//
-//            final Drawable drawable = ContextCompat.getDrawable(this, R.drawable
-//                    .ic_map_black_24dp);
-//            drawable.setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor
-//                    (this, R.color.blue), PorterDuff.Mode.SRC_IN));
-//            addressLabel.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null,
-//                    null);
-//            final TextView addressContent = (TextView) LayoutInflater.from(this)
-//                    .inflate(R.layout.details_text, addressParent, false);
-//            addressContent.setText(address);
-//            addressContent.setAutoLinkMask(Linkify.MAP_ADDRESSES);
-//            addressContent.setMaxLines(5);
-//            addressParent.addView(addressContent);
-//            detailsParent.addView(addressCard);
-//
-//            final float latitude = (float) data.getDouble(DetailsKeys.ITEM_LATITUDE);
-//            final float longitude = (float) data.getDouble(DetailsKeys.ITEM_LONGITUDE);
-//            setMapView(address, latitude, longitude);
-//        }
-//    }
+    private void setRatings(final ItemHolder item) {
 
-    private void addStarImage(final ViewGroup parent, final int drawableResource) {
-        final ImageView star = (ImageView) LayoutInflater.from(this).inflate(R.layout
-                .rating_star, parent, false);
-        star.setBackgroundResource(drawableResource);
-        parent.addView(star);
-    }
-
-    private void setRatings() {
-
-        final String googleUrl = item.getItemHolder().getGoogleUrl();
-        final String zomatoUrl = item.getItemHolder().getZomatoUrl();
+        final String googleUrl = item.getGoogleUrl();
+        final String zomatoUrl = item.getZomatoUrl();
 
         if (googleUrl != null) {
             final String[] googleData = googleUrl.split(";");
@@ -362,44 +310,44 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void setAddress() {
-        final String address = item.getItemHolder().getAddress();
+    private void setAddress(final ItemHolder item) {
+        final String address = item.getAddress();
         if (address == null || address.isEmpty()) {
             ((ViewGroup) addressParent.getParent()).setVisibility(View.GONE);
         } else {
             ((ViewGroup) addressParent.getParent()).setVisibility(View.VISIBLE);
             final TextView text = (TextView) addressParent.findViewById(R.id.details_address_label);
-            text.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
-                    .ic_map_black_24dp), null, null, null);
+            text.setCompoundDrawablesWithIntrinsicBounds(PhotoUtils.tintedDrawable(this, R
+                    .drawable.ic_map_black_24dp), null, null, null);
             addressTextView.setText(address);
-            final float latitude = (float) item.getItemHolder().getLatitude().doubleValue();
-            final float longitude = (float) item.getItemHolder().getLongitude().doubleValue();
+            final float latitude = (float) item.getLatitude().doubleValue();
+            final float longitude = (float) item.getLongitude().doubleValue();
             setMapView(address, latitude, longitude);
         }
     }
 
-    private void setPhone() {
-        final String phone = item.getItemHolder().getPhone();
+    private void setPhone(final ItemHolder item) {
+        final String phone = item.getPhone();
         if (phone == null || phone.isEmpty()) {
             ((ViewGroup) phoneParent.getParent()).setVisibility(View.GONE);
         } else {
             ((ViewGroup) phoneParent.getParent()).setVisibility(View.VISIBLE);
             final TextView text = (TextView) phoneParent.findViewById(R.id.details_phone_label);
-            text.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
-                    .ic_local_phone_black_24dp), null, null, null);
+            text.setCompoundDrawablesWithIntrinsicBounds(PhotoUtils.tintedDrawable(this, R
+                    .drawable.ic_local_phone_black_24dp), null, null, null);
             phoneTextView.setText(phone);
         }
     }
 
-    private void setUrl() {
-        final String url = item.getItemHolder().getUrl();
+    private void setUrl(final ItemHolder item) {
+        final String url = item.getUrl();
         if (url == null || (url.isEmpty() || url.equals("n/a"))) {
             ((ViewGroup) urlParent.getParent()).setVisibility(View.GONE);
         } else {
             ((ViewGroup) urlParent.getParent()).setVisibility(View.VISIBLE);
             final TextView text = (TextView) urlParent.findViewById(R.id.details_url_label);
-            text.setCompoundDrawablesWithIntrinsicBounds(tintedDrawable(this, R.drawable
-                    .ic_public_black_24dp), null, null, null);
+            text.setCompoundDrawablesWithIntrinsicBounds(PhotoUtils.tintedDrawable(this, R
+                    .drawable.ic_public_black_24dp), null, null, null);
             urlTextView.setText(url);
             urlTextView.setVisibility(View.VISIBLE);
         }
@@ -421,7 +369,7 @@ public class DetailsActivity extends AppCompatActivity {
             ((ViewGroup) mapView.getParent()).setVisibility(View.GONE);
             gmmIntentUri = Uri.parse("geo:0,0?q=" + address);
         } else {
-            location = "" + latitude + "," + longitude;
+            String location = "" + latitude + "," + longitude;
             gmmIntentUri = Uri.parse("google.navigation:q=" + location);
             final Uri uri = Uri.parse(buildUrl(config, this));
             Picasso.with(this).load(uri).into(mapView);

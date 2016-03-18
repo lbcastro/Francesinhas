@@ -29,7 +29,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
-import icepick.Icepick;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 import pt.castro.tops.CustomApplication;
@@ -85,7 +84,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Icepick.restoreInstanceState(this, savedInstanceState);
         setContentView(R.layout.activity_list);
 
         mLocationFinder = new LocationFinder();
@@ -167,7 +165,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Icepick.saveInstanceState(this, outState);
     }
 
     @Override
@@ -446,6 +443,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         final ItemHolder itemHolder = localItemHolder.getItemHolder();
         final Intent intent = new Intent(this, DetailsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("id", itemHolder.getId());
         startActivity(intent);
     }

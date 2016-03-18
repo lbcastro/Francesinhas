@@ -1,12 +1,12 @@
 package pt.castro.tops.communication.login;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -30,7 +30,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 
-import icepick.Icepick;
 import pt.castro.tops.R;
 import pt.castro.tops.list.ListActivity;
 import pt.castro.tops.tools.NotificationUtils;
@@ -38,7 +37,7 @@ import pt.castro.tops.tools.NotificationUtils;
 /**
  * Created by lourenco.castro on 07/06/15.
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends AppCompatActivity {
 
     private CallbackManager mCallbackManager;
     private AccessTokenTracker mAccessTokenTracker;
@@ -67,7 +66,6 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getKey();
-        Icepick.restoreInstanceState(this, savedInstanceState);
         setContentView(R.layout.fragment_login);
         View rootView = findViewById(R.id.fragment_login_parent);
         setKenBurns();
@@ -91,12 +89,6 @@ public class LoginActivity extends Activity {
         mBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mBackground.setTransitionGenerator(new RandomTransitionGenerator(20000, new
                 AccelerateDecelerateInterpolator()));
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Icepick.saveInstanceState(this, outState);
     }
 
     private void startList() {
