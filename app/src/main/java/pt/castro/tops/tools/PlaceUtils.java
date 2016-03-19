@@ -102,7 +102,7 @@ public class PlaceUtils {
         // Zomato data
         if (itemHolder.getZomatoUrl() == null) {
             GetZomatoData getZomatoData = new GetZomatoData(localItemHolder);
-            getZomatoData.getData(itemHolder.getName());
+            getZomatoData.getData(itemHolder.getName(), false);
         }
 
         // Post-process

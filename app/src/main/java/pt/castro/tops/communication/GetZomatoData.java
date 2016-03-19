@@ -72,9 +72,11 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
         return costs[s2.length()];
     }
 
-    public void getData(String placeName) {
+    public void getData(String placeName, final boolean reverse) {
         this.placeName = Normalizer.normalize(placeName, Normalizer.Form.NFD);
         this.placeName = this.placeName.replaceAll("[^\\p{ASCII}]", "");
+
+        this.reverse = reverse;
 
         final String latitude = Double.toString(localItemHolder.getItemHolder().getLatitude());
         final String longitude = Double.toString(localItemHolder.getItemHolder().getLongitude());
@@ -85,21 +87,20 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
         int index = reverse ? this.placeName.indexOf(" ") : this.placeName.lastIndexOf(" ");
         if (index > 0) {
             if (reverse) {
-                this.placeName = this.placeName.substring(index, placeName.length());
+                this.placeName = this.placeName.substring(index, placeName.length()).trim();
             } else {
-                this.placeName = this.placeName.substring(0, index);
+                this.placeName = this.placeName.substring(0, index).trim();
             }
         } else {
             this.placeName = "";
         }
 
-        if (placeName.isEmpty()) {
+        if (this.placeName.isEmpty()) {
             if (!reverse) {
-                reverse = true;
                 this.placeName = localItemHolder.getItemHolder().getName();
-                getData(this.placeName);
+                getData(this.placeName, true);
             } else {
-                localItemHolder.getItemHolder().setZomatoUrl("(n/a)");
+                localItemHolder.getItemHolder().setZomatoUrl("n/a");
                 update(localItemHolder);
             }
             return;
@@ -136,12 +137,10 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String string) {
         if (string == null || string.isEmpty()) {
             if (!placeName.trim().isEmpty()) {
-                new GetZomatoData(localItemHolder).getData(placeName);
+                new GetZomatoData(localItemHolder).getData(placeName, reverse);
             } else {
                 localItemHolder.getItemHolder().setPriceRange(-2);
-                EndpointsAsyncTask endpointsAsyncTask = new EndpointsAsyncTask(EndpointsAsyncTask
-                        .UPDATE);
-                endpointsAsyncTask.execute(localItemHolder.getItemHolder());
+                update(localItemHolder);
             }
             return;
         }
@@ -206,7 +205,7 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
             }
 
             if (!match) {
-                new GetZomatoData(localItemHolder).getData(placeName);
+                new GetZomatoData(localItemHolder).getData(this.placeName, reverse);
                 return;
             }
 

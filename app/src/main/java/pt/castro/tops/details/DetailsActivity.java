@@ -215,7 +215,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void setBackdrop(final ItemHolder item) {
         final String backgroundUrl = item.getPhotoUrl();
-        if (backgroundUrl == null || backgroundUrl.equals("n/a")) {
+        if (!hasContent(backgroundUrl)) {
             backdrop.setImageResource(R.drawable.francesinha_blur);
         } else {
             Uri uri = Uri.parse(backgroundUrl);
@@ -287,7 +287,7 @@ public class DetailsActivity extends AppCompatActivity {
         final String googleUrl = item.getGoogleUrl();
         final String zomatoUrl = item.getZomatoUrl();
 
-        if (googleUrl != null) {
+        if (hasContent(googleUrl)) {
             final String[] googleData = googleUrl.split(";");
             final LinearLayout bar = addRatingBar(ratingParent, R.drawable.google, Float
                     .parseFloat(googleData[0]), googleData[1]);
@@ -295,13 +295,13 @@ public class DetailsActivity extends AppCompatActivity {
             ((ViewGroup) ratingParent.getParent()).setVisibility(View.VISIBLE);
         }
 
-        if (googleUrl != null && zomatoUrl != null) {
+        if (hasContent(googleUrl) && hasContent(zomatoUrl)) {
             final View separator = LayoutInflater.from(this).inflate(R.layout.white_separator,
                     ratingParent, false);
             ratingParent.addView(separator);
         }
 
-        if (zomatoUrl != null) {
+        if (hasContent(zomatoUrl)) {
             final String[] zomatoData = zomatoUrl.split(";");
             final LinearLayout bar = addRatingBar(ratingParent, R.drawable.zomato, Float
                     .parseFloat(zomatoData[0]), zomatoData[1]);
@@ -339,9 +339,13 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
+    private boolean hasContent(final String string) {
+        return string != null && !string.equals("n/a");
+    }
+
     private void setUrl(final ItemHolder item) {
         final String url = item.getUrl();
-        if (url == null || (url.isEmpty() || url.equals("n/a"))) {
+        if (!hasContent(url)) {
             ((ViewGroup) urlParent.getParent()).setVisibility(View.GONE);
         } else {
             ((ViewGroup) urlParent.getParent()).setVisibility(View.VISIBLE);
