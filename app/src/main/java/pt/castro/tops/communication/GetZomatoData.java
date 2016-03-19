@@ -98,6 +98,9 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
                 reverse = true;
                 this.placeName = localItemHolder.getItemHolder().getName();
                 getData(this.placeName);
+            } else {
+                localItemHolder.getItemHolder().setZomatoUrl("(n/a)");
+                update(localItemHolder);
             }
             return;
         }
@@ -232,16 +235,16 @@ public class GetZomatoData extends AsyncTask<String, Void, String> {
                 } catch (JSONException ignored) {
                 }
             }
-
-            EndpointsAsyncTask endpointsAsyncTask = new EndpointsAsyncTask(EndpointsAsyncTask
-                    .UPDATE);
-            endpointsAsyncTask.execute(localItemHolder.getItemHolder());
-
-            EventBus.getDefault().post(new PhotoUpdateEvent(localItemHolder));
-
+            update(localItemHolder);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void update(final LocalItemHolder localItemHolder) {
+        EndpointsAsyncTask endpointsAsyncTask = new EndpointsAsyncTask(EndpointsAsyncTask.UPDATE);
+        endpointsAsyncTask.execute(localItemHolder.getItemHolder());
+        EventBus.getDefault().post(new PhotoUpdateEvent(localItemHolder));
     }
 
 }
