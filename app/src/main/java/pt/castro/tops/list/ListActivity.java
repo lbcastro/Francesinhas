@@ -86,6 +86,10 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            LayoutUtils.setTranslucentStatusBar(getWindow());
+//        }
+
         mLocationFinder = new LocationFinder();
         mPermissionsManager = new PermissionsManager();
         mPermissionsManager.verifyPermissions(this);

@@ -1,8 +1,12 @@
 package pt.castro.tops.tools;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
@@ -34,9 +38,8 @@ public class LayoutUtils {
         Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
-                v.getLayoutParams().height = interpolatedTime == 1 ? targetHeight :
-                        (int) (((targetHeight - initialHeight) * interpolatedTime) +
-                                initialHeight);
+                v.getLayoutParams().height = interpolatedTime == 1 ? targetHeight : (int) ((
+                        (targetHeight - initialHeight) * interpolatedTime) + initialHeight);
                 v.requestLayout();
             }
 
@@ -47,8 +50,8 @@ public class LayoutUtils {
         };
 
         // 1dp/ms
-        a.setDuration((int) (targetHeight / v.getContext().getResources()
-                .getDisplayMetrics().density));
+        a.setDuration((int) (targetHeight / v.getContext().getResources().getDisplayMetrics()
+                .density));
         v.startAnimation(a);
     }
 
@@ -75,33 +78,29 @@ public class LayoutUtils {
         };
 
         // 1dp/ms
-        a.setDuration((int) (initialHeight / v.getContext().getResources()
-                .getDisplayMetrics().density));
+        a.setDuration((int) (initialHeight / v.getContext().getResources().getDisplayMetrics()
+                .density));
         v.startAnimation(a);
     }
 
-//    public static void initImageLoader(Context context) {
-//        if (ImageLoader.getInstance().isInited()) {
-//            return;
-//        }
-//
-//        final DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-//                .cacheInMemory(true).cacheOnDisk(true).build();
-//
-//        final File cacheDir = StorageUtils.getCacheDirectory(context);
-//        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder
-//                (context);
-//        config.threadPriority(Thread.NORM_PRIORITY - 2);
-//        config.denyCacheImageMultipleSizesInMemory();
-//        config.diskCache(new UnlimitedDiskCache(cacheDir));
-//        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
-//        config.diskCacheSize(50 * 1024 * 1024);
-//        config.memoryCache(new LruMemoryCache(2 * 1024 * 1024));
-//        config.memoryCacheSize(2 * 1024 * 1024);
-//        config.defaultDisplayImageOptions(defaultOptions);
-//        config.tasksProcessingOrder(QueueProcessingType.FIFO);
-//
-//        // Initialize ImageLoader with configuration.
-//        ImageLoader.getInstance().init(config.build());
-//    }
+    public static void setTranslucentStatusBar(Window window) {
+        if (window == null) return;
+        int sdkInt = Build.VERSION.SDK_INT;
+        if (sdkInt >= Build.VERSION_CODES.LOLLIPOP) {
+            setTranslucentStatusBarLollipop(window);
+        } else if (sdkInt >= Build.VERSION_CODES.KITKAT) {
+            setTranslucentStatusBarKiKat(window);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private static void setTranslucentStatusBarLollipop(Window window) {
+        window.setStatusBarColor(window.getContext().getResources().getColor(android.R.color
+                .transparent));
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private static void setTranslucentStatusBarKiKat(Window window) {
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    }
 }

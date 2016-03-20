@@ -17,6 +17,7 @@
     android:id="@+id/dragger_view"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:dragger_layout="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -111,7 +112,8 @@
                     android:layout_marginTop="@dimen/margin_s"
                     android:animateLayoutChanges="true"
                     android:background="@android:color/white"
-                    app:cardElevation="@dimen/card_elevation">
+                    app:cardElevation="@dimen/card_elevation"
+                    card_view:cardPreventCornerOverlap="false">
 
                     <TextView
                         style="@style/Text.Header.2"
@@ -148,7 +150,6 @@
                             style="@style/Text.Header.4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-
                             android:text="@string/details_address"/>
 
                         <TextView
@@ -214,7 +215,8 @@
                     android:layout_marginLeft="@dimen/margin_s"
                     android:layout_marginRight="@dimen/margin_s"
                     android:layout_marginTop="@dimen/margin_s"
-                    app:cardElevation="@dimen/card_elevation">
+                    app:cardElevation="@dimen/card_elevation"
+                    card_view:cardPreventCornerOverlap="false">
 
                     <LinearLayout
                         android:id="@+id/details_rating_parent"

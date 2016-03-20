@@ -3,6 +3,8 @@ package pt.castro.tops.list;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +32,7 @@ import pt.castro.tops.events.EventBusHook;
 import pt.castro.tops.events.place.PhotoUpdateEvent;
 import pt.castro.tops.events.place.ScoreChangeEvent;
 import pt.castro.tops.events.user.UserClickEvent;
+import pt.castro.tops.list.decoration.RoundedCornersTransformation;
 
 /**
  * Created by lourenco.castro on 07/05/15.
@@ -145,8 +148,15 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
             if (holder.imageView.getTag() == null || !holder.imageView.getTag().equals(itemHolder
                     .getPhotoUrl())) {
                 Uri uri = Uri.parse(itemHolder.getPhotoUrl());
-                Picasso.with(holder.imageView.getContext()).load(uri).tag(this).into(holder
-                        .imageView);
+
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                    Picasso.with(holder.imageView.getContext()).load(uri).tag(this).into(holder
+                            .imageView);
+                } else {
+                    Picasso.with(holder.imageView.getContext()).load(uri).transform(new
+                            RoundedCornersTransformation(40, 0)).fit().tag(this).into(holder
+                            .imageView);
+                }
                 holder.bottomShadow.setVisibility(View.VISIBLE);
                 holder.imageView.setTag(itemHolder.getPhotoUrl());
             }
@@ -239,6 +249,8 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
         View votesDownIndicator;
         @Bind(R.id.custom_row_bottom_shadow)
         View bottomShadow;
+        @Bind(R.id.card_parent)
+        CardView cardView;
 
         private boolean voting;
 
