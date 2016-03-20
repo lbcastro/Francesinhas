@@ -13,6 +13,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import de.greenrobot.event.EventBus;
+import pt.castro.tops.events.list.ListRefreshEvent;
+
 /**
  * Created by lourenco on 28/02/16.
  */
@@ -42,6 +45,7 @@ public class LocationFinder implements GoogleApiClient.ConnectionCallbacks, Goog
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (location != null) {
             CustomApplication.getPlacesManager().setLocation(location);
+            EventBus.getDefault().post(new ListRefreshEvent(false));
         }
     }
 

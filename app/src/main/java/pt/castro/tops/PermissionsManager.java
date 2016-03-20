@@ -19,6 +19,7 @@ public class PermissionsManager {
             Integer>>() {{
         add(new Pair<>(android.Manifest.permission.ACCESS_FINE_LOCATION, 0));
         add(new Pair<>(android.Manifest.permission.ACCESS_COARSE_LOCATION, 1));
+        add(new Pair<>(Manifest.permission.READ_EXTERNAL_STORAGE, 2));
         add(new Pair<>(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, 3));
     }};
 
