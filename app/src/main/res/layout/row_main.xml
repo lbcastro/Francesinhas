@@ -86,11 +86,11 @@
             style="@style/Text.Votes"
             android:layout_width="@dimen/ranking_size"
             android:layout_height="@dimen/ranking_size"
-            android:layout_alignBottom="@id/custom_row_ranking"
+            android:layout_alignBaseline="@id/custom_row_ranking"
             android:layout_alignParentEnd="true"
-            android:layout_alignTop="@id/custom_row_ranking"
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/margin_m"
+            android:background="@drawable/circular_selector"
             android:textColor="@color/red_faded"
             tools:elevation="4dp"/>
 
@@ -103,7 +103,7 @@
             android:layout_below="@id/votes_down"
             android:layout_marginLeft="@dimen/margin_s"
             android:layout_marginRight="@dimen/margin_s"
-            android:layout_marginTop="@dimen/margin_s"
+            android:layout_marginTop="@dimen/margin_l"
             android:background="@color/red_faded"
             android:visibility="invisible"/>
 
@@ -112,11 +112,11 @@
             style="@style/Text.Votes"
             android:layout_width="@dimen/ranking_size"
             android:layout_height="@dimen/ranking_size"
-            android:layout_alignBottom="@id/custom_row_ranking"
-            android:layout_alignTop="@id/custom_row_ranking"
-            android:layout_centerVertical="true"
+            android:layout_alignBaseline="@id/custom_row_ranking"
+            android:layout_centerInParent="true"
             android:layout_marginEnd="@dimen/margin_s"
             android:layout_toStartOf="@id/votes_down"
+            android:background="@drawable/circular_selector"
             android:textColor="@color/green_bright"
             tools:elevation="4dp"/>
 
@@ -130,7 +130,7 @@
             android:layout_below="@id/votes_up"
             android:layout_marginLeft="@dimen/margin_s"
             android:layout_marginRight="@dimen/margin_s"
-            android:layout_marginTop="@dimen/margin_s"
+            android:layout_marginTop="@dimen/margin_l"
             android:background="@color/green_faded"
             android:visibility="invisible"/>
     </RelativeLayout>

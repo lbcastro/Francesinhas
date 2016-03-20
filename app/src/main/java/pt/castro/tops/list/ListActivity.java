@@ -258,12 +258,11 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
     @EventBusHook
     public void onEventMainThread(final ListRetrievedEvent listRetrievedEvent) {
-
         mNextToken = listRetrievedEvent.getToken();
-
         // Iterates all retrieved items and adds votes when applied.
         for (ItemHolder itemHolder : listRetrievedEvent.getList()) {
-            LocalItemHolder localItemHolder = PlaceUtils.processItem(itemHolder, mCurrentUser);
+            final LocalItemHolder localItemHolder = PlaceUtils.processItem(itemHolder,
+                    mCurrentUser);
             CustomApplication.getPlacesManager().add(itemHolder.getId(), localItemHolder);
             mRecyclerViewManager.add(localItemHolder);
         }

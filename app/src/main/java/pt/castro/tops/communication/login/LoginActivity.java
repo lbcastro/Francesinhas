@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,8 +12,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -23,8 +23,6 @@ import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.flaviofaria.kenburnsview.KenBurnsView;
-import com.flaviofaria.kenburnsview.RandomTransitionGenerator;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -67,9 +65,17 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getKey();
         setContentView(R.layout.fragment_login);
-        View rootView = findViewById(R.id.fragment_login_parent);
-        setKenBurns();
-        rootView.setVisibility(View.VISIBLE);
+        final View rootView = findViewById(R.id.fragment_login_parent);
+        if (rootView != null) {
+            rootView.setVisibility(View.VISIBLE);
+        }
+
+        final TextView textView = (TextView) findViewById(R.id.title);
+        final Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/BebasNeue Bold.otf");
+        if (textView != null) {
+            textView.setTypeface(typeFace);
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
@@ -82,13 +88,6 @@ public class LoginActivity extends AppCompatActivity {
         } else {
             startLogin();
         }
-    }
-
-    private void setKenBurns() {
-        KenBurnsView mBackground = (KenBurnsView) findViewById(R.id.background);
-        mBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        mBackground.setTransitionGenerator(new RandomTransitionGenerator(20000, new
-                AccelerateDecelerateInterpolator()));
     }
 
     private void startList() {
@@ -138,13 +137,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         final View guestButton = findViewById(R.id.guest_button);
-        guestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startList();
-            }
-        });
-        guestButton.setVisibility(View.VISIBLE);
+        if (guestButton != null) {
+            guestButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startList();
+                }
+            });
+        }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

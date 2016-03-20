@@ -1,12 +1,15 @@
 package pt.castro.tops.list;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.widget.TextView;
 
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
+import com.marshalchen.ultimaterecyclerview.uiUtils.ScrollSmoothLineaerLayoutManager;
 import com.squareup.picasso.Picasso;
 
 import java.math.BigDecimal;
@@ -14,6 +17,7 @@ import java.math.BigDecimal;
 import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.backend.myApi.model.JsonMap;
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
+import pt.castro.tops.R;
 import pt.castro.tops.events.EventBusHook;
 import pt.castro.tops.events.list.ListRefreshEvent;
 import pt.castro.tops.list.decoration.CustomItemDecoration;
@@ -59,15 +63,19 @@ public class RecyclerViewManager {
     }
 
     public void setRecyclerView(final Context context, final UltimateRecyclerView recyclerView) {
+        recyclerViewAdapter = new CustomRecyclerViewAdapter();
         mainRecyclerView = recyclerView;
-        recyclerViewAdapter = new CustomRecyclerViewAdapter(context);
-        mainRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        mainRecyclerView.setLayoutManager(new ScrollSmoothLineaerLayoutManager(context,
+                LinearLayoutManager.VERTICAL, false, 300));
         mainRecyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 EventBus.getDefault().post(new ERequestRefresh());
             }
         });
+        mainRecyclerView.setDefaultSwipeToRefreshColorScheme(ContextCompat.getColor(context, R
+                .color.blue_bright), ContextCompat.getColor(context, R.color.blue), ContextCompat
+                .getColor(context, R.color.blue_dark));
         mainRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -79,30 +87,29 @@ public class RecyclerViewManager {
                 }
             }
         });
+        mainRecyclerView.enableLoadmore();
         mainRecyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
             @Override
             public void loadMore(int itemsCount, int maxLastVisiblePosition) {
                 EventBus.getDefault().post(new ELoadMore());
             }
         });
-        mainRecyclerView.enableLoadmore();
-//        recyclerViewAdapter.setCustomLoadMoreView(LayoutInflater.from(context).inflate(pt.castro
-//                .tops.R.layout.custom_progress_bar, mainRecyclerView, false));
-        setEmptyList(context.getString(pt.castro.tops.R.string.loading));
+        recyclerViewAdapter.setCustomLoadMoreView(LayoutInflater.from(context).inflate(R.layout
+                .custom_progress_bar, mainRecyclerView, false));
+        setEmptyList(context.getString(R.string.loading));
         mainRecyclerView.addItemDecoration(new CustomItemDecoration());
     }
 
     public void setEmptyList(final String message) {
         recyclerViewAdapter.clear();
         mainRecyclerView.setAdapter(null);
-        final TextView emptyText = (TextView) mainRecyclerView.findViewById(pt.castro.tops.R.id
-                .empty_text);
+        final TextView emptyText = (TextView) mainRecyclerView.findViewById(R.id.empty_text);
         emptyText.setText(message);
         mainRecyclerView.showEmptyView();
     }
 
     public void setNotConnected() {
-        setEmptyList("You're not connected!");
+        setEmptyList(mainRecyclerView.getContext().getString(R.string.not_connected));
         recyclerViewAdapter.clear();
     }
 
@@ -118,6 +125,7 @@ public class RecyclerViewManager {
     public void onEvent(final ListRefreshEvent listRefreshEvent) {
         if (!listRefreshEvent.isRefreshed()) {
             recyclerViewAdapter.reset();
+            mainRecyclerView.reenableLoadmore();
         }
     }
 

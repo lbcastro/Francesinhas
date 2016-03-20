@@ -16,7 +16,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:minHeight="0dp"
             android:theme="@style/GalaxyZooThemeToolbarDarkOverflow"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/Theme.AppCompat.NoActionBar"/>
@@ -37,7 +36,7 @@
         android:layout_margin="@dimen/margin_m"
         android:clickable="true"
         android:src="@drawable/ic_add_white_24dp"
-        app:backgroundTint="@color/fab_color"
+        app:backgroundTint="@color/blue_bright"
         app:layout_anchor="@id/fragment_recycler_view"
         app:layout_anchorGravity="bottom|end"
         app:layout_behavior="pt.castro.tops.list.decoration.ScrollAwareFABBehavior"

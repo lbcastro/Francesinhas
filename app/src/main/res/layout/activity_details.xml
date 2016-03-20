@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
 -->
-<com.github.ppamorim.dragger.DraggerView
+<com.github.ppamorim.dragger.LazyDraggerView
     android:id="@+id/dragger_view"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -29,7 +29,8 @@
         android:id="@+id/shadow_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent"/>
+        android:background="@android:color/transparent"
+        android:visibility="invisible"/>
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/main_content"
@@ -50,6 +51,7 @@
                 android:id="@+id/collapsing_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
                 app:contentScrim="?colorPrimary"
                 app:expandedTitleGravity="center"
                 app:expandedTitleMarginBottom="@dimen/margin_xl"
@@ -87,7 +89,7 @@
         <android.support.v4.widget.NestedScrollView
             android:id="@+id/nested_scroll"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:overScrollMode="always"
             app:behavior_overlapTop="64dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -303,4 +305,4 @@
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
     </android.support.design.widget.CoordinatorLayout>
-</com.github.ppamorim.dragger.DraggerView>
+</com.github.ppamorim.dragger.LazyDraggerView>

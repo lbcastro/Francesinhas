@@ -2,7 +2,6 @@ package pt.castro.tops.list;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -38,35 +37,16 @@ import pt.castro.tops.events.user.UserClickEvent;
 public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecyclerViewAdapter
         .ViewHolder> {
 
-    private static final String CACHED_EMPTY_BITMAP = "empty";
     private final List<LocalItemHolder> visibleItems;
     private ParallaxViewController parallaxViewController;
     private boolean votingEnabled;
-    //    private Bitmap emptyBitmap;
     private int mLastPosition;
 
-    public CustomRecyclerViewAdapter(final Context context) {
+    public CustomRecyclerViewAdapter() {
         EventBus.getDefault().register(this);
         visibleItems = new ArrayList<>();
-//        generateEmptyBitmap(context);
         parallaxViewController = new ParallaxViewController();
     }
-
-//    private void generateEmptyBitmap(final Context context) {
-//
-//        final File imageFile = ImageLoader.getInstance().getDiskCache().get(CACHED_EMPTY_BITMAP);
-//        if (imageFile == null || !imageFile.exists()) {
-//            emptyBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable
-//                    .francesinha_blur);
-//            try {
-//                ImageLoader.getInstance().getDiskCache().save(CACHED_EMPTY_BITMAP, emptyBitmap);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            emptyBitmap = PhotoUtils.bitmapFromFile(imageFile);
-//        }
-//    }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -164,51 +144,15 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
         if (itemHolder.getPhotoUrl() != null && !itemHolder.getPhotoUrl().equals("n/a")) {
             if (holder.imageView.getTag() == null || !holder.imageView.getTag().equals(itemHolder
                     .getPhotoUrl())) {
-
                 Uri uri = Uri.parse(itemHolder.getPhotoUrl());
-
                 Picasso.with(holder.imageView.getContext()).load(uri).tag(this).into(holder
                         .imageView);
-
-//                holder.imageView.setImageURI(uri);
                 holder.bottomShadow.setVisibility(View.VISIBLE);
-
-//                final ImageLoader imageLoader = ImageLoader.getInstance();
-//                final ImageViewAware aware = new ImageViewAware(holder.imageView, false);
-//                imageLoader.cancelDisplayTask(aware);
-//                imageLoader.displayImage(itemHolder.getPhotoUrl(), aware, PhotoUtils
-//                        .getDisplayImageOptions(true), new ImageLoadingListener() {
-//
-//                    @Override
-//                    public void onLoadingStarted(String imageUri, View view) {
-//                        holder.bottomShadow.setVisibility(View.INVISIBLE);
-//                    }
-//
-//                    @Override
-//                    public void onLoadingFailed(String imageUri, View view, FailReason
-// failReason) {
-//                        holder.imageView.setImageBitmap(emptyBitmap);
-//                        holder.bottomShadow.setVisibility(View.VISIBLE);
-//                    }
-//
-//                    @Override
-//                    public void onLoadingComplete(String imageUri, View view, Bitmap
-// loadedImage) {
-//                        holder.bottomShadow.setVisibility(View.VISIBLE);
-//                    }
-//
-//                    @Override
-//                    public void onLoadingCancelled(String imageUri, View view) {
-//                        holder.imageView.setImageBitmap(emptyBitmap);
-//                        holder.bottomShadow.setVisibility(View.VISIBLE);
-//                    }
-//                });
                 holder.imageView.setTag(itemHolder.getPhotoUrl());
             }
         } else {
             Picasso.with(holder.imageView.getContext()).load(R.drawable.francesinha_blur).into
                     (holder.imageView);
-//            holder.imageView.setImageBitmap(emptyBitmap);
             holder.bottomShadow.setVisibility(View.VISIBLE);
         }
         holder.rankingTextView.setText(Integer.toString(position + 1));
@@ -295,8 +239,6 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
         View votesDownIndicator;
         @Bind(R.id.custom_row_bottom_shadow)
         View bottomShadow;
-//        @Bind(R.id.my_image_view)
-//        SimpleDraweeView imageView;
 
         private boolean voting;
 

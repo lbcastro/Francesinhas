@@ -28,4 +28,5 @@
     <string name="francesinhas">Francesinhas</string>
     <string name="price_range">Price range</string>
     <string name="loading">Loading…</string>
+    <string name="not_connected">You\'re not connected!</string>
 </resources>

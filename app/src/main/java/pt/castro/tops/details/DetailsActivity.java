@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -18,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -116,14 +114,9 @@ public class DetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        overridePendingTransition(0, 0);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
 
         setActionBar();
         setScroll();
@@ -140,12 +133,13 @@ public class DetailsActivity extends AppCompatActivity {
         setRatings(item);
         setPriceRange(item);
         setUrl(item);
+
+        draggerView.show();
     }
 
     @Override
     public void onBackPressed() {
         draggerView.closeActivity();
-
     }
 
     @Override
@@ -229,7 +223,7 @@ public class DetailsActivity extends AppCompatActivity {
             ((ViewGroup) priceContent.getParent()).setVisibility(View.GONE);
         } else {
             final String currency = "€";
-            final String text = "<font color='#335EAE'>" + new String(new char[price]).replace
+            final String text = "<font color='#448AFF'>" + new String(new char[price]).replace
                     ("\0", currency) + "</font><font color='#ccbfbf'>" + new String(new char[5 -
                     price]).replace("\0", currency) + "</font>";
             priceContent.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);

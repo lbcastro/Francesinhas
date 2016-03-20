@@ -18,6 +18,8 @@ import pt.castro.tops.events.list.ListRetrievedEvent;
  */
 public class EndpointGetItems extends AsyncTask<Void, Void, Void> {
 
+    private static final int ITEMS_PER_PAGE = 10;
+
     private String cursor;
     private int count;
 
@@ -32,7 +34,6 @@ public class EndpointGetItems extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         try {
-
             MyApi.ListItems listItems = EndpointApiHolder.getInstance().listItems();
             if (cursor != null) {
                 listItems.setCursor(cursor);
@@ -40,7 +41,7 @@ public class EndpointGetItems extends AsyncTask<Void, Void, Void> {
             if (count != 0) {
                 listItems.setCount(count);
             } else {
-                listItems.setCount(10);
+                listItems.setCount(ITEMS_PER_PAGE);
             }
             CollectionResponseItemHolder response = listItems.execute();
             List<ItemHolder> list = response.getItems();
