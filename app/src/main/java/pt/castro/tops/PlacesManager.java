@@ -34,18 +34,34 @@ public class PlacesManager {
         return bd.floatValue();
     }
 
-    public void add(final String placeId, final LocalItemHolder localItemHolder) {
+    public void add(final String placeId, final LocalItemHolder localItemHolder) throws Exception {
         if (location != null) {
             setLocation(localItemHolder, location);
         }
         localItemHolder.getItemHolder().getName().replaceAll("Restaurante", "");
-        items.put(placeId, localItemHolder);
-        sortedList = null;
+        final LocalItemHolder existing = items.get(placeId);
+        if (existing != null) {
+            update(existing, localItemHolder);
+            items.put(placeId, localItemHolder);
+            sortedList = null;
+            throw new Exception();
+        } else {
+            items.put(placeId, localItemHolder);
+            sortedList = null;
+        }
     }
 
     public void remove(final String placeId) {
         items.remove(placeId);
         sortedList = null;
+    }
+
+    private void update(LocalItemHolder existing, LocalItemHolder updated) {
+        existing.updateItemHolder(updated.getItemHolder());
+    }
+
+    public LocalItemHolder get(final String placeId) {
+        return items.get(placeId);
     }
 
     public Map<String, LocalItemHolder> getPlaces() {
@@ -71,6 +87,10 @@ public class PlacesManager {
             setLocation(localItemHolder, location);
         }
         sortedList = null;
+    }
+
+    public boolean hasLocation() {
+        return location != null;
     }
 
     private void setLocation(final LocalItemHolder localItemHolder, final Location location) {

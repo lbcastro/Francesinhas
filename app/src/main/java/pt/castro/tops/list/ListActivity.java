@@ -32,7 +32,7 @@ import de.greenrobot.event.EventBus;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 import pt.castro.tops.CustomApplication;
-import pt.castro.tops.LocationFinder;
+import pt.castro.tops.LocationManager;
 import pt.castro.tops.PermissionsManager;
 import pt.castro.tops.R;
 import pt.castro.tops.communication.EndpointGetItems;
@@ -70,13 +70,12 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     Toolbar toolbar;
 
     private RecyclerViewManager mRecyclerViewManager;
+    private PermissionsManager mPermissionsManager;
+    private LocationManager mLocationManager;
+
     private UserHolder mCurrentUser;
     private SearchView mSearchView;
     private String mNextToken;
-
-    private LocationFinder mLocationFinder;
-
-    private PermissionsManager mPermissionsManager;
 
     private boolean mConnectedState;
     private NetworkChangeReceiver mConnectionMonitor;
@@ -86,17 +85,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//            LayoutUtils.setTranslucentStatusBar(getWindow());
-//        }
-
-        mLocationFinder = new LocationFinder();
-        mPermissionsManager = new PermissionsManager();
-        mPermissionsManager.verifyPermissions(this);
-        if (mPermissionsManager.hasLocationPermission(this)) {
-            mLocationFinder.setup(this);
-            mLocationFinder.start();
-        }
+        startLocationLayer();
 
         ButterKnife.bind(this);
         setToolbar();
@@ -116,8 +105,8 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
                                            @NonNull int[] grantResults) {
         if (requestCode == 0) {
             if (mPermissionsManager.hasLocationPermission(this)) {
-                mLocationFinder.setup(this);
-                mLocationFinder.start();
+                mLocationManager.setup(this);
+                mLocationManager.start();
             }
         }
     }
@@ -128,6 +117,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        mLocationManager.start();
         AppEventsLogger.activateApp(this);
         if (mConnectedState) {
             floatingActionButton.show();
@@ -144,14 +134,8 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     }
 
     @Override
-    protected void onStart() {
-        mLocationFinder.start();
-        super.onStart();
-    }
-
-    @Override
     public void onStop() {
-        mLocationFinder.stop();
+        mLocationManager.stop();
         super.onStop();
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
@@ -220,7 +204,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
             logOut();
             startLoginActivity();
         } else if (item.getItemId() == R.id.action_refresh) {
-            EventBus.getDefault().post(new ListRefreshEvent(false));
+            EventBus.getDefault().post(new ListRefreshEvent());
         }
         return super.onOptionsItemSelected(item);
     }
@@ -265,10 +249,13 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         mNextToken = listRetrievedEvent.getToken();
         // Iterates all retrieved items and adds votes when applied.
         for (ItemHolder itemHolder : listRetrievedEvent.getList()) {
-            final LocalItemHolder localItemHolder = PlaceUtils.processItem(itemHolder,
-                    mCurrentUser);
-            CustomApplication.getPlacesManager().add(itemHolder.getId(), localItemHolder);
-            mRecyclerViewManager.add(localItemHolder);
+            LocalItemHolder localItemHolder = PlaceUtils.processItem(itemHolder, mCurrentUser);
+            try {
+                CustomApplication.getPlacesManager().add(itemHolder.getId(), localItemHolder);
+                mRecyclerViewManager.add(localItemHolder);
+            } catch (Exception ignored) {
+                // Item already exists
+            }
         }
     }
 
@@ -294,13 +281,12 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     }
 
     @EventBusHook
-    public void onEvent(final ListRefreshEvent listRefreshEvent) {
-        if (!listRefreshEvent.isRefreshed()) {
-            // TODO: Instead of retrieving a new set of items, update the existing ones
-            CustomApplication.getPlacesManager().clear();
-            mNextToken = null;
-            getItems();
-        }
+    public void onEventMainThread(final ListRefreshEvent listRefreshEvent) {
+        // TODO: Instead of retrieving a new set of items, update the existing ones
+        CustomApplication.getPlacesManager().clear();
+        mRecyclerViewManager.setEmptyList(getString(R.string.loading));
+        mNextToken = null;
+        getItems();
     }
 
     @EventBusHook
@@ -336,12 +322,12 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
                 getUserData();
             }
         } else {
-            EventBus.getDefault().post(new ListRefreshEvent(false));
+            EventBus.getDefault().post(new ListRefreshEvent());
         }
     }
 
     @EventBusHook
-    public void onEvent(final RecyclerViewManager.ELoadMore eLoadMore) {
+    public void onEventMainThread(final RecyclerViewManager.ELoadMore eLoadMore) {
         getItems();
     }
 
@@ -449,5 +435,15 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("id", itemHolder.getId());
         startActivity(intent);
+    }
+
+    private void startLocationLayer() {
+        mLocationManager = new LocationManager();
+        mPermissionsManager = new PermissionsManager();
+        mPermissionsManager.verifyPermissions(this);
+        if (mPermissionsManager.hasLocationPermission(this)) {
+            mLocationManager.setup(this);
+            mLocationManager.start();
+        }
     }
 }

@@ -46,7 +46,7 @@ public class EndpointsAsyncTask extends AsyncTask<ItemHolder, Void, Void> {
     @Override
     protected void onPostExecute(Void arguments) {
         if (activeMode == ADD) {
-            EventBus.getDefault().post(new ListRefreshEvent(false));
+            EventBus.getDefault().post(new ListRefreshEvent());
         }
     }
 }

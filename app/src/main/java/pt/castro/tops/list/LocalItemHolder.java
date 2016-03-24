@@ -33,4 +33,8 @@ public class LocalItemHolder {
     public void setDistance(float distance) {
         this.distance = distance;
     }
+
+    public void updateItemHolder(final ItemHolder itemHolder) {
+        this.itemHolder = itemHolder;
+    }
 }

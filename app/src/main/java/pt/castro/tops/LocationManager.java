@@ -19,7 +19,7 @@ import pt.castro.tops.events.list.ListRefreshEvent;
 /**
  * Created by lourenco on 28/02/16.
  */
-public class LocationFinder implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient
+public class LocationManager implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient
         .OnConnectionFailedListener {
 
     private GoogleApiClient mGoogleApiClient;
@@ -44,8 +44,11 @@ public class LocationFinder implements GoogleApiClient.ConnectionCallbacks, Goog
     public void onConnected(@Nullable Bundle bundle) {
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (location != null) {
+            final boolean hasLocation = CustomApplication.getPlacesManager().hasLocation();
             CustomApplication.getPlacesManager().setLocation(location);
-            EventBus.getDefault().post(new ListRefreshEvent(false));
+            if (!hasLocation) {
+                EventBus.getDefault().post(new ListRefreshEvent());
+            }
         }
     }
 
@@ -60,8 +63,14 @@ public class LocationFinder implements GoogleApiClient.ConnectionCallbacks, Goog
     }
 
     public void start() {
-        if (hasPermission && !mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.connect();
+        if (hasPermission) {
+            if (!mGoogleApiClient.isConnected()) {
+                mGoogleApiClient.connect();
+            }
+            Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if (location != null) {
+                CustomApplication.getPlacesManager().setLocation(location);
+            }
         }
     }
 

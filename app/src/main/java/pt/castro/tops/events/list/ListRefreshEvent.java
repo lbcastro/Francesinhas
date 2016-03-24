@@ -5,13 +5,6 @@ package pt.castro.tops.events.list;
  */
 public class ListRefreshEvent {
 
-    private boolean refreshed;
-
-    public ListRefreshEvent(final boolean refreshed) {
-        this.refreshed = refreshed;
-    }
-
-    public boolean isRefreshed() {
-        return refreshed;
+    public ListRefreshEvent() {
     }
 }

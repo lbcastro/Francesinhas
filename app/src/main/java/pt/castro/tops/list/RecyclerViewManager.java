@@ -123,10 +123,9 @@ public class RecyclerViewManager {
 
     @EventBusHook
     public void onEvent(final ListRefreshEvent listRefreshEvent) {
-        if (!listRefreshEvent.isRefreshed()) {
-            recyclerViewAdapter.reset();
-            mainRecyclerView.reenableLoadmore();
-        }
+        recyclerViewAdapter.reset();
+        mainRecyclerView.reenableLoadmore();
+
     }
 
     public class ELoadMore {
