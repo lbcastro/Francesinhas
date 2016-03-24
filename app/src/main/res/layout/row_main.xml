@@ -6,12 +6,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="@dimen/row_main_height"
-    android:layout_marginLeft="@dimen/margin_s"
-    android:layout_marginRight="@dimen/margin_s"
-    android:layout_marginTop="@dimen/margin_s"
+    android:layout_marginLeft="@dimen/card_margin_horizontal"
+    android:layout_marginRight="@dimen/card_margin_horizontal"
+    android:layout_marginTop="@dimen/card_margin_vertical"
     android:animateLayoutChanges="true"
     android:descendantFocusability="blocksDescendants"
-    card_view:cardCornerRadius="@dimen/margin_xs"
+    card_view:cardCornerRadius="2dp"
     card_view:cardPreventCornerOverlap="false"
     tools:cardElevation="@dimen/margin_s">
 
@@ -30,7 +30,7 @@
             <ImageView
                 android:id="@+id/backdrop_image"
                 android:layout_width="match_parent"
-                android:layout_height="280dp"
+                android:layout_height="300dp"
                 android:contentDescription="@null"
                 android:scaleType="centerCrop"/>
 
@@ -44,96 +44,117 @@
         <FrameLayout
             android:id="@+id/custom_row_bottom_shadow"
             android:layout_width="match_parent"
-            android:layout_height="104dp"
+            android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
             android:background="@drawable/black_gradient"
             android:visibility="invisible"/>
 
-        <TextView
-            android:id="@+id/custom_row_ranking"
-            style="@style/Text.Header.1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="@dimen/margin_l"
-            android:layout_marginStart="@dimen/margin_m"
-            android:gravity="start|center"
-            android:textSize="18sp"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_alignParentBottom="true">
 
-        <TextView
-            android:id="@+id/custom_row_name"
-            style="@style/ExpandedText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/custom_row_ranking"
-            android:layout_marginStart="@dimen/margin_s"
-            android:layout_toEndOf="@id/custom_row_ranking"
-            android:layout_toStartOf="@+id/votes_up"
-            android:ellipsize="end"
-            android:maxLines="1"/>
+            <TextView
+                android:id="@+id/custom_row_ranking"
+                style="@style/Text.Header.1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/margin_m"
+                android:gravity="start"
+                android:textSize="18sp"
+                tools:text="1"/>
 
-        <TextView
-            android:id="@+id/custom_row_location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@id/custom_row_name"
-            android:layout_below="@id/custom_row_name"
-            android:fontFamily="sans-serif-light"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"/>
+            <TextView
+                android:id="@+id/custom_row_name"
+                style="@style/ExpandedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/custom_row_ranking"
+                android:layout_marginStart="@dimen/margin_s"
+                android:layout_toEndOf="@id/custom_row_ranking"
+                android:layout_toStartOf="@+id/votes_up_clickable"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="Nameeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
 
-        <TextView
-            android:id="@+id/votes_down"
-            style="@style/Text.Votes"
-            android:layout_width="@dimen/ranking_size"
-            android:layout_height="@dimen/ranking_size"
-            android:layout_alignBaseline="@id/custom_row_ranking"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/margin_m"
-            android:background="@drawable/circular_selector"
-            android:textColor="@color/red_faded"
-            tools:elevation="4dp"/>
+            <TextView
+                android:id="@+id/custom_row_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/custom_row_name"
+                android:layout_below="@id/custom_row_ranking"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@android:color/white"
+                android:textSize="13sp"
+                tools:text="Local"/>
 
-        <View
-            android:id="@+id/votes_down_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="1px"
-            android:layout_alignEnd="@id/votes_down"
-            android:layout_alignStart="@id/votes_down"
-            android:layout_below="@id/votes_down"
-            android:layout_marginLeft="@dimen/margin_s"
-            android:layout_marginRight="@dimen/margin_s"
-            android:layout_marginTop="@dimen/margin_l"
-            android:background="@color/red_faded"
-            android:visibility="invisible"/>
+            <FrameLayout
+                android:id="@id/votes_up_clickable"
+                android:layout_width="@dimen/ranking_size"
+                android:layout_height="@dimen/ranking_size"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/margin_m"
+                android:layout_toStartOf="@+id/votes_down_clickable"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/circular_selector">
 
-        <TextView
-            android:id="@id/votes_up"
-            style="@style/Text.Votes"
-            android:layout_width="@dimen/ranking_size"
-            android:layout_height="@dimen/ranking_size"
-            android:layout_alignBaseline="@id/custom_row_ranking"
-            android:layout_centerInParent="true"
-            android:layout_marginEnd="@dimen/margin_s"
-            android:layout_toStartOf="@id/votes_down"
-            android:background="@drawable/circular_selector"
-            android:textColor="@color/green_bright"
-            tools:elevation="4dp"/>
+                <TextView
+                    android:id="@+id/votes_up"
+                    style="@style/Text.Votes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@color/green_bright"
+                    tools:text="5"/>
 
-        <View
-            android:id="@+id/votes_up_indicator"
-            layout="@layout/vote_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="1px"
-            android:layout_alignEnd="@id/votes_up"
-            android:layout_alignStart="@id/votes_up"
-            android:layout_below="@id/votes_up"
-            android:layout_marginLeft="@dimen/margin_s"
-            android:layout_marginRight="@dimen/margin_s"
-            android:layout_marginTop="@dimen/margin_l"
-            android:background="@color/green_faded"
-            android:visibility="invisible"/>
+                <View
+                    android:id="@+id/votes_up_indicator"
+                    layout="@layout/vote_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="1px"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="@dimen/margin_s"
+                    android:layout_marginLeft="@dimen/margin_s"
+                    android:layout_marginRight="@dimen/margin_s"
+                    android:background="@color/green_faded"
+                    android:visibility="invisible"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@id/votes_down_clickable"
+                android:layout_width="@dimen/ranking_size"
+                android:layout_height="@dimen/ranking_size"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/margin_m"
+                android:animateLayoutChanges="true"
+                android:background="@drawable/circular_selector">
+
+                <TextView
+                    android:id="@+id/votes_down"
+                    style="@style/Text.Votes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/circular_selector"
+                    android:gravity="center"
+                    android:textColor="@color/red_faded"
+                    tools:text="3"/>
+
+                <View
+                    android:id="@+id/votes_down_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="1px"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="@dimen/margin_s"
+                    android:layout_marginLeft="@dimen/margin_s"
+                    android:layout_marginRight="@dimen/margin_s"
+                    android:background="@color/red_faded"
+                    android:visibility="invisible"/>
+            </FrameLayout>
+        </RelativeLayout>
     </RelativeLayout>
 </android.support.v7.widget.CardView>

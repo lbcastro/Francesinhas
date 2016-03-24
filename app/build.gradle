@@ -11,10 +11,10 @@ android {
 
     defaultConfig {
         applicationId "pt.castro.tops"
-        minSdkVersion 19
+        minSdkVersion 17
         targetSdkVersion 23
-        versionCode 12
-        versionName "0.6.6"
+        versionCode 13
+        versionName "0.6.7"
 
         renderscriptTargetApi 20
         renderscriptSupportModeEnabled true
