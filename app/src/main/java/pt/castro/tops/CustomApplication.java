@@ -23,13 +23,18 @@ import org.acra.sender.HttpSender;
         customReportContent = {ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME,
                 ReportField.ANDROID_VERSION, ReportField.PACKAGE_NAME, ReportField.REPORT_ID,
                 ReportField.BUILD, ReportField.STACK_TRACE},
-        mode = ReportingInteractionMode.SILENT)
+        mode = ReportingInteractionMode.NOTIFICATION)
 public class CustomApplication extends Application {
 
     private static PlacesManager mPlacesManager;
+    private static UsersManager mUsersManager;
 
     public static PlacesManager getPlacesManager() {
         return mPlacesManager;
+    }
+
+    public static UsersManager getUsersManager() {
+        return mUsersManager;
     }
 
     @Override
@@ -38,5 +43,6 @@ public class CustomApplication extends Application {
         ACRA.init(this);
         FacebookSdk.sdkInitialize(getApplicationContext());
         mPlacesManager = new PlacesManager();
+        mUsersManager = new UsersManager();
     }
 }

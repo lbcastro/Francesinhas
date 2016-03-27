@@ -308,12 +308,12 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
                     .VISIBLE);
         }
 
-        @OnClick(R.id.votes_up)
+        @OnClick(R.id.votes_up_clickable)
         void onClickVotesUp() {
             clickVote(1);
         }
 
-        @OnClick(R.id.votes_down)
+        @OnClick(R.id.votes_down_clickable)
         void onClickVotesDown() {
             clickVote(-1);
         }

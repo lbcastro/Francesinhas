@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_id": "castro-francesinhas",
+    "project_number": "247533273466",
+    "name": "Francesinhas"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:247533273466:android:f76b89c905d432a3",
+        "client_id": "android:pt.castro.tops",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "pt.castro.tops",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "247533273466-18bh4gkrdn1688inih0ca5vt3krfcb8r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pt.castro.tops",
+            "certificate_hash": "34F57370C1ADC3F4897BB7106C410AB957D19976"
+          }
+        },
+        {
+          "client_id": "247533273466-ouh54t418qbpljkhgt7k6d0o2rfjkcbk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 1,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 2
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}

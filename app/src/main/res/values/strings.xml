@@ -7,7 +7,7 @@
     <string name="invalid_place">Invalid place\nYou must select a restaurant</string>
     <string name="place_exists">Place already exists</string>
     <string name="facebook_app_id" translatable="false">1621207514793575</string>
-    <string name="google_app_id" translatable="false">AIzaSyDayDAcEmOCxyA943yIypbch34SexBdOmc</string>
+    <string name="google_id" translatable="false">AIzaSyDayDAcEmOCxyA943yIypbch34SexBdOmc</string>
     <string name="details_address">Address</string>
     <string name="details_phone">Phone</string>
     <string name="details_website">Website</string>

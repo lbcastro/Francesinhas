@@ -1,70 +1,92 @@
 package pt.castro.tops.communication.login;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.facebook.AccessToken;
-import com.facebook.AccessTokenTracker;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.Profile;
 import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.common.SignInButton;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-
+import pt.castro.francesinhas.backend.myApi.model.UserHolder;
+import pt.castro.tops.CustomApplication;
 import pt.castro.tops.R;
+import pt.castro.tops.communication.UserEndpointActions;
 import pt.castro.tops.list.ListActivity;
 import pt.castro.tops.tools.NotificationUtils;
+
 
 /**
  * Created by lourenco.castro on 07/06/15.
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements LoginObserver {
 
-    private CallbackManager mCallbackManager;
-    private AccessTokenTracker mAccessTokenTracker;
-
-    private void getKey() {
-        PackageInfo info;
-        try {
-            info = getPackageManager().getPackageInfo("pt.castro.tops", PackageManager
-                    .GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md;
-                md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                String something = new String(Base64.encode(md.digest(), 0));
-            }
-        } catch (PackageManager.NameNotFoundException e1) {
-            Log.e("name not found", e1.toString());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e("no such an algorithm", e.toString());
-        } catch (Exception e) {
-            Log.e("exception", e.toString());
-        }
-    }
+    private FacebookLogin mFacebookLogin;
+    private GoogleSignIn mGoogleSignIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getKey();
         setContentView(R.layout.fragment_login);
+        setLayout();
+
+        mGoogleSignIn = new GoogleSignIn(this);
+        mGoogleSignIn.setObserver(this);
+        mFacebookLogin = new FacebookLogin();
+        mFacebookLogin.setObserver(this);
+        mFacebookLogin.trackAccessToken(this);
+
+        if (getIntent().getExtras() != null) {
+            boolean logout = getIntent().getExtras().getBoolean("logout");
+            if (logout) {
+                mGoogleSignIn.signOut();
+                LoginManager.getInstance().logOut();
+                final SharedPreferences sharedPref = getSharedPreferences("TOPS_PREFERENCES",
+                        Context.MODE_PRIVATE);
+                sharedPref.edit().putInt("last_login", 0).apply();
+                startLogin();
+                return;
+            }
+        }
+
+        final SharedPreferences sharedPref = getSharedPreferences("TOPS_PREFERENCES", Context
+                .MODE_PRIVATE);
+        final int loginIndex = sharedPref.getInt("last_login", 0);
+        switch (loginIndex) {
+            case 1:
+                mFacebookLogin.login(this);
+                break;
+            case 2:
+                mGoogleSignIn.googleSignIn();
+                break;
+            default:
+                startLogin();
+                break;
+        }
+    }
+
+    @Override
+    public void onLoginSuccess(final int sourceIndex, final UserHolder userHolder) {
+        final SharedPreferences sharedPref = getSharedPreferences("TOPS_PREFERENCES", Context
+                .MODE_PRIVATE);
+        sharedPref.edit().putInt("last_login", sourceIndex).apply();
+        CustomApplication.getUsersManager().setUser(userHolder);
+        startList();
+    }
+
+    @Override
+    public void onLoginFail() {
+        NotificationUtils.toastLoginFailed(LoginActivity.this);
+    }
+
+    private void setLayout() {
         final View rootView = findViewById(R.id.fragment_login_parent);
         if (rootView != null) {
             rootView.setVisibility(View.VISIBLE);
@@ -79,15 +101,6 @@ public class LoginActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
-        trackAccessToken();
-        mCallbackManager = CallbackManager.Factory.create();
-        if (AccessToken.getCurrentAccessToken() != null || Profile.getCurrentProfile() != null) {
-            LoginManager.getInstance().logInWithReadPermissions(this, Collections.singletonList
-                    ("public_profile"));
-            startList();
-        } else {
-            startLogin();
-        }
     }
 
     private void startList() {
@@ -96,46 +109,23 @@ public class LoginActivity extends AppCompatActivity {
         this.finish();
     }
 
-    private void trackAccessToken() {
-        mAccessTokenTracker = new AccessTokenTracker() {
-            @Override
-            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken
-                    currentAccessToken) {
-                Log.d("LoginActivity", "Token has changed");
-                if (currentAccessToken != null && !currentAccessToken.isExpired()) {
-                    LoginManager.getInstance().logInWithReadPermissions(LoginActivity
-                            .this, Collections.singletonList("public_profile"));
-                    startList();
-                }
-            }
-        };
+    private void startList(final String userId) {
+        new UserEndpointActions(UserEndpointActions.GET_USER).execute(userId);
+
+
+//        Intent intent = new Intent(this, ListActivity.class);
+//        intent.putExtra("id", userId);
+//        startActivity(intent);
+//        this.finish();
     }
 
     private void startLogin() {
         final LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions("public_profile");
-        loginButton.setVisibility(View.VISIBLE);
-        LoginManager.getInstance().registerCallback(mCallbackManager, new
-                FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.d("LoginManager", "Success");
-                startList();
-            }
+        if (loginButton != null) {
+            loginButton.setVisibility(View.VISIBLE);
+            mFacebookLogin.setLoginButton(loginButton);
+        }
 
-            @Override
-            public void onCancel() {
-                Log.d("LoginManager", "Cancel");
-                NotificationUtils.toastLoginFailed(LoginActivity.this);
-            }
-
-            @Override
-            public void onError(FacebookException e) {
-                Log.d("LoginManager", "Error");
-                e.printStackTrace();
-                NotificationUtils.toastLoginFailed(LoginActivity.this);
-            }
-        });
         final View guestButton = findViewById(R.id.guest_button);
         if (guestButton != null) {
             guestButton.setOnClickListener(new View.OnClickListener() {
@@ -145,15 +135,19 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
+
+        SignInButton signInButton = (SignInButton) findViewById(R.id.sign_in_button);
+        mGoogleSignIn.setSignInButton(this, signInButton);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        mGoogleSignIn.onActivityResult(requestCode, data);
+        mFacebookLogin.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mAccessTokenTracker.stopTracking();
+        mFacebookLogin.stop();
     }
 }

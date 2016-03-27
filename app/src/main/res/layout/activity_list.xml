@@ -1,9 +1,11 @@
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout android:id="@+id/coordinator"
+                                                 xmlns:android="http://schemas.android.com/apk/res/android"
                                                  xmlns:app="http://schemas.android.com/apk/res-auto"
                                                  xmlns:tools="http://schemas.android.com/tools"
                                                  android:layout_width="match_parent"
                                                  android:layout_height="match_parent"
                                                  android:background="@color/background"
+                                                 android:fitsSystemWindows="true"
                                                  app:statusBarBackground="@android:color/transparent"
                                                  tools:context="pt.castro.tops.list.ListActivity">
 
@@ -24,7 +26,7 @@
     <com.marshalchen.ultimaterecyclerview.UltimateRecyclerView
         android:id="@+id/fragment_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@android:color/transparent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:recyclerviewEmptyView="@layout/empty_list"/>
@@ -33,7 +35,8 @@
         android:id="@+id/floating_action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_m"
+        android:layout_marginBottom="@dimen/margin_m"
+        android:layout_marginEnd="@dimen/margin_m"
         android:clickable="true"
         android:src="@drawable/ic_add_white_24dp"
         app:backgroundTint="@color/blue_bright"

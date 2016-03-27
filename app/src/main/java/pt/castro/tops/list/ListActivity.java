@@ -6,8 +6,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -16,14 +19,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.facebook.AccessToken;
 import com.facebook.appevents.AppEventsLogger;
-import com.facebook.login.LoginManager;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
+import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.OnMenuTabClickListener;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -40,7 +43,6 @@ import pt.castro.tops.communication.EndpointUserVote;
 import pt.castro.tops.communication.EndpointsAsyncTask;
 import pt.castro.tops.communication.IConnectionObserver;
 import pt.castro.tops.communication.NetworkChangeReceiver;
-import pt.castro.tops.communication.UserEndpointActions;
 import pt.castro.tops.communication.login.LoginActivity;
 import pt.castro.tops.details.DetailsActivity;
 import pt.castro.tops.events.EventBusHook;
@@ -50,9 +52,7 @@ import pt.castro.tops.events.list.ListRetrievedEvent;
 import pt.castro.tops.events.place.PlaceAlreadyExistsEvent;
 import pt.castro.tops.events.place.PlacePickerEvent;
 import pt.castro.tops.events.place.ScoreChangeEvent;
-import pt.castro.tops.events.user.NoUserEvent;
 import pt.castro.tops.events.user.UserClickEvent;
-import pt.castro.tops.events.user.UserDataEvent;
 import pt.castro.tops.tools.ConnectionUtils;
 import pt.castro.tops.tools.NotificationUtils;
 import pt.castro.tops.tools.PlaceUtils;
@@ -69,9 +69,13 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     @Bind(R.id.toolbar)
     Toolbar toolbar;
 
+    private BottomBar mBottomBar;
+
     private RecyclerViewManager mRecyclerViewManager;
     private PermissionsManager mPermissionsManager;
     private LocationManager mLocationManager;
+
+//    private String mUserId;
 
     private UserHolder mCurrentUser;
     private SearchView mSearchView;
@@ -89,6 +93,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
         ButterKnife.bind(this);
         setToolbar();
+//        setBottomBar(savedInstanceState);
 
         mRecyclerViewManager = new RecyclerViewManager();
         mRecyclerViewManager.setRecyclerView(this, mainRecyclerView);
@@ -98,6 +103,33 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         } else {
             notConnectedState();
         }
+    }
+
+    private void setBottomBar(final Bundle savedInstanceState) {
+        mBottomBar = BottomBar.attachShy((CoordinatorLayout) findViewById(R.id.coordinator),
+                findViewById(R.id.fragment_recycler_view), savedInstanceState);
+        mBottomBar.setItemsFromMenu(R.menu.bottombar_menu, new OnMenuTabClickListener() {
+            @Override
+            public void onMenuTabSelected(@IdRes int menuItemId) {
+                if (menuItemId == R.id.bottomBarItemOne) {
+                    // The user selected item number one.
+                }
+            }
+
+            @Override
+            public void onMenuTabReSelected(@IdRes int menuItemId) {
+                if (menuItemId == R.id.bottomBarItemOne) {
+                    // The user reselected item number one, scroll your content to top.
+                }
+            }
+        });
+
+        // Setting colors for different tabs when there's more than three of them.
+        // You can set colors for tabs in three different ways as shown below.
+        mBottomBar.setActiveTabColor(ContextCompat.getColor(this, R.color.blue_bright));
+        mBottomBar.mapColorForTab(0, ContextCompat.getColor(this, R.color.blue_bright));
+        mBottomBar.mapColorForTab(1, ContextCompat.getColor(this, R.color.blue_bright));
+        mBottomBar.mapColorForTab(2, ContextCompat.getColor(this, R.color.blue_bright));
     }
 
     @Override
@@ -121,6 +153,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         AppEventsLogger.activateApp(this);
         if (mConnectedState) {
             floatingActionButton.show();
+//            mBottomBar.show();
         }
         registerConnectionMonitor();
         mRecyclerViewManager.resume();
@@ -158,8 +191,8 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        menu.findItem(R.id.action_logout).setTitle(AccessToken.getCurrentAccessToken() != null ?
-                R.string.action_logout : R.string.action_login);
+        menu.findItem(R.id.action_logout).setTitle(mCurrentUser != null ? R.string.action_logout
+                : R.string.action_login);
         setSearchView((SearchView) menu.findItem(R.id.options_menu_main_search).getActionView());
         return true;
     }
@@ -170,7 +203,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
             mSearchView.setQuery("", true);
             mSearchView.setIconified(true);
             mSearchView.clearFocus();
-        } else if (AccessToken.getCurrentAccessToken() == null) {
+        } else if (mCurrentUser == null) {
             startLoginActivity();
             CustomApplication.getPlacesManager().clear();
             unregisterConnectionMonitor();
@@ -202,7 +235,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_logout) {
             logOut();
-            startLoginActivity();
         } else if (item.getItemId() == R.id.action_refresh) {
             EventBus.getDefault().post(new ListRefreshEvent());
         }
@@ -225,19 +257,18 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         }
     }
 
-    @EventBusHook
-    public void onEvent(final UserDataEvent userDataEvent) {
-        mCurrentUser = userDataEvent.getUserHolder();
-        mRecyclerViewManager.setVoting(true);
-        setButton(true);
-        getItems();
-    }
-
-    @EventBusHook
-    public void onEvent(final NoUserEvent noUserEvent) {
-        new UserEndpointActions(UserEndpointActions.ADD_USER).execute(AccessToken
-                .getCurrentAccessToken().getUserId());
-    }
+//    @EventBusHook
+//    public void onEvent(final UserDataEvent userDataEvent) {
+//        mCurrentUser = userDataEvent.getUserHolder();
+//        mRecyclerViewManager.setVoting(true);
+//        setButton(true);
+//        getItems();
+//    }
+//
+//    @EventBusHook
+//    public void onEvent(final NoUserEvent noUserEvent) {
+//        new UserEndpointActions(UserEndpointActions.ADD_USER).execute(mUserId);
+//    }
 
     @EventBusHook
     public void onEventMainThread(final ConnectionFailedEvent connectionFailedEvent) {
@@ -365,7 +396,8 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(false);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
     }
 
@@ -384,14 +416,19 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     }
 
     private void getUserData() {
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        if (accessToken != null) {
-            new UserEndpointActions(UserEndpointActions.GET_USER).execute(AccessToken
-                    .getCurrentAccessToken().getUserId());
-        } else {
-            mCurrentUser = null;
+        mCurrentUser = CustomApplication.getUsersManager().getUser();
+//        if (mUserId != null) {
+//            CustomApplication.getPlacesManager().clear();
+//            new UserEndpointActions(UserEndpointActions.GET_USER).execute(mUserId);
+//        }
+        if (mCurrentUser == null) {
             CustomApplication.getPlacesManager().clear();
             mRecyclerViewManager.setVoting(false);
+            getItems();
+        } else {
+            CustomApplication.getPlacesManager().clear();
+            mRecyclerViewManager.setVoting(true);
+            setButton(true);
             getItems();
         }
     }
@@ -423,12 +460,19 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     }
 
     private void logOut() {
-        LoginManager.getInstance().logOut();
+        CustomApplication.getUsersManager().setUser(null);
         mRecyclerViewManager.setVoting(false);
+        Intent intent = new Intent(this, LoginActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("logout", true);
+        intent.putExtras(bundle);
+        finish();
+        startActivity(intent);
     }
 
     private void showDetails(final LocalItemHolder localItemHolder) {
         floatingActionButton.hide();
+//        mBottomBar.hide();
         final ItemHolder itemHolder = localItemHolder.getItemHolder();
         final Intent intent = new Intent(this, DetailsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);

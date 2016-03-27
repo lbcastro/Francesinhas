@@ -87,10 +87,11 @@ public class RecyclerViewManager {
                 }
             }
         });
-        mainRecyclerView.enableLoadmore();
+        mainRecyclerView.reenableLoadmore();
         mainRecyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
             @Override
             public void loadMore(int itemsCount, int maxLastVisiblePosition) {
+
                 EventBus.getDefault().post(new ELoadMore());
             }
         });
