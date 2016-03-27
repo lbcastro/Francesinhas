@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -29,8 +30,7 @@ import pt.castro.tops.events.user.UserDataEvent;
 public class GoogleSignIn implements GoogleApiClient.OnConnectionFailedListener {
 
     public static final int LOGIN_INDEX = 2;
-
-    private static final int RC_SIGN_IN = 11;
+    public static final int REQUEST_CODE = 11;
 
     private boolean mSignedIn;
     private LoginObserver mObserver;
@@ -53,13 +53,14 @@ public class GoogleSignIn implements GoogleApiClient.OnConnectionFailedListener 
     }
 
     public void onActivityResult(final int requestCode, final Intent data) {
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == REQUEST_CODE) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);
         }
     }
 
-    public void setSignInButton(final Activity activity, final SignInButton signInButton) {
+    public void setSignInButton(final Activity activity, final SignInButton signInButton, final
+    TextView signInText) {
         if (signInButton != null) {
             signInButton.setColorScheme(SignInButton.COLOR_LIGHT);
             signInButton.setSize(SignInButton.SIZE_WIDE);
@@ -68,14 +69,24 @@ public class GoogleSignIn implements GoogleApiClient.OnConnectionFailedListener 
                 @Override
                 public void onClick(View v) {
                     Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-                    activity.startActivityForResult(signInIntent, RC_SIGN_IN);
+                    activity.startActivityForResult(signInIntent, REQUEST_CODE);
+                }
+            });
+            signInText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mObserver.onLoginStart();
+                    Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+                    activity.startActivityForResult(signInIntent, REQUEST_CODE);
                 }
             });
         }
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         if (result.isSuccess()) {
             mAccount = result.getSignInAccount();
             if (mAccount != null) {
@@ -91,7 +102,9 @@ public class GoogleSignIn implements GoogleApiClient.OnConnectionFailedListener 
     public void onEvent(final UserDataEvent userDataEvent) {
         mSignedIn = true;
         mObserver.onLoginSuccess(LOGIN_INDEX, userDataEvent.getUserHolder());
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
     @EventBusHook

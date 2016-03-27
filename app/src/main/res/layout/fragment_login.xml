@@ -2,12 +2,13 @@
 <RelativeLayout android:id="@+id/fragment_login_parent"
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                xmlns:wheel="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:animateLayoutChanges="true"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
 
     <ImageView
         android:layout_width="match_parent"
@@ -29,39 +30,60 @@
         android:textSize="45sp"
         android:textStyle="bold"/>
 
+    <com.pnikosis.materialishprogress.ProgressWheel
+        android:id="@+id/progress_wheel"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="80dp"
+        wheel:matProg_barColor="@color/blue_bright"
+        wheel:matProg_progressIndeterminate="true"/>
+
     <RelativeLayout
+        android:id="@+id/votes_parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="32dp"
-        android:orientation="vertical">
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <android.support.v7.widget.CardView
             android:id="@+id/login_parent"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="36dp"
             android:layout_centerHorizontal="true"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="16dp"
-            android:background="@color/blue"
             card_view:cardBackgroundColor="@color/blue_facebook"
             card_view:cardCornerRadius="2dp"
             card_view:cardElevation="1dp">
 
             <com.facebook.login.widget.LoginButton
-                android:id="@+id/login_button"
-                android:layout_width="wrap_content"
+                android:id="@+id/facebook_login_button"
+                android:layout_width="32dp"
                 android:layout_height="match_parent"
-                android:layout_gravity="center"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="6dp"
                 android:background="?attr/selectableItemBackground"
-                android:gravity="center"
-                android:paddingBottom="9dp"
-                android:paddingTop="8dp"
                 android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/facebook_login_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical|start"
+                android:paddingStart="40dp"
+                android:text="@string/log_in_with_facebook"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
         </android.support.v7.widget.CardView>
 
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/sign_in_button"
+        <android.support.v7.widget.CardView
+            android:id="@+id/google_signin_parent"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:layout_alignEnd="@id/login_parent"
@@ -69,31 +91,57 @@
             android:layout_below="@id/login_parent"
             android:layout_centerHorizontal="true"
             android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="24dp"
+            android:background="@color/blue"
+            card_view:cardBackgroundColor="@color/red_bright"
+            card_view:cardCornerRadius="2dp"
+            card_view:cardElevation="1dp">
 
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/google"
+                android:contentDescription="@null"/>
 
-        <android.support.v7.widget.CardView
+            <TextView
+                android:id="@+id/google_login_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical|start"
+                android:paddingStart="40dp"
+                android:text="@string/log_in_with_google"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/google_login_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"/>
+        </android.support.v7.widget.CardView>
+
+        <TextView
+            android:id="@+id/guest_button"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:layout_alignEnd="@id/login_parent"
             android:layout_alignStart="@id/login_parent"
-            android:layout_below="@id/sign_in_button"
+            android:layout_below="@id/google_signin_parent"
             android:layout_centerHorizontal="true"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="16dp"
-            card_view:cardCornerRadius="2dp"
-            card_view:cardElevation="1dp">
-
-            <TextView
-                android:id="@+id/guest_button"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?attr/selectableItemBackground"
-                android:gravity="center"
-                android:text="@string/continue_as_guest"
-                android:textColor="@color/blue_facebook"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-        </android.support.v7.widget.CardView>
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:text="@string/continue_as_guest"
+            android:textColor="@color/gray"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
     </RelativeLayout>
 </RelativeLayout>

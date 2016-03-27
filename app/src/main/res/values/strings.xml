@@ -22,11 +22,13 @@
     <string name="transition_clickable" translatable="false">transition_clickable</string>
     <string name="transition_votes" translatable="false">transition_votes</string>
     <string name="no_places">No places found yet!</string>
-    <string name="continue_as_guest">Continue as guest</string>
+    <string name="continue_as_guest">Continue without login</string>
     <string name="refresh">Refresh</string>
     <string name="search">Search</string>
     <string name="francesinhas">Francesinhas</string>
     <string name="price_range">Price range</string>
     <string name="loading">Loading…</string>
     <string name="not_connected">You\'re not connected!</string>
+    <string name="log_in_with_google">Log in with Google</string>
+    <string name="log_in_with_facebook">Log in with Facebook</string>
 </resources>

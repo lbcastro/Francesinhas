@@ -8,6 +8,8 @@ import android.content.pm.Signature;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -43,6 +45,7 @@ public class FacebookLogin {
 
     public static final int LOGIN_INDEX = 1;
 
+    private boolean mSigningIn;
     private boolean mSignedIn;
     private LoginObserver mObserver;
 
@@ -82,6 +85,7 @@ public class FacebookLogin {
                 if (currentAccessToken != null && !currentAccessToken.isExpired()) {
                     LoginManager.getInstance().logInWithReadPermissions(activity, Collections
                             .singletonList("public_profile"));
+                    Log.d("Faceebook", "TOKEN CHANGED");
                     handleSignInResult(currentAccessToken);
                 }
             }
@@ -89,19 +93,29 @@ public class FacebookLogin {
     }
 
     private void handleSignInResult(final AccessToken accessToken) {
-        EventBus.getDefault().register(this);
+        if (mSignedIn || mSigningIn) {
+            return;
+        }
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+        Log.d("Facebook", "FROM SIGN IN");
+        mSigningIn = true;
         new UserEndpointActions(UserEndpointActions.GET_USER).execute(accessToken.getUserId());
     }
 
     @EventBusHook
-    private void onEvent(final UserDataEvent event) {
+    public void onEvent(final UserDataEvent event) {
         mObserver.onLoginSuccess(LOGIN_INDEX, event.getUserHolder());
         mSignedIn = true;
-        EventBus.getDefault().unregister(this);
+        mSigningIn = false;
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
     @EventBusHook
-    private void onEvent(final NoUserEvent event) {
+    public void onEvent(final NoUserEvent event) {
         GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new
                 GraphRequest.GraphJSONObjectCallback() {
 
@@ -158,12 +172,14 @@ public class FacebookLogin {
         return null;
     }
 
-    public void setLoginButton(final LoginButton loginButton) {
+    public void setLoginButton(final LoginButton loginButton, final TextView loginText) {
         loginButton.setReadPermissions("public_profile");
+        loginButton.setReadPermissions("email");
         LoginManager.getInstance().registerCallback(mCallbackManager, new
                 FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+                Log.d("Faceebook", "FROM SUCCESS");
                 handleSignInResult(loginResult.getAccessToken());
             }
 
@@ -179,6 +195,13 @@ public class FacebookLogin {
                 mSignedIn = false;
             }
         });
+        loginText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mObserver.onLoginStart();
+                loginButton.performClick();
+            }
+        });
     }
 
     public void stop() {
@@ -186,7 +209,12 @@ public class FacebookLogin {
     }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-//        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void signOut() {
+        LoginManager.getInstance().logOut();
+        mSignedIn = false;
     }
 
     private void getKey(final Activity activity) {

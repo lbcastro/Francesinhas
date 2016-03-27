@@ -6,19 +6,24 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
-import com.facebook.login.LoginManager;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.common.SignInButton;
+import com.pnikosis.materialishprogress.ProgressWheel;
 
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 import pt.castro.tops.CustomApplication;
 import pt.castro.tops.R;
-import pt.castro.tops.communication.UserEndpointActions;
 import pt.castro.tops.list.ListActivity;
 import pt.castro.tops.tools.NotificationUtils;
 
@@ -28,14 +33,29 @@ import pt.castro.tops.tools.NotificationUtils;
  */
 public class LoginActivity extends AppCompatActivity implements LoginObserver {
 
+    private View mVotesParent;
+    private ProgressWheel mProgressWheel;
+
     private FacebookLogin mFacebookLogin;
     private GoogleSignIn mGoogleSignIn;
+
+    private AnimationSet mButtonsAnimations;
+    private AnimationSet mProgressAnimations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_login);
         setLayout();
+        setAnimations();
+
+        mVotesParent = findViewById(R.id.votes_parent);
+        mProgressWheel = (ProgressWheel) findViewById(R.id.progress_wheel);
+        if (mProgressWheel != null) {
+            mProgressWheel.setVisibility(View.VISIBLE);
+            mProgressWheel.setBarColor(ContextCompat.getColor(this, R.color.blue_bright));
+            mProgressWheel.spin();
+        }
 
         mGoogleSignIn = new GoogleSignIn(this);
         mGoogleSignIn.setObserver(this);
@@ -47,7 +67,7 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
             boolean logout = getIntent().getExtras().getBoolean("logout");
             if (logout) {
                 mGoogleSignIn.signOut();
-                LoginManager.getInstance().logOut();
+                mFacebookLogin.signOut();
                 final SharedPreferences sharedPref = getSharedPreferences("TOPS_PREFERENCES",
                         Context.MODE_PRIVATE);
                 sharedPref.edit().putInt("last_login", 0).apply();
@@ -72,6 +92,44 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
         }
     }
 
+    private void setAnimations() {
+        mProgressAnimations = new AnimationSet(true);
+        Animation progressTranslate = new TranslateAnimation(0, 0, 100, 0);
+        progressTranslate.setDuration(200);
+        progressTranslate.setFillAfter(true);
+        mProgressAnimations.addAnimation(progressTranslate);
+        Animation progressAlpha = new AlphaAnimation(0.0f, 1.0f);
+        progressAlpha.setDuration(100);
+        progressAlpha.setFillAfter(true);
+        mProgressAnimations.addAnimation(progressAlpha);
+        mProgressAnimations.setFillAfter(true);
+        mProgressAnimations.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        mButtonsAnimations = new AnimationSet(true);
+        Animation translateAnimation = new TranslateAnimation(0, 0, 0, 1000);
+        translateAnimation.setDuration(500);
+        translateAnimation.setFillAfter(true);
+        mButtonsAnimations.addAnimation(translateAnimation);
+        Animation alphaAnimation = new AlphaAnimation(1.0f, 0.0f);
+        alphaAnimation.setDuration(100);
+        alphaAnimation.setFillAfter(true);
+        mButtonsAnimations.setDuration(500);
+        mButtonsAnimations.addAnimation(alphaAnimation);
+        mButtonsAnimations.setFillAfter(true);
+        mButtonsAnimations.setInterpolator(new AccelerateDecelerateInterpolator());
+    }
+
+    private void translate() {
+        mProgressWheel.setVisibility(View.VISIBLE);
+        mProgressWheel.startAnimation(mProgressAnimations);
+        mVotesParent.startAnimation(mButtonsAnimations);
+    }
+
+    @Override
+    public void onLoginStart() {
+        translate();
+    }
+
     @Override
     public void onLoginSuccess(final int sourceIndex, final UserHolder userHolder) {
         final SharedPreferences sharedPref = getSharedPreferences("TOPS_PREFERENCES", Context
@@ -87,11 +145,6 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
     }
 
     private void setLayout() {
-        final View rootView = findViewById(R.id.fragment_login_parent);
-        if (rootView != null) {
-            rootView.setVisibility(View.VISIBLE);
-        }
-
         final TextView textView = (TextView) findViewById(R.id.title);
         final Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/BebasNeue Bold.otf");
         if (textView != null) {
@@ -109,22 +162,18 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
         this.finish();
     }
 
-    private void startList(final String userId) {
-        new UserEndpointActions(UserEndpointActions.GET_USER).execute(userId);
-
-
-//        Intent intent = new Intent(this, ListActivity.class);
-//        intent.putExtra("id", userId);
-//        startActivity(intent);
-//        this.finish();
-    }
-
     private void startLogin() {
-        final LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-        if (loginButton != null) {
-            loginButton.setVisibility(View.VISIBLE);
-            mFacebookLogin.setLoginButton(loginButton);
+        final LoginButton facebookLoginButton = (LoginButton) findViewById(R.id
+                .facebook_login_button);
+        final TextView loginText = (TextView) findViewById(R.id.facebook_login_text);
+        if (facebookLoginButton != null) {
+            mFacebookLogin.setLoginButton(facebookLoginButton, loginText);
         }
+
+        final SignInButton googleLoginButton = (SignInButton) findViewById(R.id
+                .google_login_button);
+        final TextView googleText = (TextView) findViewById(R.id.google_login_text);
+        mGoogleSignIn.setSignInButton(this, googleLoginButton, googleText);
 
         final View guestButton = findViewById(R.id.guest_button);
         if (guestButton != null) {
@@ -135,14 +184,21 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
                 }
             });
         }
+        mVotesParent.setVisibility(View.VISIBLE);
+        mProgressWheel.setVisibility(View.GONE);
 
-        SignInButton signInButton = (SignInButton) findViewById(R.id.sign_in_button);
-        mGoogleSignIn.setSignInButton(this, signInButton);
+        final View rootView = findViewById(R.id.fragment_login_parent);
+        if (rootView != null) {
+            rootView.setVisibility(View.VISIBLE);
+        }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mGoogleSignIn.onActivityResult(requestCode, data);
-        mFacebookLogin.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GoogleSignIn.REQUEST_CODE) {
+            mGoogleSignIn.onActivityResult(requestCode, data);
+        } else {
+            mFacebookLogin.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override

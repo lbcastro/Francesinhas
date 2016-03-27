@@ -37,7 +37,9 @@ public class Endpoint {
     private List<ItemHolder> itemList = Collections.emptyList();
 
     @ApiMethod(name = "listItems")
-    public CollectionResponse<ItemHolder> listItems(@Nullable @Named("cursor") String cursorString, @Nullable @Named("count") Integer count) {
+    public CollectionResponse<ItemHolder> listItems(@Nullable @Named("cursor") String
+                                                                cursorString, @Nullable @Named
+            ("count") Integer count) {
         Query<ItemHolder> query = ofy().load().type(ItemHolder.class).order("-votesUp").order
                 ("votesDown");
         if (count != null) {
@@ -172,12 +174,13 @@ public class Endpoint {
     @ApiMethod(name = "addUser")
     public UserHolder addUser(@Named("userId") String userId, @Named("userEmail") String
             userEmail) throws ConflictException {
-        if (findUser(userId, userEmail) != null) {
-            throw new ConflictException("User already exists");
+        UserHolder userHolder;
+        if ((userHolder = findUser(userId, userEmail)) != null) {
+            return userHolder;
         }
         final IdHolder idHolder = new IdHolder();
         idHolder.setId(userId);
-        UserHolder userHolder = findUserByEmail(userEmail);
+        userHolder = findUserByEmail(userEmail);
         if (userHolder == null) {
             userHolder = findUserByOldId(userId);
             if (userHolder != null) {
@@ -212,8 +215,7 @@ public class Endpoint {
             throw new NullPointerException("Item not found");
         } else {
 
-            int previousVote = userHolder.getVotes().get(itemId) == null ? 0 : userHolder.getVote
-                    (itemId);
+            int previousVote = userHolder.getVotes().get(itemId) == null ? 0 : userHolder.getVote(itemId);
             switch (vote) {
                 case -1:
                     if (previousVote == 1) {

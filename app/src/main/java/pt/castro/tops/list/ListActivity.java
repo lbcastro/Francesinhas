@@ -396,8 +396,8 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+            actionBar.setDisplayHomeAsUpEnabled(false);
+//            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
     }
 

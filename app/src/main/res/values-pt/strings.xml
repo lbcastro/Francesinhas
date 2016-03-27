@@ -23,4 +23,6 @@
     <string name="price_range">Gama de preços</string>
     <string name="loading">A carregar…</string>
     <string name="not_connected">Sem ligação!</string>
+    <string name="log_in_with_facebook">Log in - Facebook</string>
+    <string name="log_in_with_google">Log in - Google</string>
 </resources>
