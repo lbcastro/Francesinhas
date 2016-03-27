@@ -17,6 +17,7 @@ import com.google.api.server.spi.response.ConflictException;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.QueryResultIterator;
+import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.cmd.Query;
 
 import java.util.ArrayList;
@@ -28,19 +29,17 @@ import javax.inject.Named;
 
 import static pt.castro.tops.backend.OfyService.ofy;
 
-@Api(name = "myApi", version = "v1", namespace = @ApiNamespace(ownerDomain = "backend"
-        + ".francesinhas.castro.pt", ownerName = "backend.francesinhas.castro.pt",
+@Api(name = "myApi", version = "v1", namespace = @ApiNamespace(ownerDomain = "backend" + "" +
+        ".francesinhas.castro.pt", ownerName = "backend.francesinhas.castro.pt",
         packagePath = ""))
 public class Endpoint {
 
     private List<ItemHolder> itemList = Collections.emptyList();
 
     @ApiMethod(name = "listItems")
-    public CollectionResponse<ItemHolder> listItems(@Nullable @Named("cursor") String
-                                                                cursorString, @Nullable
-    @Named("count") Integer count) {
-        Query<ItemHolder> query = ofy().load().type(ItemHolder.class).order("-votesUp")
-                .order("votesDown");
+    public CollectionResponse<ItemHolder> listItems(@Nullable @Named("cursor") String cursorString, @Nullable @Named("count") Integer count) {
+        Query<ItemHolder> query = ofy().load().type(ItemHolder.class).order("-votesUp").order
+                ("votesDown");
         if (count != null) {
             query.limit(count);
         }
@@ -67,8 +66,8 @@ public class Endpoint {
 //        }
         updateRanking();
         ofy().clear();
-        return CollectionResponse.<ItemHolder>builder().setItems(itemList)
-                .setNextPageToken(cursorString).build();
+        return CollectionResponse.<ItemHolder>builder().setItems(itemList).setNextPageToken
+                (cursorString).build();
     }
 
 
@@ -84,8 +83,7 @@ public class Endpoint {
     }
 
     @ApiMethod(name = "addPhoto")
-    public ItemHolder addPhoto(@Named("itemId") String itemId, @Named("photUrl") String
-            photoUrl) {
+    public ItemHolder addPhoto(@Named("itemId") String itemId, @Named("photUrl") String photoUrl) {
         ItemHolder itemHolder;
         if ((itemHolder = findItem(itemId)) == null) {
             throw new NullPointerException("Item not found");
@@ -124,7 +122,37 @@ public class Endpoint {
     }
 
     private UserHolder findUser(String userId) {
+        final IdHolder holder = ofy().load().type(IdHolder.class).id(userId).now();
+        if (holder != null) {
+            return holder.getUser().get();
+        }
+        return null;
+    }
+
+    private UserHolder findUserByEmail(final String userEmail) {
+        return ofy().load().type(UserHolder.class).id(userEmail).now();
+    }
+
+    private UserHolder findUserByOldId(final String userId) {
         return ofy().load().type(UserHolder.class).id(userId).now();
+    }
+
+    private UserHolder findUser(String userId, String userEmail) {
+        IdHolder holder = ofy().load().type(IdHolder.class).id(userId).now();
+        UserHolder userHolder;
+        if (holder == null) {
+            userHolder = ofy().load().type(UserHolder.class).id(userEmail).now();
+            if (userHolder == null) {
+                return null;
+            }
+            final IdHolder idHolder = new IdHolder();
+            idHolder.setId(userId);
+            idHolder.setUser(Ref.create(userHolder));
+            ofy().save().entity(idHolder).now();
+        } else {
+            userHolder = holder.getUser().get();
+        }
+        return userHolder;
     }
 
     @ApiMethod(name = "addItem")
@@ -142,38 +170,50 @@ public class Endpoint {
     }
 
     @ApiMethod(name = "addUser")
-    public UserHolder addUser(@Named("userId") String userId) throws ConflictException {
-        if (findUser(userId) != null) {
+    public UserHolder addUser(@Named("userId") String userId, @Named("userEmail") String
+            userEmail) throws ConflictException {
+        if (findUser(userId, userEmail) != null) {
             throw new ConflictException("User already exists");
         }
-        final UserHolder userHolder = new UserHolder();
-        userHolder.setId(userId);
-        ofy().save().entity(userHolder).now();
+        final IdHolder idHolder = new IdHolder();
+        idHolder.setId(userId);
+        UserHolder userHolder = findUserByEmail(userEmail);
+        if (userHolder == null) {
+            userHolder = findUserByOldId(userId);
+            if (userHolder != null) {
+                userHolder.setId(userEmail);
+            } else {
+                userHolder = new UserHolder();
+                userHolder.setId(userEmail);
+            }
+        }
+        idHolder.setUser(Ref.create(userHolder));
+        ofy().save().entities(userHolder, idHolder).now();
         return userHolder;
     }
 
     @ApiMethod(name = "getUser")
-    public UserHolder getUser(@Named("userId") String userId) throws ConflictException {
+    public UserHolder getUser(@Named("userId") String userId) throws NoSuchFieldError {
         UserHolder previousUserHolder;
         if ((previousUserHolder = findUser(userId)) == null) {
-            throw new ConflictException("User not found");
+            throw new NoSuchFieldError("User not found");
         }
         return previousUserHolder;
     }
 
     @ApiMethod(name = "addUserVote")
-    public UserHolder addUserVote(@Named("userId") String userId, @Named("itemId")
-    String itemId, @Named("vote") int vote) {
+    public UserHolder addUserVote(@Named("userId") String userId, @Named("itemId") String itemId,
+                                  @Named("vote") int vote) {
         ItemHolder itemHolder;
         UserHolder userHolder;
-        if ((userHolder = findUser(userId)) == null) {
+        if ((userHolder = findUserByEmail(userId)) == null) {
             throw new NullPointerException("User not found");
         } else if ((itemHolder = findItem(itemId)) == null) {
             throw new NullPointerException("Item not found");
         } else {
 
-            int previousVote = userHolder.getVotes().get(itemId) == null ? 0 :
-                    userHolder.getVote(itemId);
+            int previousVote = userHolder.getVotes().get(itemId) == null ? 0 : userHolder.getVote
+                    (itemId);
             switch (vote) {
                 case -1:
                     if (previousVote == 1) {

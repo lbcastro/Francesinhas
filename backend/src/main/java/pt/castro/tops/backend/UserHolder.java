@@ -24,7 +24,11 @@ public class UserHolder {
     }
 
     public UserHolder addVote(final String itemId, final int vote) {
-        votesMap.put(itemId, vote);
+        if (vote == 0) {
+            votesMap.remove(itemId);
+        } else {
+            votesMap.put(itemId, vote);
+        }
         return this;
     }
 
