@@ -23,7 +23,7 @@ import org.acra.sender.HttpSender;
         customReportContent = {ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME,
                 ReportField.ANDROID_VERSION, ReportField.PACKAGE_NAME, ReportField.REPORT_ID,
                 ReportField.BUILD, ReportField.STACK_TRACE},
-        mode = ReportingInteractionMode.NOTIFICATION)
+        mode = ReportingInteractionMode.SILENT)
 public class CustomApplication extends Application {
 
     private static PlacesManager mPlacesManager;

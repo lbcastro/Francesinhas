@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -45,7 +44,6 @@ import dmax.staticmap.builder.Segment;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.tops.CustomApplication;
 import pt.castro.tops.R;
-import pt.castro.tops.tools.LayoutUtils;
 import pt.castro.tops.tools.PhotoUtils;
 
 /**
@@ -119,10 +117,6 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            LayoutUtils.setTranslucentStatusBar(getWindow());
-        }
 
         setActionBar();
         setScroll();

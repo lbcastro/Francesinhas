@@ -13,8 +13,8 @@ android {
         applicationId "pt.castro.tops"
         minSdkVersion 17
         targetSdkVersion 23
-        versionCode 15
-        versionName "0.7.0"
+        versionCode 16
+        versionName "0.7.1"
 
         renderscriptTargetApi 20
         renderscriptSupportModeEnabled true

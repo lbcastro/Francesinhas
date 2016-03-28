@@ -10,11 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
 import com.facebook.login.widget.LoginButton;
@@ -25,6 +21,7 @@ import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 import pt.castro.tops.CustomApplication;
 import pt.castro.tops.R;
 import pt.castro.tops.list.ListActivity;
+import pt.castro.tops.tools.AnimationUtils;
 import pt.castro.tops.tools.NotificationUtils;
 
 
@@ -33,7 +30,7 @@ import pt.castro.tops.tools.NotificationUtils;
  */
 public class LoginActivity extends AppCompatActivity implements LoginObserver {
 
-    private View mVotesParent;
+    private View mLoginButtons;
     private ProgressWheel mProgressWheel;
 
     private FacebookLogin mFacebookLogin;
@@ -49,7 +46,7 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
         setLayout();
         setAnimations();
 
-        mVotesParent = findViewById(R.id.votes_parent);
+        mLoginButtons = findViewById(R.id.votes_parent);
         mProgressWheel = (ProgressWheel) findViewById(R.id.progress_wheel);
         if (mProgressWheel != null) {
             mProgressWheel.setVisibility(View.VISIBLE);
@@ -93,41 +90,34 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
     }
 
     private void setAnimations() {
-        mProgressAnimations = new AnimationSet(true);
-        Animation progressTranslate = new TranslateAnimation(0, 0, 100, 0);
-        progressTranslate.setDuration(200);
-        progressTranslate.setFillAfter(true);
-        mProgressAnimations.addAnimation(progressTranslate);
-        Animation progressAlpha = new AlphaAnimation(0.0f, 1.0f);
-        progressAlpha.setDuration(100);
-        progressAlpha.setFillAfter(true);
-        mProgressAnimations.addAnimation(progressAlpha);
-        mProgressAnimations.setFillAfter(true);
-        mProgressAnimations.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        mButtonsAnimations = new AnimationSet(true);
-        Animation translateAnimation = new TranslateAnimation(0, 0, 0, 1000);
-        translateAnimation.setDuration(500);
-        translateAnimation.setFillAfter(true);
-        mButtonsAnimations.addAnimation(translateAnimation);
-        Animation alphaAnimation = new AlphaAnimation(1.0f, 0.0f);
-        alphaAnimation.setDuration(100);
-        alphaAnimation.setFillAfter(true);
-        mButtonsAnimations.setDuration(500);
-        mButtonsAnimations.addAnimation(alphaAnimation);
-        mButtonsAnimations.setFillAfter(true);
-        mButtonsAnimations.setInterpolator(new AccelerateDecelerateInterpolator());
+        mProgressAnimations = AnimationUtils.getSlideBottomAnimation(100, 0, 0.0f, 1.0f, 200);
+        mButtonsAnimations = AnimationUtils.getSlideBottomAnimation(0, 1000, 1.0f, 0.0f, 500);
     }
 
-    private void translate() {
+    private void setReverseAnimations() {
+        mProgressAnimations = AnimationUtils.getSlideBottomAnimation(0, 100, 1.0f, 0.0f, 200);
+        mButtonsAnimations = AnimationUtils.getSlideBottomAnimation(1000, 0, 0.0f, 1.0f, 500);
+    }
+
+    private void hideLoginButtons() {
         mProgressWheel.setVisibility(View.VISIBLE);
         mProgressWheel.startAnimation(mProgressAnimations);
-        mVotesParent.startAnimation(mButtonsAnimations);
+        mProgressWheel.spin();
+        mLoginButtons.startAnimation(mButtonsAnimations);
+        setReverseAnimations();
+    }
+
+    private void showLoginButtons() {
+        mProgressWheel.startAnimation(mProgressAnimations);
+        mProgressWheel.stopSpinning();
+        mProgressWheel.setVisibility(View.GONE);
+        mLoginButtons.startAnimation(mButtonsAnimations);
+        setAnimations();
     }
 
     @Override
     public void onLoginStart() {
-        translate();
+        hideLoginButtons();
     }
 
     @Override
@@ -136,12 +126,14 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
                 .MODE_PRIVATE);
         sharedPref.edit().putInt("last_login", sourceIndex).apply();
         CustomApplication.getUsersManager().setUser(userHolder);
+        setAnimations();
         startList();
     }
 
     @Override
     public void onLoginFail() {
         NotificationUtils.toastLoginFailed(LoginActivity.this);
+        showLoginButtons();
     }
 
     private void setLayout() {
@@ -184,7 +176,7 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
                 }
             });
         }
-        mVotesParent.setVisibility(View.VISIBLE);
+        mLoginButtons.setVisibility(View.VISIBLE);
         mProgressWheel.setVisibility(View.GONE);
 
         final View rootView = findViewById(R.id.fragment_login_parent);
