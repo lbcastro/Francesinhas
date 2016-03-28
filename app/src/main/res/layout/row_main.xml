@@ -46,7 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/black_gradient"
+
             android:visibility="invisible"/>
 
         <RelativeLayout
@@ -63,6 +63,10 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/margin_m"
                 android:gravity="start"
+                android:shadowColor="@color/dark_gray"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
                 android:textSize="18sp"
                 tools:text="1"/>
 
@@ -72,12 +76,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/custom_row_ranking"
+                android:layout_marginEnd="@dimen/margin_s"
                 android:layout_marginStart="@dimen/margin_s"
                 android:layout_toEndOf="@id/custom_row_ranking"
                 android:layout_toStartOf="@+id/votes_up_clickable"
                 android:ellipsize="end"
                 android:maxLines="1"
-                tools:text="Nameeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                android:shadowColor="@color/dark_gray"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"/>
 
             <TextView
                 android:id="@+id/custom_row_location"
@@ -107,6 +115,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
+                    android:shadowColor="@color/dark_gray"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
                     android:textColor="@color/green_bright"
                     tools:text="5"/>
 
@@ -141,6 +153,10 @@
                     android:layout_gravity="center"
                     android:background="@drawable/circular_selector"
                     android:gravity="center"
+                    android:shadowColor="@color/dark_gray"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
                     android:textColor="@color/red_faded"
                     tools:text="3"/>
 

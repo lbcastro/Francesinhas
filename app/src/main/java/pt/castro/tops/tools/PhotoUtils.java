@@ -38,7 +38,7 @@ public class PhotoUtils {
     public static Drawable tintedDrawable(final Context context, final int resource) {
         final Drawable normalDrawable = ContextCompat.getDrawable(context, resource);
         final Drawable wrapDrawable = DrawableCompat.wrap(normalDrawable);
-        DrawableCompat.setTint(wrapDrawable, ContextCompat.getColor(context, R.color.blue));
+        DrawableCompat.setTint(wrapDrawable, ContextCompat.getColor(context, R.color.blue_bright));
         return wrapDrawable;
     }
 }
