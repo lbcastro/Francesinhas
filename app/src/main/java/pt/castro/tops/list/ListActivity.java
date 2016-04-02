@@ -1,6 +1,5 @@
 package pt.castro.tops.list;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -8,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -39,6 +40,7 @@ import pt.castro.tops.LocationManager;
 import pt.castro.tops.PermissionsManager;
 import pt.castro.tops.R;
 import pt.castro.tops.communication.EndpointGetItems;
+import pt.castro.tops.communication.EndpointSearch;
 import pt.castro.tops.communication.EndpointUserVote;
 import pt.castro.tops.communication.EndpointsAsyncTask;
 import pt.castro.tops.communication.IConnectionObserver;
@@ -57,7 +59,8 @@ import pt.castro.tops.tools.ConnectionUtils;
 import pt.castro.tops.tools.NotificationUtils;
 import pt.castro.tops.tools.PlaceUtils;
 
-public class ListActivity extends AppCompatActivity implements IConnectionObserver {
+public class ListActivity extends AppCompatActivity implements IConnectionObserver, SearchHelper
+        .ISearchObserver {
 
     private static final int PLACE_PICKER_REQUEST = 1;
     private final String TAG = getClass().getName();
@@ -78,11 +81,12 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 //    private String mUserId;
 
     private UserHolder mCurrentUser;
-    private SearchView mSearchView;
+    //    private SearchView mSearchView;
     private String mNextToken;
 
     private boolean mConnectedState;
     private NetworkChangeReceiver mConnectionMonitor;
+    private SearchHelper mSearchHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,16 +197,16 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         getMenuInflater().inflate(R.menu.menu_main, menu);
         menu.findItem(R.id.action_logout).setTitle(mCurrentUser != null ? R.string.action_logout
                 : R.string.action_login);
-        setSearchView((SearchView) menu.findItem(R.id.options_menu_main_search).getActionView());
+        mSearchHelper = new SearchHelper(this);
+        mSearchHelper.setSearchView(this, (SearchView) menu.findItem(R.id
+                .options_menu_main_search).getActionView());
         return true;
     }
 
     @Override
     public void onBackPressed() {
-        if (!mSearchView.isIconified()) {
-            mSearchView.setQuery("", true);
-            mSearchView.setIconified(true);
-            mSearchView.clearFocus();
+        if (!mSearchHelper.isIconified()) {
+            mSearchHelper.resetSearchView();
         } else if (mCurrentUser == null) {
             startLoginActivity();
             CustomApplication.getPlacesManager().clear();
@@ -257,19 +261,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         }
     }
 
-//    @EventBusHook
-//    public void onEvent(final UserDataEvent userDataEvent) {
-//        mCurrentUser = userDataEvent.getUserHolder();
-//        mRecyclerViewManager.setVoting(true);
-//        setButton(true);
-//        getItems();
-//    }
-//
-//    @EventBusHook
-//    public void onEvent(final NoUserEvent noUserEvent) {
-//        new UserEndpointActions(UserEndpointActions.ADD_USER).execute(mUserId);
-//    }
-
     @EventBusHook
     public void onEventMainThread(final ConnectionFailedEvent connectionFailedEvent) {
         notConnectedState();
@@ -278,6 +269,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     @EventBusHook
     public void onEventMainThread(final ListRetrievedEvent listRetrievedEvent) {
         mNextToken = listRetrievedEvent.getToken();
+
         // Iterates all retrieved items and adds votes when applied.
         for (ItemHolder itemHolder : listRetrievedEvent.getList()) {
             LocalItemHolder localItemHolder = PlaceUtils.processItem(itemHolder, mCurrentUser);
@@ -288,6 +280,31 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
                 // Item already exists
             }
         }
+    }
+
+    @EventBusHook
+    public void onEventMainThread(final EndpointSearch.ENoPlacesFound event) {
+        if (CustomApplication.getPlacesManager().getPlaces().size() > 0) {
+            return;
+        }
+        mNextToken = null;
+        mRecyclerViewManager.setEmptyList(getString(R.string.no_places));
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context
+                    .INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+        mRecyclerViewManager.setRefreshing(false);
+        setToolbarCollapsible(false);
+    }
+
+    private void setToolbarCollapsible(final boolean collapsible) {
+        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+        params.setScrollFlags(collapsible ? AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL |
+                AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS |
+                AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP : 0);
+        toolbar.setCollapsible(collapsible);
     }
 
     @EventBusHook
@@ -313,11 +330,8 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
     @EventBusHook
     public void onEventMainThread(final ListRefreshEvent listRefreshEvent) {
-        // TODO: Instead of retrieving a new set of items, update the existing ones
-        CustomApplication.getPlacesManager().clear();
-        mRecyclerViewManager.setEmptyList(getString(R.string.loading));
-        mNextToken = null;
-        getItems();
+        mSearchHelper.resetSearchView();
+        refreshList();
     }
 
     @EventBusHook
@@ -353,13 +367,20 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
                 getUserData();
             }
         } else {
-            EventBus.getDefault().post(new ListRefreshEvent());
+            mSearchHelper.resetSearchView();
+            refreshList();
         }
     }
 
     @EventBusHook
     public void onEventMainThread(final RecyclerViewManager.ELoadMore eLoadMore) {
-        getItems();
+        if (!mSearchHelper.isIconified()) {
+            EndpointSearch endpointSearch = new EndpointSearch();
+            endpointSearch.setCursor(mNextToken);
+            endpointSearch.execute(mSearchHelper.getQuery());
+        } else {
+            getItems();
+        }
     }
 
     private void registerConnectionMonitor() {
@@ -401,6 +422,15 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         }
     }
 
+    private void refreshList() {
+        // TODO: Instead of retrieving a new set of items, update the existing ones
+        mNextToken = null;
+        setToolbarCollapsible(true);
+        CustomApplication.getPlacesManager().clear();
+        mRecyclerViewManager.setEmptyList(getString(R.string.loading));
+        getItems();
+    }
+
     private void getItems() {
         if (mNextToken != null) {
             EndpointGetItems getItems = new EndpointGetItems();
@@ -417,10 +447,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
     private void getUserData() {
         mCurrentUser = CustomApplication.getUsersManager().getUser();
-//        if (mUserId != null) {
-//            CustomApplication.getPlacesManager().clear();
-//            new UserEndpointActions(UserEndpointActions.GET_USER).execute(mUserId);
-//        }
         if (mCurrentUser == null) {
             CustomApplication.getPlacesManager().clear();
             mRecyclerViewManager.setVoting(false);
@@ -432,26 +458,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
             getItems();
         }
     }
-
-    private void setSearchView(final SearchView searchView) {
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        mSearchView = searchView;
-        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                mRecyclerViewManager.setFilter(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                mRecyclerViewManager.setFilter(newText);
-                return false;
-            }
-        });
-    }
-
 
     private void startLoginActivity() {
         Intent intent = new Intent(this, LoginActivity.class);
@@ -489,5 +495,15 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
             mLocationManager.setup(this);
             mLocationManager.start();
         }
+    }
+
+    @Override
+    public void onSearchStart() {
+        mRecyclerViewManager.setEmptyList("Searching...");
+    }
+
+    @Override
+    public void onSearchReset() {
+        refreshList();
     }
 }

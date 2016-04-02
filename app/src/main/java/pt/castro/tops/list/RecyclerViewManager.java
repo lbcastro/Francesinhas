@@ -5,11 +5,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.widget.TextView;
 
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
-import com.marshalchen.ultimaterecyclerview.uiUtils.ScrollSmoothLineaerLayoutManager;
 import com.squareup.picasso.Picasso;
 
 import java.math.BigDecimal;
@@ -27,6 +25,7 @@ import pt.castro.tops.list.decoration.CustomItemDecoration;
  */
 public class RecyclerViewManager {
 
+    EndlessRecyclerViewScrollListener scrollListener;
     private UltimateRecyclerView mainRecyclerView;
     private CustomRecyclerViewAdapter recyclerViewAdapter;
 
@@ -65,17 +64,21 @@ public class RecyclerViewManager {
     public void setRecyclerView(final Context context, final UltimateRecyclerView recyclerView) {
         recyclerViewAdapter = new CustomRecyclerViewAdapter();
         mainRecyclerView = recyclerView;
-        mainRecyclerView.setLayoutManager(new ScrollSmoothLineaerLayoutManager(context,
-                LinearLayoutManager.VERTICAL, false, 300));
-        mainRecyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                EventBus.getDefault().post(new ERequestRefresh());
-            }
-        });
+//        ScrollSmoothLineaerLayoutManager layoutManager = new ScrollSmoothLineaerLayoutManager
+//                (context, LinearLayoutManager.VERTICAL, false, 5000);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        mainRecyclerView.setLayoutManager(layoutManager);
         mainRecyclerView.setDefaultSwipeToRefreshColorScheme(ContextCompat.getColor(context, R
                 .color.blue_bright), ContextCompat.getColor(context, R.color.blue), ContextCompat
                 .getColor(context, R.color.blue_dark));
+
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                EventBus.getDefault().post(new ELoadMore());
+            }
+        };
+        mainRecyclerView.addOnScrollListener(scrollListener);
         mainRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -87,16 +90,23 @@ public class RecyclerViewManager {
                 }
             }
         });
-        mainRecyclerView.reenableLoadmore();
-        mainRecyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
+        mainRecyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void loadMore(int itemsCount, int maxLastVisiblePosition) {
-
-                EventBus.getDefault().post(new ELoadMore());
+            public void onRefresh() {
+                EventBus.getDefault().post(new ERequestRefresh());
+                scrollListener.reset();
             }
         });
-        recyclerViewAdapter.setCustomLoadMoreView(LayoutInflater.from(context).inflate(R.layout
-                .custom_progress_bar, mainRecyclerView, false));
+//        mainRecyclerView.reenableLoadmore();
+//        mainRecyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
+//            @Override
+//            public void loadMore(int itemsCount, int maxLastVisiblePosition) {
+//
+//                EventBus.getDefault().post(new ELoadMore());
+//            }
+//        });
+//        recyclerViewAdapter.setCustomLoadMoreView(LayoutInflater.from(context).inflate(R.layout
+//                .custom_progress_bar, mainRecyclerView, false));
         setEmptyList(context.getString(R.string.loading));
         mainRecyclerView.addItemDecoration(new CustomItemDecoration());
     }
@@ -104,6 +114,7 @@ public class RecyclerViewManager {
     public void setEmptyList(final String message) {
         recyclerViewAdapter.clear();
         mainRecyclerView.setAdapter(null);
+        scrollListener.reset();
         final TextView emptyText = (TextView) mainRecyclerView.findViewById(R.id.empty_text);
         emptyText.setText(message);
         mainRecyclerView.showEmptyView();
@@ -112,6 +123,10 @@ public class RecyclerViewManager {
     public void setNotConnected() {
         setEmptyList(mainRecyclerView.getContext().getString(R.string.not_connected));
         recyclerViewAdapter.clear();
+    }
+
+    public void setRefreshing(final boolean refreshing) {
+        mainRecyclerView.setRefreshing(refreshing);
     }
 
     public void setFilter(final String filter) {
@@ -125,7 +140,7 @@ public class RecyclerViewManager {
     @EventBusHook
     public void onEvent(final ListRefreshEvent listRefreshEvent) {
         recyclerViewAdapter.reset();
-        mainRecyclerView.reenableLoadmore();
+//        mainRecyclerView.reenableLoadmore();
 
     }
 

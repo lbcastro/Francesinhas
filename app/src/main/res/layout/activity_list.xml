@@ -18,15 +18,17 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="?colorPrimary"
             android:theme="@style/GalaxyZooThemeToolbarDarkOverflow"
-            app:layout_scrollFlags="scroll|enterAlways"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
             app:popupTheme="@style/Theme.AppCompat.NoActionBar"/>
     </android.support.design.widget.AppBarLayout>
 
     <com.marshalchen.ultimaterecyclerview.UltimateRecyclerView
         android:id="@+id/fragment_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="fill_vertical"
         android:background="@android:color/transparent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:recyclerviewEmptyView="@layout/empty_list"/>
@@ -36,12 +38,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_m"
-        android:layout_marginEnd="@dimen/margin_m"
         android:clickable="true"
         android:src="@drawable/ic_add_white_24dp"
         app:backgroundTint="@color/blue_bright"
         app:layout_anchor="@id/fragment_recycler_view"
-        app:layout_anchorGravity="bottom|end"
+        app:layout_anchorGravity="bottom|center_horizontal"
         app:layout_behavior="pt.castro.tops.list.decoration.ScrollAwareFABBehavior"
         app:layout_scrollFlags="scroll|enterAlways"/>
 </android.support.design.widget.CoordinatorLayout>

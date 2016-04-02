@@ -3,7 +3,6 @@ package pt.castro.tops.communication;
 import android.os.AsyncTask;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -14,40 +13,36 @@ import pt.castro.tops.events.connection.ConnectionFailedEvent;
 import pt.castro.tops.events.list.ListRetrievedEvent;
 
 /**
- * Created by lourenco.castro on 23/05/15.
+ * Created by lourenco on 29/03/16.
  */
-public class EndpointGetItems extends AsyncTask<Void, Void, Void> {
+public class EndpointSearch extends AsyncTask<String, Void, Void> {
 
-    private static final int ITEMS_PER_PAGE = 20;
-
-    private String cursor;
-    private int count;
+    private String cursor = null;
+    private int count = 0;
 
     public void setCursor(final String cursor) {
         this.cursor = cursor;
     }
 
-    public void setCount(final int count) {
-        this.count = count;
-    }
-
     @Override
-    protected Void doInBackground(Void... params) {
+    protected Void doInBackground(String... params) {
         try {
-            MyApi.ListItems listItems = EndpointApiHolder.getInstance().listItems();
+
+            MyApi.QueryItems items = EndpointApiHolder.getInstance().queryItems(params[0]);
             if (cursor != null) {
-                listItems.setCursor(cursor);
+                items.setCursor(cursor);
             }
             if (count != 0) {
-                listItems.setCount(count);
+                items.setCount(count);
             } else {
-                listItems.setCount(ITEMS_PER_PAGE);
+                items.setCount(10);
             }
-            CollectionResponseItemHolder response = listItems.execute();
+            CollectionResponseItemHolder response = items.execute();
             List<ItemHolder> list = response.getItems();
             String nextToken = response.getNextPageToken();
             if (list == null) {
-                list = Collections.emptyList();
+                EventBus.getDefault().post(new ENoPlacesFound());
+                return null;
             }
             ListRetrievedEvent listRetrievedEvent = new ListRetrievedEvent();
             listRetrievedEvent.setList(list);
@@ -57,5 +52,9 @@ public class EndpointGetItems extends AsyncTask<Void, Void, Void> {
             EventBus.getDefault().post(new ConnectionFailedEvent());
         }
         return null;
+    }
+
+    public class ENoPlacesFound {
+
     }
 }

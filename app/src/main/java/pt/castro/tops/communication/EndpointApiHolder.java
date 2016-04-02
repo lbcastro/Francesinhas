@@ -14,9 +14,7 @@ public class EndpointApiHolder {
 
     public static MyApi getInstance() {
         if (myApiService == null) {  // Only do this once
-            MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(), new
-                    AndroidJsonFactory(), null).setRootUrl("https://2-dot-castro-francesinhas" +
-                    ".appspot.com/_ah/api/");
+            MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null).setRootUrl("https://castro-francesinhas.appspot" + ".com/_ah/api/");
             builder.setApplicationName("Francesinhas");
             myApiService = builder.build();
         }

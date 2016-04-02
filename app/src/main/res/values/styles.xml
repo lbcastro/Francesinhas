@@ -93,7 +93,7 @@
         <item name="colorControlNormal">@android:color/white</item>
     </style>
 
-    <style name="GalaxyZooThemeToolbarDarkOverflow" parent="Theme.AppCompat.NoActionBar">
+    <style name="GalaxyZooThemeToolbarDarkOverflow" parent="Base.Theme">
         <!-- android:textColorPrimary is the  color of the title text
              in the Toolbar, in the Theme.AppCompat theme:  -->
         <item name="android:textColorPrimary">@android:color/white</item>

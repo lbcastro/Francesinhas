@@ -20,6 +20,7 @@ import com.google.appengine.api.datastore.QueryResultIterator;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.cmd.Query;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,8 +35,6 @@ import static pt.castro.tops.backend.OfyService.ofy;
         packagePath = ""))
 public class Endpoint {
 
-    private List<ItemHolder> itemList = Collections.emptyList();
-
     @ApiMethod(name = "listItems")
     public CollectionResponse<ItemHolder> listItems(@Nullable @Named("cursor") String
                                                                 cursorString, @Nullable @Named
@@ -48,7 +47,7 @@ public class Endpoint {
         if (cursorString != null && cursorString != "") {
             query = query.startAt(Cursor.fromWebSafeString(cursorString));
         }
-        itemList = new ArrayList<>();
+        final List<ItemHolder> itemList = new ArrayList<>();
         QueryResultIterator<ItemHolder> iterator = query.iterator();
         int num = 0;
         while (iterator.hasNext()) {
@@ -60,18 +59,59 @@ public class Endpoint {
         }
 
         //Find the next cursor
-//        if (cursorString != null && cursorString != "") {
         Cursor cursor = iterator.getCursor();
         if (cursor != null) {
             cursorString = cursor.toWebSafeString();
         }
-//        }
-        updateRanking();
+        updateRanking(itemList);
         ofy().clear();
         return CollectionResponse.<ItemHolder>builder().setItems(itemList).setNextPageToken
                 (cursorString).build();
     }
 
+    @ApiMethod(name = "queryItems")
+    public CollectionResponse<ItemHolder> queryItems(@Nullable @Named("cursor") String
+                                                                 cursorString, @Nullable @Named
+            ("count") Integer count, @Named("query") String search) {
+        Query<ItemHolder> query = ofy().load().type(ItemHolder.class).order("-votesUp").order
+                ("votesDown");
+
+        if (cursorString != null && cursorString != "") {
+            query = query.startAt(Cursor.fromWebSafeString(cursorString));
+        }
+
+        search = Normalizer.normalize(search, Normalizer.Form.NFD);
+        search = search.replaceAll("[^\\p{ASCII}]", "");
+
+        final List<ItemHolder> itemList = new ArrayList<>();
+        QueryResultIterator<ItemHolder> iterator = query.iterator();
+        int num = 0;
+        while (iterator.hasNext()) {
+            final ItemHolder itemHolder = iterator.next();
+            String name = Normalizer.normalize(itemHolder.getName().toLowerCase(), Normalizer
+                    .Form.NFD);
+            name = name.replaceAll("[^\\p{ASCII}]", "");
+            if (name.contains(search)) {
+                itemList.add(itemHolder);
+                if (count != null) {
+                    num++;
+                    if (num == count) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        //Find the next cursor
+        Cursor cursor = iterator.getCursor();
+        if (cursor != null) {
+            cursorString = cursor.toWebSafeString();
+        }
+        updateRanking(itemList);
+        ofy().clear();
+        return CollectionResponse.<ItemHolder>builder().setItems(itemList).setNextPageToken
+                (cursorString).build();
+    }
 
     @ApiMethod(name = "updateItem")
     public ItemHolder updateItem(ItemHolder itemHolder) throws NotFoundException,
@@ -166,7 +206,7 @@ public class Endpoint {
         return itemHolder;
     }
 
-    private void updateRanking() {
+    private void updateRanking(final List<ItemHolder> itemList) {
         Collections.sort(itemList, new RankingComparator());
         Collections.reverse(itemList);
     }
@@ -215,7 +255,8 @@ public class Endpoint {
             throw new NullPointerException("Item not found");
         } else {
 
-            int previousVote = userHolder.getVotes().get(itemId) == null ? 0 : userHolder.getVote(itemId);
+            int previousVote = userHolder.getVotes().get(itemId) == null ? 0 : userHolder.getVote
+                    (itemId);
             switch (vote) {
                 case -1:
                     if (previousVote == 1) {
