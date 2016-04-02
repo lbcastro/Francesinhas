@@ -166,6 +166,9 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     @Override
     protected void onPause() {
         super.onPause();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         AppEventsLogger.deactivateApp(this);
         unregisterConnectionMonitor();
     }
@@ -174,9 +177,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     public void onStop() {
         mLocationManager.stop();
         super.onStop();
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this);
-        }
         unregisterConnectionMonitor();
         mRecyclerViewManager.stop();
     }
@@ -184,6 +184,9 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         unregisterConnectionMonitor();
     }
 

@@ -3,8 +3,8 @@
     <color name="row_color">@color/blue_light</color>
     <color name="fab_color">@color/blue_light</color>
 
-    <color name="blue">#355C7D</color>
-    <color name="blue_dark">#2e516e</color>
+    <color name="blue">#448AFF</color>
+    <color name="blue_dark">#3974d6</color>
     <color name="blue_darker">#556270</color>
     <color name="black_transparent">#1e000000</color>
     <color name="black_transparent2">#3c000000</color>

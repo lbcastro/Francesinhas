@@ -69,8 +69,7 @@ public class RecyclerViewManager {
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         mainRecyclerView.setLayoutManager(layoutManager);
         mainRecyclerView.setDefaultSwipeToRefreshColorScheme(ContextCompat.getColor(context, R
-                .color.blue_bright), ContextCompat.getColor(context, R.color.blue), ContextCompat
-                .getColor(context, R.color.blue_dark));
+                .color.blue_dark));
 
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override

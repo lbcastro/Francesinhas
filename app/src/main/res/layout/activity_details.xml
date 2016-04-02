@@ -59,8 +59,7 @@
                 app:expandedTitleMarginBottom="@dimen/margin_xl"
                 app:expandedTitleTextAppearance="@style/NewExpandedText"
                 app:layout_collapseMode="pin"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-                app:statusBarScrim="?colorPrimaryDark">
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
                 <com.flaviofaria.kenburnsview.KenBurnsView
                     android:id="@+id/backdrop_image"

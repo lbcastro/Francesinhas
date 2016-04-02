@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_login);
+
         setLayout();
         setAnimations();
 

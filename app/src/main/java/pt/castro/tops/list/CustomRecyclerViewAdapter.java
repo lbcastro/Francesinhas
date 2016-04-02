@@ -153,9 +153,7 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
                     Picasso.with(holder.imageView.getContext()).load(uri).tag(this).into(holder
                             .imageView);
                 } else {
-                    Picasso.with(holder.imageView.getContext()).load(uri).transform(new
-                            RoundedCornersTransformation(40, 0)).fit().tag(this).into(holder
-                            .imageView);
+                    Picasso.with(holder.imageView.getContext()).load(uri).transform(new RoundedCornersTransformation(40, 0)).tag(this).into(holder.imageView);
                 }
                 holder.bottomShadow.setVisibility(View.VISIBLE);
                 holder.imageView.setTag(itemHolder.getPhotoUrl());
