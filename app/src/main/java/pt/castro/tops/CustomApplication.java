@@ -14,6 +14,7 @@ import org.acra.annotation.ReportsCrashes;
 import org.acra.sender.HttpSender;
 
 import de.greenrobot.event.EventBus;
+import pt.castro.tops.tools.NotificationUtils;
 
 /**
  * Created by lourenco on 10/01/16.
@@ -54,6 +55,13 @@ public class CustomApplication extends Application {
         Picasso.setSingletonInstance(picasso);
         mPlacesManager = new PlacesManager();
         mUsersManager = new UsersManager();
+        EventBus.clearCaches();
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        NotificationUtils.clear();
         EventBus.clearCaches();
     }
 }

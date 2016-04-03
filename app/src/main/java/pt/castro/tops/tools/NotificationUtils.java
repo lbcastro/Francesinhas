@@ -52,4 +52,8 @@ public class NotificationUtils {
     public static void toastCustomText(final Context context, final int textResource) {
         showToast(context, textResource, Toast.LENGTH_SHORT);
     }
+
+    public static void clear() {
+        sActiveToast = null;
+    }
 }
