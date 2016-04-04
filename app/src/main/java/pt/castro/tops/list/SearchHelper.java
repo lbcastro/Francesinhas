@@ -31,11 +31,6 @@ public class SearchHelper {
         }
     }
 
-//    @EventBusHook
-//    public void onEventMainThread(final ListRetrievedEvent listRetrievedEvent) {
-//        mNextToken = listRetrievedEvent.getToken();
-//    }
-
     @EventBusHook
     public void onEventMainThread(final ListRefreshEvent listRefreshEvent) {
         if (!mSearchView.isIconified()) {
@@ -55,17 +50,13 @@ public class SearchHelper {
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (!query.isEmpty()) {
-                    search(query);
-                }
+                search(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (!newText.isEmpty()) {
-                    search(newText);
-                }
+                search(newText);
                 return false;
             }
         });
@@ -82,18 +73,25 @@ public class SearchHelper {
         if (mLastQuery != null && query.equals(mLastQuery)) {
             return;
         }
-        mLastQuery = query;
         if (searchThread != null) {
             searchThread.removeCallbacksAndMessages(null);
+            searchThread = null;
+        }
+        mLastQuery = query;
+        if (query.isEmpty()) {
+            resetItems();
+            mSearchView.setIconified(true);
+            mSearchView.clearFocus();
+            return;
         }
         mObserver.onSearchStart();
         searchThread = new Handler();
         searchThread.postDelayed(new Runnable() {
             @Override
             public void run() {
+                searchThread = null;
                 new EndpointSearch().execute(query);
                 CustomApplication.getPlacesManager().clear();
-                searchThread = null;
             }
         }, 1000);
     }
@@ -104,7 +102,7 @@ public class SearchHelper {
     }
 
     public void resetSearchView() {
-        mSearchView.setQuery("", true);
+        mSearchView.setQuery("", false);
         mSearchView.setIconified(true);
         mSearchView.clearFocus();
     }

@@ -6,7 +6,6 @@
                                                  android:layout_height="match_parent"
                                                  android:background="@color/background"
                                                  android:fitsSystemWindows="true"
-                                                 app:statusBarBackground="@android:color/transparent"
                                                  tools:context="pt.castro.tops.list.ListActivity">
 
     <android.support.design.widget.AppBarLayout

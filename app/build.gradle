@@ -13,8 +13,8 @@ android {
         applicationId "pt.castro.tops"
         minSdkVersion 17
         targetSdkVersion 23
-        versionCode 20
-        versionName "0.8.2"
+        versionCode 21
+        versionName "0.8.3"
 
         renderscriptTargetApi 20
         renderscriptSupportModeEnabled true
@@ -44,7 +44,7 @@ dependencies {
 
     // Layout
     compile 'com.pnikosis:materialish-progress:1.7'
-    compile 'com.roughike:bottom-bar:1.2.4'
+    compile 'com.roughike:bottom-bar:1.2.7'
     compile 'com.flaviofaria:kenburnsview:1.0.7'
     compile 'com.github.ppamorim:dragger:1.2'
     compile 'com.marshalchen.ultimaterecyclerview:library:0.4.0'

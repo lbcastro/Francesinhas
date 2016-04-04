@@ -27,7 +27,6 @@ public class EndpointSearch extends AsyncTask<String, Void, Void> {
     @Override
     protected Void doInBackground(String... params) {
         try {
-
             MyApi.QueryItems items = EndpointApiHolder.getInstance().queryItems(params[0]);
             if (cursor != null) {
                 items.setCursor(cursor);
@@ -49,6 +48,7 @@ public class EndpointSearch extends AsyncTask<String, Void, Void> {
             listRetrievedEvent.setToken(nextToken);
             EventBus.getDefault().post(listRetrievedEvent);
         } catch (IOException e) {
+            e.printStackTrace();
             EventBus.getDefault().post(new ConnectionFailedEvent());
         }
         return null;

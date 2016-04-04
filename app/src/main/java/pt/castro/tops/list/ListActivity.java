@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -78,10 +77,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     private PermissionsManager mPermissionsManager;
     private LocationManager mLocationManager;
 
-//    private String mUserId;
-
     private UserHolder mCurrentUser;
-    //    private SearchView mSearchView;
     private String mNextToken;
 
     private boolean mConnectedState;
@@ -110,8 +106,10 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     }
 
     private void setBottomBar(final Bundle savedInstanceState) {
-        mBottomBar = BottomBar.attachShy((CoordinatorLayout) findViewById(R.id.coordinator),
-                findViewById(R.id.fragment_recycler_view), savedInstanceState);
+//        mBottomBar = BottomBar.attachShy((CoordinatorLayout) findViewById(R.id.coordinator),
+//                findViewById(R.id.fragment_recycler_view), savedInstanceState);
+        mBottomBar = BottomBar.attach(this, savedInstanceState);
+        mBottomBar.noNavBarGoodness();
         mBottomBar.setItemsFromMenu(R.menu.bottombar_menu, new OnMenuTabClickListener() {
             @Override
             public void onMenuTabSelected(@IdRes int menuItemId) {
@@ -130,10 +128,10 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
         // Setting colors for different tabs when there's more than three of them.
         // You can set colors for tabs in three different ways as shown below.
-        mBottomBar.setActiveTabColor(ContextCompat.getColor(this, R.color.blue_bright));
-        mBottomBar.mapColorForTab(0, ContextCompat.getColor(this, R.color.blue_bright));
-        mBottomBar.mapColorForTab(1, ContextCompat.getColor(this, R.color.blue_bright));
-        mBottomBar.mapColorForTab(2, ContextCompat.getColor(this, R.color.blue_bright));
+        mBottomBar.mapColorForTab(0, ContextCompat.getColor(this, R.color.dark_gray));
+        mBottomBar.mapColorForTab(1, 0xFF5D4037);
+        mBottomBar.mapColorForTab(2, "#7B1FA2");
+        mBottomBar.mapColorForTab(3, "#7B1FA2");
     }
 
     @Override
@@ -404,6 +402,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     private void notConnectedState() {
         floatingActionButton.hide();
         mRecyclerViewManager.setNotConnected();
+        mNextToken = null;
     }
 
     private void connectedState() {
