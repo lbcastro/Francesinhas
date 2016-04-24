@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?colorPrimary"
-            android:theme="@style/GalaxyZooThemeToolbarDarkOverflow"
+            android:theme="@style/ToolbarTheme"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:popupTheme="@style/Theme.AppCompat.NoActionBar"/>
 

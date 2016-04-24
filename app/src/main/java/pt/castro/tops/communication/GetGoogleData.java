@@ -37,6 +37,7 @@ public class GetGoogleData extends AsyncTask<String, Void, String> {
     private final static int MODE_LOCATION = 0;
     private final static int MODE_PHOTOS = 1;
     private final static int MODE_RATING = 2;
+    private final static int MODE_DETAILS = 3;
 
     private final static String METHOD_DETAILS = "details";
     private final static String BROWSER_KEY = "AIzaSyDSQ408Gts6XQxTEaec8b38sCIMSQWuoc4";
@@ -57,16 +58,15 @@ public class GetGoogleData extends AsyncTask<String, Void, String> {
     }
 
     private static String buildUrl(String method, String params) {
-        return String.format(Locale.ENGLISH, "%s%s/json?%s", "https://maps.googleapis"
-                + ".com/maps/api/place/", method, params);
+        return String.format(Locale.ENGLISH, "%s%s/json?%s", "https://maps.googleapis" + "" +
+                ".com/maps/api/place/", method, params);
     }
 
     public void getAllPhotos() {
         final String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s",
                 localItemHolder.getItemHolder().getId(), BROWSER_KEY));
         this.activeMode = MODE_PHOTOS;
-//        Log.d("GetPlace", uri);
-//        this.execute(uri);
+        this.execute(uri);
     }
 
     public void getLocation() {
@@ -83,14 +83,21 @@ public class GetGoogleData extends AsyncTask<String, Void, String> {
         this.execute(uri);
     }
 
+    public void getDetails() {
+        final String uri = buildUrl(METHOD_DETAILS, String.format("placeid=%s&key=%s",
+                localItemHolder.getItemHolder().getId(), BROWSER_KEY));
+        this.activeMode = MODE_DETAILS;
+        this.execute(uri);
+    }
+
     protected String doInBackground(String... urls) {
         final StringBuilder stringBuilder = new StringBuilder();
         try {
             final URL url = new URL(urls[0]);
             final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                final BufferedReader reader = new BufferedReader(new InputStreamReader
-                        (connection.getInputStream()));
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(connection
+                        .getInputStream()));
                 String line;
                 while ((line = reader.readLine()) != null) {
                     stringBuilder.append(line);
@@ -121,15 +128,21 @@ public class GetGoogleData extends AsyncTask<String, Void, String> {
                     processPhotos(result.optJSONArray("photos"));
                     break;
                 case MODE_LOCATION:
-                    processLocation(result.getJSONObject("geometry").getJSONObject
-                            ("location"));
+                    processLocation(result.getJSONObject("geometry").getJSONObject("location"));
                     break;
                 case MODE_RATING:
                     processRating(result);
                     break;
+                case MODE_DETAILS:
+                    processDetails(result);
+                    break;
             }
         } catch (JSONException ignored) {
         }
+    }
+
+    private void processDetails(final JSONObject jsonObject) {
+        Log.d("GoogleData", jsonObject.toString());
     }
 
     private void processRating(final JSONObject jsonObject) throws JSONException {
@@ -147,14 +160,13 @@ public class GetGoogleData extends AsyncTask<String, Void, String> {
             for (int i = 0; i < photosSize; i++) {
                 JSONObject jsonPhoto = jsonPhotos.getJSONObject(i);
                 String photoReference = jsonPhoto.getString("photo_reference");
-                int width = jsonPhoto.getInt("width"), height = jsonPhoto.getInt
-                        ("height");
+                int width = jsonPhoto.getInt("width"), height = jsonPhoto.getInt("height");
                 photos.add(new PhotoReference(photoReference, width, height));
             }
             PhotoReference reference = null;
             for (int x = 0; x < photosSize; x++) {
-                if ((reference != null && photos.get(x).getWidth() > reference.getWidth
-                        ()) || reference == null) {
+                if ((reference != null && photos.get(x).getWidth() > reference.getWidth()) ||
+                        reference == null) {
                     reference = photos.get(x);
                 }
             }
@@ -163,9 +175,8 @@ public class GetGoogleData extends AsyncTask<String, Void, String> {
                 return;
             }
             final ItemHolder itemHolder = localItemHolder.getItemHolder();
-            itemHolder.setPhotoUrl(buildPhotoUrl(String.format
-                    ("maxwidth=%s&photoreference=%s&key=%s", reference.getWidth(),
-                            reference.getReference(), BROWSER_KEY)));
+            itemHolder.setPhotoUrl(buildPhotoUrl(String.format("maxwidth=%s&photoreference=%s&key" +
+                    "=%s", reference.getWidth(), reference.getReference(), BROWSER_KEY)));
             new EndpointsAsyncTask(EndpointsAsyncTask.UPDATE).execute(itemHolder);
         } else {
             Log.d("Photos", "No photos found");

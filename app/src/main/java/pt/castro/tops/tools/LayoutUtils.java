@@ -3,12 +3,17 @@ package pt.castro.tops.tools;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.Random;
 
@@ -102,5 +107,31 @@ public class LayoutUtils {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private static void setTranslucentStatusBarKiKat(Window window) {
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    }
+
+    public static CardView generateCardView(final Context context, final ViewGroup parent, final
+    String label, final int drawableResource, final String content) {
+        final CardView cardView = (CardView) LayoutInflater.from(context).inflate(R.layout
+                .details_card, parent, false);
+        final TextView labelView = (TextView) cardView.findViewById(R.id.details_card_label);
+        labelView.setText(label);
+        labelView.setCompoundDrawablesWithIntrinsicBounds(PhotoUtils.tintedDrawable(context,
+                drawableResource), null, null, null);
+        final TextView contentView = (TextView) cardView.findViewById(R.id.details_card_content);
+        contentView.setText(content, TextView.BufferType.SPANNABLE);
+        return cardView;
+    }
+
+    public static LinearLayout generateDetailsLinear(final Context context, final ViewGroup
+            parent, final String label, final int drawableResource, final String content) {
+        final LinearLayout linearL = (LinearLayout) LayoutInflater.from(context).inflate(R.layout
+                .details_linear, parent, false);
+        final TextView labelView = (TextView) linearL.findViewById(R.id.details_linear_label);
+        labelView.setText(label);
+        labelView.setCompoundDrawablesWithIntrinsicBounds(PhotoUtils.tintedDrawable(context,
+                drawableResource), null, null, null);
+        final TextView contentView = (TextView) linearL.findViewById(R.id.details_linear_content);
+        contentView.setText(content, TextView.BufferType.SPANNABLE);
+        return linearL;
     }
 }

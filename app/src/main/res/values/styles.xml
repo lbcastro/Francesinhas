@@ -65,6 +65,21 @@
         <item name="android:textSize">18sp</item>
     </style>
 
+    <style name="Text.Details.Label" parent="Text.Header.4">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">@dimen/margin_m</item>
+    </style>
+
+    <style name="Text.Details.Content" parent="Text.Header.3">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">@dimen/margin_xl</item>
+        <item name="android:paddingEnd">@dimen/margin_xl</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
     <style name="Text.Votes" parent="Text.Default">
         <item name="android:gravity">center</item>
         <item name="android:maxEms">3</item>
@@ -93,30 +108,29 @@
         <item name="colorControlNormal">@android:color/white</item>
     </style>
 
-    <style name="GalaxyZooThemeToolbarDarkOverflow" parent="Base.Theme">
-        <!-- android:textColorPrimary is the  color of the title text
-             in the Toolbar, in the Theme.AppCompat theme:  -->
+    <style name="ToolbarTheme" parent="Base.Theme">
         <item name="android:textColorPrimary">@android:color/white</item>
-
-        <!-- android:textColorPrimaryInverse is the  color of the title
-             text in the Toolbar, in the Theme.AppCompat.Light theme:  -->
-        <!-- <item name="android:textColorPrimaryInverse">@color/abc_primary_text_material_light</item> -->
-
-        <!-- android:actionMenuTextColor is the color of the text of
-              action (menu) items in the Toolbar, at least in the
-              Theme.AppCompat theme.
-              For some reason, they already get the textColorPrimary
-              when running on API 21, but not on older versions of
-              Android, so this is only necessary to support older
-              Android versions.-->
         <item name="actionMenuTextColor">@android:color/white</item>
-        <!-- android:textColorSecondary is the color of the menu
-             overflow icon (three vertical dots) -->
         <item name="android:textColorSecondary">@android:color/white</item>
+    </style>
 
-        <!-- This would set the toolbar's background color,
-              but setting this also changes the popup menu's background,
-              even if we define popupTheme for our <Toolbar> -->
-        <!-- <item name="android:background">@color/color_primary</item> -->
+    <style name="DetailsLinearParent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:minHeight">80dp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingBottom">@dimen/margin_m</item>
+    </style>
+
+    <style name="DetailsCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">@dimen/card_margin_horizontal</item>
+        <item name="android:layout_marginRight">@dimen/card_margin_horizontal</item>
+        <item name="android:layout_marginTop">@dimen/card_margin_vertical</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="cardPreventCornerOverlap">false</item>
     </style>
 </resources>

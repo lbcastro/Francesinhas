@@ -1,6 +1,8 @@
 package pt.castro.tops.list.decoration;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
 import android.support.design.widget.CoordinatorLayout;
@@ -63,6 +65,7 @@ public abstract class VerticalScrollingBehavior<V extends View> extends Coordina
                                                     View target, int dx, int dy, int[] consumed,
                                                     @ScrollDirection int scrollDirection);
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, V child, View
             directTargetChild, View target, int nestedScrollAxes) {

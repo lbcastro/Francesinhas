@@ -90,13 +90,12 @@
         <android.support.v4.widget.NestedScrollView
             android:id="@+id/nested_scroll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:overScrollMode="always"
             app:behavior_overlapTop="64dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
-                android:id="@+id/details_parent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="top"
@@ -104,16 +103,8 @@
                 android:orientation="vertical">
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/details_map_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="260dp"
-                    android:layout_marginLeft="@dimen/card_margin_horizontal"
-                    android:layout_marginRight="@dimen/card_margin_horizontal"
-                    android:layout_marginTop="@dimen/card_margin_vertical"
-                    android:animateLayoutChanges="true"
-                    android:background="@android:color/white"
-                    app:cardElevation="@dimen/card_elevation"
-                    card_view:cardPreventCornerOverlap="false">
+                    style="@style/DetailsCard"
+                    android:layout_height="260dp">
 
                     <TextView
                         style="@style/Text.Header.2"
@@ -154,13 +145,9 @@
 
                         <TextView
                             android:id="@+id/details_address_content"
-                            style="@style/Text.Header.3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/Text.Details.Content"
                             android:autoLink="map"
                             android:maxLines="5"
-                            android:paddingLeft="@dimen/margin_xl"
-                            android:paddingRight="@dimen/margin_xl"
                             tools:text="Dummy address"/>
                     </LinearLayout>
 
@@ -169,44 +156,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="?attr/selectableItemBackground"/>
-                </android.support.v7.widget.CardView>
-
-                <android.support.v7.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/card_margin_horizontal"
-                    android:layout_marginRight="@dimen/card_margin_horizontal"
-                    android:layout_marginTop="@dimen/card_margin_vertical"
-                    android:background="@android:color/white"
-                    app:cardElevation="@dimen/card_elevation">
-
-                    <LinearLayout
-                        android:id="@+id/details_phone_parent"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:orientation="vertical"
-                        android:paddingBottom="@dimen/margin_m">
-
-                        <TextView
-                            android:id="@+id/details_phone_label"
-                            style="@style/Text.Header.4"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:drawableStart="@drawable/ic_local_phone_black_24dp"
-                            android:paddingTop="@dimen/margin_m"
-                            android:text="@string/details_phone"/>
-
-                        <TextView
-                            android:id="@+id/details_phone_content"
-                            style="@style/Text.Header.3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingLeft="@dimen/margin_xl"
-                            android:paddingRight="@dimen/margin_xl"/>
-                    </LinearLayout>
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
@@ -229,83 +178,16 @@
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/card_margin_horizontal"
-                    android:layout_marginRight="@dimen/card_margin_horizontal"
-                    android:layout_marginTop="@dimen/card_margin_vertical"
-                    app:cardElevation="@dimen/card_elevation">
+                    style="@style/DetailsCard"
+                    android:layout_marginBottom="@dimen/card_margin_vertical">
 
                     <LinearLayout
-                        android:id="@+id/details_url_parent"
+                        android:id="@+id/details_parent"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="?attr/selectableItemBackground"
-                        android:orientation="vertical"
-                        android:paddingBottom="@dimen/margin_m">
-
-                        <TextView
-                            android:id="@+id/details_url_label"
-                            style="@style/Text.Header.4"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:drawableStart="@drawable/ic_public_black_24dp"
-                            android:paddingTop="@dimen/margin_m"
-                            android:text="@string/details_website"/>
-
-                        <TextView
-                            android:id="@+id/details_url_content"
-                            style="@style/Text.Header.3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:includeFontPadding="true"
-                            android:paddingEnd="@dimen/margin_m"
-                            android:paddingStart="@dimen/margin_xl"
-                            android:singleLine="true"/>
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
                     </LinearLayout>
-                </android.support.v7.widget.CardView>
 
-                <android.support.v7.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/card_margin_vertical"
-                    android:layout_marginLeft="@dimen/card_margin_horizontal"
-                    android:layout_marginRight="@dimen/card_margin_horizontal"
-                    android:layout_marginTop="@dimen/card_margin_vertical"
-                    app:cardElevation="@dimen/card_elevation">
-
-                    <LinearLayout
-                        android:id="@+id/details_price_parent"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="?attr/selectableItemBackground"
-                        android:orientation="vertical"
-                        android:paddingBottom="@dimen/margin_m">
-
-                        <TextView
-                            android:id="@+id/details_price_label"
-                            style="@style/Text.Header.4"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:drawableStart="@drawable/ic_account_balance_wallet_black_24dp"
-                            android:paddingTop="@dimen/margin_m"
-                            android:text="@string/price_range"/>
-
-                        <TextView
-                            android:id="@+id/details_price_content"
-                            style="@style/Text.Header.3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:includeFontPadding="true"
-                            android:paddingEnd="@dimen/margin_m"
-                            android:paddingStart="@dimen/margin_xl"
-                            android:paddingTop="@dimen/margin_s"
-                            android:singleLine="true"
-                            android:textSize="18sp"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
                 </android.support.v7.widget.CardView>
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>

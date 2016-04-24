@@ -49,8 +49,7 @@ public class CustomApplication extends Application {
         ACRA.init(this);
         LeakCanary.install(this);
         FacebookSdk.sdkInitialize(getApplicationContext());
-        Picasso picasso = new Picasso.Builder(this).indicatorsEnabled(true).memoryCache(new
-                LruCache(5000000)) // Maybe something fishy here?
+        Picasso picasso = new Picasso.Builder(this).indicatorsEnabled(true).memoryCache(new LruCache(5000000))
                 .build();
         Picasso.setSingletonInstance(picasso);
         mPlacesManager = new PlacesManager();

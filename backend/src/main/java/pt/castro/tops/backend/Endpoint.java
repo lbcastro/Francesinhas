@@ -287,11 +287,20 @@ public class Endpoint {
         }
     }
 
+//    private class RankingComparator implements Comparator<ItemHolder> {
+//        @Override
+//        public int compare(ItemHolder o1, ItemHolder o2) {
+//            int delta1 = o1.getVotesUp() - o1.getVotesDown();
+//            int delta2 = o2.getVotesUp() - o2.getVotesDown();
+//            return delta1 < delta2 ? -1 : delta1 == delta2 ? 0 : 1;
+//        }
+//    }
+
     private class RankingComparator implements Comparator<ItemHolder> {
         @Override
         public int compare(ItemHolder o1, ItemHolder o2) {
-            int delta1 = o1.getVotesUp() - o1.getVotesDown();
-            int delta2 = o2.getVotesUp() - o2.getVotesDown();
+            int delta1 = (o1.getVotesUp() - o1.getVotesDown()) * o1.getVotesUp();
+            int delta2 = (o2.getVotesUp() - o2.getVotesDown()) * o2.getVotesUp();
             return delta1 < delta2 ? -1 : delta1 == delta2 ? 0 : 1;
         }
     }

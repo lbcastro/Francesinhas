@@ -13,7 +13,7 @@
     <color name="blue_facebook">#3B5998</color>
     <color name="dark_gray">#4a4647</color>
     <color name="light_gray">#ccbfbf</color>
-    <color name="background">#e1e1e1</color>
+    <color name="background">#EEEEEE</color>
     <color name="orange_best">#FD9E0D</color>
     <color name="red_transparent">#32FF5252</color>
     <color name="white_transparent">#64ffffff</color>
@@ -22,7 +22,7 @@
     <color name="teal_faded">#80CBC4</color>
     <color name="indigo_faded">#9FA8DA</color>
     <color name="purple_faded">#B39DDB</color>
-    <color name="red_faded">#FF5254</color>
+    <color name="red_faded">#F44336</color>
     <color name="pink_faded">#F48FB1</color>
     <color name="green_faded">#A5D6A7</color>
     <color name="yellow_faded">#FFF59D</color>

@@ -141,6 +141,8 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
             if (mPermissionsManager.hasLocationPermission(this)) {
                 mLocationManager.setup(this);
                 mLocationManager.start();
+            } else {
+                getItems();
             }
         }
     }
@@ -152,7 +154,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
             EventBus.getDefault().register(this);
         }
         mLocationManager.start();
-        AppEventsLogger.activateApp(this);
+        AppEventsLogger.activateApp(getApplication());
         if (mConnectedState) {
             floatingActionButton.show();
 //            mBottomBar.show();
@@ -167,7 +169,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
-        AppEventsLogger.deactivateApp(this);
         unregisterConnectionMonitor();
     }
 
@@ -186,11 +187,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
             EventBus.getDefault().unregister(this);
         }
         unregisterConnectionMonitor();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
     }
 
     @Override

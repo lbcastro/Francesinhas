@@ -3,16 +3,16 @@
     <item
         android:id="@+id/bottomBarItemOne"
         android:icon="@drawable/ic_account_balance_wallet_black_24dp"
-        android:title="Price"/>
+        android:title="@string/bottom_price"/>
     <item
         android:id="@+id/bottomBarItemTwo"
         android:icon="@drawable/ic_public_black_24dp"
-        android:title="Ranking"/>
+        android:title="@string/bottom_ranking"/>
 
     <item
         android:id="@+id/bottomBarItemThree"
         android:icon="@drawable/ic_map_black_24dp"
-        android:title="Distance"/>
+        android:title="@string/bottom_distance"/>
 
     <item
         android:id="@+id/bottomBarItemFour"

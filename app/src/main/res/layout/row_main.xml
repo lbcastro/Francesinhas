@@ -13,7 +13,7 @@
     android:descendantFocusability="blocksDescendants"
     card_view:cardCornerRadius="2dp"
     card_view:cardPreventCornerOverlap="false"
-    tools:cardElevation="@dimen/margin_s">
+    tools:cardElevation="@dimen/card_elevation">
 
     <RelativeLayout
         android:id="@+id/clickable_parent"

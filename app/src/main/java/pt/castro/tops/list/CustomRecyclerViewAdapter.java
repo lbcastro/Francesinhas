@@ -20,6 +20,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -153,7 +154,8 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
                     Picasso.with(holder.imageView.getContext()).load(uri).tag(this).into(holder
                             .imageView);
                 } else {
-                    Picasso.with(holder.imageView.getContext()).load(uri).transform(new RoundedCornersTransformation(40, 0)).tag(this).into(holder.imageView);
+                    Picasso.with(holder.imageView.getContext()).load(uri).transform(new
+                            RoundedCornersTransformation(40, 0)).tag(this).into(holder.imageView);
                 }
                 holder.bottomShadow.setVisibility(View.VISIBLE);
                 holder.imageView.setTag(itemHolder.getPhotoUrl());
@@ -163,17 +165,18 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
                     (holder.imageView);
             holder.bottomShadow.setVisibility(View.VISIBLE);
         }
-        holder.rankingTextView.setText(Integer.toString(position + 1));
+        holder.rankingTextView.setText(String.format(Locale.getDefault(), "%s", position + 1));
         holder.titleTextView.setText(itemHolder.getName());
 
         float distance = visibleItems.get(adapterPosition).getDistance();
         if (distance == -1) {
             holder.locationTextView.setText(itemHolder.getLocation().trim());
         } else {
-            holder.locationTextView.setText(Float.toString(distance) + "km");
+            holder.locationTextView.setText(String.format(Locale.getDefault(), "%skm", distance));
         }
-        holder.votesUp.setText(Integer.toString(itemHolder.getVotesUp()));
-        holder.votesDown.setText(Integer.toString(itemHolder.getVotesDown()));
+        holder.votesUp.setText(String.format(Locale.getDefault(), "%s", itemHolder.getVotesUp()));
+        holder.votesDown.setText(String.format(Locale.getDefault(), "%s", itemHolder.getVotesDown
+                ()));
         switch (visibleItems.get(adapterPosition).getUserVote()) {
             case -1:
                 holder.setVoteDownSelected();
@@ -353,8 +356,9 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
             itemHolder.setVotesUp(votesUp);
             itemHolder.setVotesDown(votesDown);
 
-            this.votesUp.setText(Integer.toString(votesUp));
-            this.votesDown.setText(Integer.toString(votesDown));
+            this.votesUp.setText(String.format(Locale.getDefault(), "%s", itemHolder.getVotesUp()));
+            this.votesDown.setText(String.format(Locale.getDefault(), "%s", itemHolder
+                    .getVotesDown()));
 
             if (vote == localItemHolder.getUserVote()) {
                 localItemHolder.setUserVote(0);

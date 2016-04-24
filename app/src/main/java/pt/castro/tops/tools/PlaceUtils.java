@@ -98,6 +98,10 @@ public class PlaceUtils {
             GetGoogleData getGoogleData = new GetGoogleData(localItemHolder);
             getGoogleData.getRating();
         }
+        if (itemHolder.getPhone() == null) {
+            GetGoogleData getGoogleData = new GetGoogleData(localItemHolder);
+            getGoogleData.getDetails();
+        }
 
         // Zomato data
         if (itemHolder.getZomatoUrl() == null) {
