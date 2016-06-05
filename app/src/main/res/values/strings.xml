@@ -32,6 +32,6 @@
     <string name="log_in_with_google">Log in with Google</string>
     <string name="log_in_with_facebook">Log in with Facebook</string>
     <string name="bottom_price">Price</string>
-    <string name="bottom_ranking">Ranking</string>
-    <string name="bottom_distance">Distance</string>
+    <string name="bottom_ranking">Best</string>
+    <string name="bottom_distance">Nearby</string>
 </resources>

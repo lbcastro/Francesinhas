@@ -25,4 +25,7 @@
     <string name="not_connected">Sem ligação!</string>
     <string name="log_in_with_facebook">Log in - Facebook</string>
     <string name="log_in_with_google">Log in - Google</string>
+    <string name="bottom_distance">Distância</string>
+    <string name="bottom_price">Preço</string>
+    <string name="bottom_ranking">Classificação</string>
 </resources>

@@ -29,7 +29,7 @@ import pt.castro.tops.tools.NotificationUtils;
         customReportContent = {ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME,
                 ReportField.ANDROID_VERSION, ReportField.PACKAGE_NAME, ReportField.REPORT_ID,
                 ReportField.BUILD, ReportField.STACK_TRACE},
-        mode = ReportingInteractionMode.SILENT)
+        mode = ReportingInteractionMode.NOTIFICATION)
 public class CustomApplication extends Application {
 
     private static PlacesManager mPlacesManager;

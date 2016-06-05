@@ -1,7 +1,9 @@
 package pt.castro.tops.tools;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -88,7 +91,7 @@ public class LayoutUtils {
         v.startAnimation(a);
     }
 
-    public static void setTranslucentStatusBar(Window window) {
+    public static void setTransparentStatusBar(Window window) {
         if (window == null) return;
         int sdkInt = Build.VERSION.SDK_INT;
         if (sdkInt >= Build.VERSION_CODES.LOLLIPOP) {
@@ -133,5 +136,38 @@ public class LayoutUtils {
         final TextView contentView = (TextView) linearL.findViewById(R.id.details_linear_content);
         contentView.setText(content, TextView.BufferType.SPANNABLE);
         return linearL;
+    }
+
+    public static void addStarImage(final Context context, final ViewGroup parent, final int
+            drawableResource) {
+        final ImageView star = (ImageView) LayoutInflater.from(context).inflate(R.layout
+                .rating_star, parent, false);
+        star.setBackgroundResource(drawableResource);
+        parent.addView(star);
+    }
+
+    public static void setWindowFlag(Activity activity, final int bits, boolean on) {
+        Window win = activity.getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
+    }
+
+    public static void setTransparentStatusBar(final Activity activity) {
+        if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
+            setWindowFlag(activity, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true);
+        }
+        if (Build.VERSION.SDK_INT >= 19) {
+            activity.getWindow().getDecorView().setSystemUiVisibility(View
+                    .SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+        if (Build.VERSION.SDK_INT >= 21) {
+            setWindowFlag(activity, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false);
+            activity.getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
     }
 }

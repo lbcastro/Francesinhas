@@ -35,6 +35,20 @@ import static pt.castro.tops.backend.OfyService.ofy;
         packagePath = ""))
 public class Endpoint {
 
+    public static double distFrom(double lat1, double lng1, double lat2, double lng2) {
+        double earthRadius = 6371.0; // miles (or 6371.0 kilometers)
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double sindLat = Math.sin(dLat / 2);
+        double sindLng = Math.sin(dLng / 2);
+        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(Math.toRadians(lat1)) *
+                Math.cos(Math.toRadians(lat2));
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double dist = earthRadius * c;
+
+        return dist;
+    }
+
     @ApiMethod(name = "listItems")
     public CollectionResponse<ItemHolder> listItems(@Nullable @Named("cursor") String
                                                                 cursorString, @Nullable @Named
@@ -99,6 +113,45 @@ public class Endpoint {
                         break;
                     }
                 }
+            }
+        }
+
+        //Find the next cursor
+        Cursor cursor = iterator.getCursor();
+        if (cursor != null) {
+            cursorString = cursor.toWebSafeString();
+        }
+        updateRanking(itemList);
+        ofy().clear();
+        return CollectionResponse.<ItemHolder>builder().setItems(itemList).setNextPageToken
+                (cursorString).build();
+    }
+
+    public CollectionResponse<ItemHolder> getNearby(@Nullable @Named("cursor") String
+                                                            cursorString, @Nullable @Named
+            ("count") Integer count, @Nullable @Named("latitude") float latitude, @Nullable
+    @Named("longitude") float longitude) {
+        Query<ItemHolder> query = ofy().load().type(ItemHolder.class).order("-votesUp").order
+                ("votesDown");
+        if (cursorString != null && cursorString != "") {
+            query = query.startAt(Cursor.fromWebSafeString(cursorString));
+        }
+
+
+        final List<ItemHolder> itemList = new ArrayList<>();
+        QueryResultIterator<ItemHolder> iterator = query.iterator();
+        int num = 0;
+        while (iterator.hasNext()) {
+            final ItemHolder itemHolder = iterator.next();
+            double distance = distFrom(latitude, longitude, itemHolder.getLatitude(), itemHolder
+                    .getLongitude());
+            if (distance > 5) {
+                continue;
+            }
+            itemList.add(itemHolder);
+            if (count != null) {
+                num++;
+                if (num == count) break;
             }
         }
 
@@ -286,15 +339,6 @@ public class Endpoint {
             return userHolder;
         }
     }
-
-//    private class RankingComparator implements Comparator<ItemHolder> {
-//        @Override
-//        public int compare(ItemHolder o1, ItemHolder o2) {
-//            int delta1 = o1.getVotesUp() - o1.getVotesDown();
-//            int delta2 = o2.getVotesUp() - o2.getVotesDown();
-//            return delta1 < delta2 ? -1 : delta1 == delta2 ? 0 : 1;
-//        }
-//    }
 
     private class RankingComparator implements Comparator<ItemHolder> {
         @Override

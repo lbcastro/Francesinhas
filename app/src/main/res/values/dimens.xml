@@ -6,15 +6,18 @@
     <dimen name="margin_s">8dp</dimen>
     <dimen name="margin_xs">4dp</dimen>
 
-    <dimen name="row_bottom_bar_height">48dp</dimen>
+    <dimen name="row_bottom_bar_height">38dp</dimen>
     <dimen name="row_main_height">200dp</dimen>
     <dimen name="details_header_height">240dp</dimen>
     <dimen name="map_view_height">144dp</dimen>
+    <dimen name="row_image_height">144dp</dimen>
+    <dimen name="row_max_width">176dp</dimen>
 
     <dimen name="icon_size">32dp</dimen>
     <dimen name="ranking_size">48dp</dimen>
     <dimen name="button_size">72dp</dimen>
 
+    <dimen name="text_row_title">18sp</dimen>
     <dimen name="text_size_s">14sp</dimen>
     <dimen name="text_size_m">15sp</dimen>
     <dimen name="text_size_l">32sp</dimen>

@@ -85,11 +85,14 @@
         <item name="android:maxEms">3</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/text_size_m</item>
+        <item name="android:fontFeatureSettings">onum</item>
+        <item name="android:letterSpacing">0.02</item>
     </style>
 
     <style name="ExpandedText" parent="@android:style/TextAppearance.StatusBar.Title">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
     <style name="NewExpandedText" parent="@android:style/TextAppearance.Medium">
@@ -133,4 +136,5 @@
         <item name="cardElevation">@dimen/card_elevation</item>
         <item name="cardPreventCornerOverlap">false</item>
     </style>
+
 </resources>

@@ -1,13 +1,10 @@
 package pt.castro.tops.details;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -21,8 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -57,10 +52,10 @@ import pt.castro.tops.tools.PhotoUtils;
  */
 public class DetailsActivity extends AppCompatActivity {
 
-    private static List<Segment> segments = new LinkedList<Segment>();
+    private static List<Segment> segments = new LinkedList<>();
 
     static {
-        segments.add(new HeadSegment()); // must be first
+        segments.add(new HeadSegment());
         segments.add(new MapTypeSegment());
         segments.add(new ScaleSegment());
         segments.add(new MarkerSegment());
@@ -100,45 +95,16 @@ public class DetailsActivity extends AppCompatActivity {
         return urlBuilder.toString();
     }
 
-    private static void addStarImage(final Context context, final ViewGroup parent, final int
-            drawableResource) {
-        final ImageView star = (ImageView) LayoutInflater.from(context).inflate(R.layout
-                .rating_star, parent, false);
-        star.setBackgroundResource(drawableResource);
-        parent.addView(star);
-    }
-
-    private static void setWindowFlag(Activity activity, final int bits, boolean on) {
-        Window win = activity.getWindow();
-        WindowManager.LayoutParams winParams = win.getAttributes();
-        if (on) {
-            winParams.flags |= bits;
-        } else {
-            winParams.flags &= ~bits;
-        }
-        win.setAttributes(winParams);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
 
-        if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
-            setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true);
-        }
-        if (Build.VERSION.SDK_INT >= 19) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-        if (Build.VERSION.SDK_INT >= 21) {
-            setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
+        LayoutUtils.setTransparentStatusBar(this);
 
         setActionBar();
-        setScroll();
+        setDraggerView();
 
         final Bundle data = getIntent().getExtras();
         final ItemHolder item = CustomApplication.getPlacesManager().getPlaces().get(data
@@ -175,7 +141,7 @@ public class DetailsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setScroll() {
+    private void setDraggerView() {
         draggerView.setAnimationDuration(200, 300);
         draggerView.setSlideEnabled(false);
         draggerView.setDraggerLimit(0.7f);
@@ -242,16 +208,16 @@ public class DetailsActivity extends AppCompatActivity {
         final int roundedRating = (int) rating;
         final LinearLayout ratingParent = (LinearLayout) ratingBar.findViewById(R.id.rating_parent);
         for (int x = 0; x < roundedRating; x++) {
-            addStarImage(this, ratingParent, R.drawable.ic_star_white_18dp);
+            LayoutUtils.addStarImage(this, ratingParent, R.drawable.ic_star_white_18dp);
             total++;
         }
         if (rating - roundedRating >= 0.5) {
-            addStarImage(this, ratingParent, R.drawable.ic_star_half_white_18dp);
+            LayoutUtils.addStarImage(this, ratingParent, R.drawable.ic_star_half_white_18dp);
             total++;
         }
         int rest = Math.round(5 - total);
         for (int x = 0; x < rest; x++) {
-            addStarImage(this, ratingParent, R.drawable.ic_star_border_white_18dp);
+            LayoutUtils.addStarImage(this, ratingParent, R.drawable.ic_star_border_white_18dp);
         }
         return ratingBar;
     }

@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ import pt.castro.tops.events.place.PhotoUpdateEvent;
 import pt.castro.tops.events.place.ScoreChangeEvent;
 import pt.castro.tops.events.user.UserClickEvent;
 import pt.castro.tops.list.decoration.RoundedCornersTransformation;
+import pt.castro.tops.list.decoration.WrapWidthTextView;
 
 /**
  * Created by lourenco.castro on 07/05/15.
@@ -157,23 +159,26 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
                     Picasso.with(holder.imageView.getContext()).load(uri).transform(new
                             RoundedCornersTransformation(40, 0)).tag(this).into(holder.imageView);
                 }
-                holder.bottomShadow.setVisibility(View.VISIBLE);
                 holder.imageView.setTag(itemHolder.getPhotoUrl());
             }
         } else {
             Picasso.with(holder.imageView.getContext()).load(R.drawable.francesinha_blur).into
                     (holder.imageView);
-            holder.bottomShadow.setVisibility(View.VISIBLE);
         }
         holder.rankingTextView.setText(String.format(Locale.getDefault(), "%s", position + 1));
-        holder.titleTextView.setText(itemHolder.getName());
-
+        String name = itemHolder.getName();
         float distance = visibleItems.get(adapterPosition).getDistance();
         if (distance == -1) {
-            holder.locationTextView.setText(itemHolder.getLocation().trim());
+            name = name + "<font color='gray'> " + itemHolder.getLocation().trim() +
+                    "" +
+                    "</font>";
         } else {
-            holder.locationTextView.setText(String.format(Locale.getDefault(), "%skm", distance));
+            name = name + "<font color='#bdbdbd'> " + String.format(Locale.getDefault(), "%skm",
+                    distance) + "</font>";
         }
+        holder.titleTextView.setText(Html.fromHtml(name), TextView.BufferType.SPANNABLE);
+
+
         holder.votesUp.setText(String.format(Locale.getDefault(), "%s", itemHolder.getVotesUp()));
         holder.votesDown.setText(String.format(Locale.getDefault(), "%s", itemHolder.getVotesDown
                 ()));
@@ -233,9 +238,7 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
         @Bind(R.id.custom_row_ranking)
         TextView rankingTextView;
         @Bind(R.id.custom_row_name)
-        TextView titleTextView;
-        @Bind(R.id.custom_row_location)
-        TextView locationTextView;
+        WrapWidthTextView titleTextView;
         @Bind(R.id.backdrop_image)
         ImageView imageView;
         @Bind(R.id.backdrop_clickable)
@@ -248,8 +251,6 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
         View votesUpIndicator;
         @Bind(R.id.votes_down_indicator)
         View votesDownIndicator;
-        @Bind(R.id.custom_row_bottom_shadow)
-        View bottomShadow;
         @Bind(R.id.card_parent)
         CardView cardView;
 
