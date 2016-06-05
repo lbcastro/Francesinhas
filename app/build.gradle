@@ -13,17 +13,20 @@ android {
         applicationId "pt.castro.tops"
         minSdkVersion 17
         targetSdkVersion 23
-        versionCode 22
-        versionName "0.8.4"
+        versionCode 23
+        versionName "0.8.5"
 
         renderscriptTargetApi 20
         renderscriptSupportModeEnabled true
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    dexOptions {
+        jumboMode = true
     }
 }
 
