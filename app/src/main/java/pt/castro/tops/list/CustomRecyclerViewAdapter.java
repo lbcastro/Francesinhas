@@ -170,10 +170,10 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
         float distance = visibleItems.get(adapterPosition).getDistance();
         if (distance == -1) {
             name = name + "<font color='gray'> " + itemHolder.getLocation().trim() +
-                    "" +
-                    "</font>";
+                    "" + "</font>";
         } else {
-            name = name + "<font color='#bdbdbd'> " + String.format(Locale.getDefault(), "%skm",
+            name = name + "<font color='#bdbdbd'> " + String.format(Locale.getDefault(),
+                    "%s<small>km</small>",
                     distance) + "</font>";
         }
         holder.titleTextView.setText(Html.fromHtml(name), TextView.BufferType.SPANNABLE);

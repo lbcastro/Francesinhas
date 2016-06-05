@@ -85,8 +85,6 @@
         <item name="android:maxEms">3</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/text_size_m</item>
-        <item name="android:fontFeatureSettings">onum</item>
-        <item name="android:letterSpacing">0.02</item>
     </style>
 
     <style name="ExpandedText" parent="@android:style/TextAppearance.StatusBar.Title">
