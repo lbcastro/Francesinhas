@@ -172,8 +172,8 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
             name = name + "<font color='gray'> " + itemHolder.getLocation().trim() +
                     "" + "</font>";
         } else {
-            name = name + "<font color='#bdbdbd'> " + String.format(Locale.getDefault(),
-                    "%s<small>km</small>",
+            name = name + "<font color='#9e9e9e'> " + String.format(Locale.getDefault(), " " +
+                    "<small> %skm</small>",
                     distance) + "</font>";
         }
         holder.titleTextView.setText(Html.fromHtml(name), TextView.BufferType.SPANNABLE);

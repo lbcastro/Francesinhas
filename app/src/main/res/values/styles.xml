@@ -90,7 +90,7 @@
     <style name="ExpandedText" parent="@android:style/TextAppearance.StatusBar.Title">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
     <style name="NewExpandedText" parent="@android:style/TextAppearance.Medium">

@@ -4,12 +4,13 @@
     <color name="blue">#448AFF</color>
     <color name="blue_dark">#3974d6</color>
     <color name="black_transparent">#1e000000</color>
+    <color name="black_transparent2">#64000000</color>
     <color name="gray">#292728</color>
     <color name="blue_light">#335EAE</color>
     <color name="blue_facebook">#3B5998</color>
     <color name="dark_gray">#4a4647</color>
-    <color name="light_gray">#bdbdbd</color>
-    <color name="background">#EEEEEE</color>
+    <color name="light_gray">#9e9e9e</color>
+    <color name="background">#e0e0e0</color>
 
     <color name="red_faded">#F44336</color>
     <color name="green_faded">#A5D6A7</color>

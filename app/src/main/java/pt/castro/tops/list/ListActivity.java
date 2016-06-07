@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
@@ -16,6 +17,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import com.facebook.appevents.AppEventsLogger;
@@ -52,6 +56,7 @@ import pt.castro.tops.events.place.PlacePickerEvent;
 import pt.castro.tops.events.place.ScoreChangeEvent;
 import pt.castro.tops.events.user.UserClickEvent;
 import pt.castro.tops.tools.ConnectionUtils;
+import pt.castro.tops.tools.LayoutUtils;
 import pt.castro.tops.tools.NotificationUtils;
 import pt.castro.tops.tools.PlaceUtils;
 
@@ -90,8 +95,15 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
         startLocationLayer();
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Window w = getWindow(); // in Activity's onCreate() for instance
+            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager
+                    .LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        }
+
         ButterKnife.bind(this);
         setToolbar();
+        setFabMargin();
 //        setBottomBar(savedInstanceState);
 
         mRecyclerViewManager = new RecyclerViewManager();
@@ -102,6 +114,19 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         } else {
             notConnectedState();
         }
+    }
+
+    private void setFabMargin() {
+        int fabMargin;
+        if (LayoutUtils.hasSoftKeys(this)) {
+            fabMargin = getResources().getDimensionPixelSize(R.dimen.margin_fab_soft_keys);
+        } else {
+            fabMargin = getResources().getDimensionPixelOffset(R.dimen.margin_m);
+        }
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) floatingActionButton
+                .getLayoutParams();
+        params.bottomMargin = fabMargin;
+        floatingActionButton.setLayoutParams(params);
     }
 
 //    private void setBottomBar(final Bundle savedInstanceState) {
@@ -415,11 +440,22 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
     private void setToolbar() {
         setSupportActionBar(toolbar);
+        toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
+        toolbar.getLayoutParams().height = toolbar.getLayoutParams().height + getStatusBarHeight();
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
 //            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
+    }
+
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     private void refreshList() {

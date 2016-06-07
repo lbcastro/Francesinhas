@@ -64,8 +64,6 @@ public class RecyclerViewManager {
     public void setRecyclerView(final Context context, final UltimateRecyclerView recyclerView) {
         recyclerViewAdapter = new CustomRecyclerViewAdapter();
         mainRecyclerView = recyclerView;
-//        ScrollSmoothLineaerLayoutManager layoutManager = new ScrollSmoothLineaerLayoutManager
-//                (context, LinearLayoutManager.VERTICAL, false, 5000);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         mainRecyclerView.setLayoutManager(layoutManager);
         mainRecyclerView.setDefaultSwipeToRefreshColorScheme(ContextCompat.getColor(context, R

@@ -11,7 +11,7 @@
     android:layout_marginTop="@dimen/card_margin_vertical"
     android:animateLayoutChanges="true"
     android:descendantFocusability="blocksDescendants"
-    card_view:cardCornerRadius="2dp"
+    card_view:cardCornerRadius="0dp"
     card_view:cardPreventCornerOverlap="false"
     tools:cardElevation="@dimen/card_elevation">
 
@@ -28,7 +28,7 @@
             <ImageView
                 android:id="@+id/backdrop_image"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="320dp"
                 android:contentDescription="@null"
                 android:scaleType="centerCrop"/>
 
@@ -48,7 +48,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:background="#e6ffffff">
 
             <View
                 android:layout_width="wrap_content"
@@ -57,21 +58,19 @@
                 android:layout_alignEnd="@+id/custom_row_name"
                 android:layout_alignStart="@+id/custom_row_ranking"
                 android:layout_alignTop="@+id/custom_row_name"
-                android:background="@android:color/white"/>
+                android:background="@android:color/transparent"/>
 
             <TextView
                 android:id="@+id/custom_row_ranking"
-                style="@style/Text.Header.1"
+                style="@style/ExpandedText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignTop="@+id/custom_row_name"
                 android:layout_gravity="top"
-                android:layout_marginStart="48dp"
-                android:fontFamily="sans-serif-light"
+                android:layout_marginStart="40dp"
                 android:gravity="start|top"
-                android:paddingStart="8dp"
-                android:textColor="@color/light_gray"
+                android:textColor="@color/dark_gray"
                 android:textSize="@dimen/text_row_title"
                 tools:text="1"/>
 

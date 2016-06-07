@@ -6,9 +6,11 @@
     <dimen name="margin_s">8dp</dimen>
     <dimen name="margin_xs">4dp</dimen>
 
+    <dimen name="margin_fab_soft_keys">64dp</dimen>
+
     <dimen name="row_main_height">256dp</dimen>
     <dimen name="map_view_height">144dp</dimen>
-    <dimen name="row_image_height">196dp</dimen>
+    <dimen name="row_image_height">256dp</dimen>
     <dimen name="row_max_width">260dp</dimen>
 
     <dimen name="ranking_size">48dp</dimen>
