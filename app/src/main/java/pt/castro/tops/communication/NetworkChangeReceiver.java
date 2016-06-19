@@ -11,9 +11,9 @@ import pt.castro.tops.tools.ConnectionUtils;
  */
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
-    private final IConnectionObserver observer;
+    private final INetworkChangeObserver observer;
 
-    public NetworkChangeReceiver(IConnectionObserver observer) {
+    public NetworkChangeReceiver(INetworkChangeObserver observer) {
         this.observer = observer;
     }
 

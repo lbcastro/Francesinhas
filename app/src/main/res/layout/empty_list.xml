@@ -6,9 +6,10 @@
     <TextView
         android:id="@+id/empty_text"
         style="@style/Text.Header.1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:layout_marginBottom="48dp"
         android:gravity="center"
         android:text="@string/no_places"
         android:textColor="@color/dark_gray"/>

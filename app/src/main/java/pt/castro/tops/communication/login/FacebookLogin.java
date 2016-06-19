@@ -85,7 +85,6 @@ public class FacebookLogin {
                 if (currentAccessToken != null && !currentAccessToken.isExpired()) {
                     LoginManager.getInstance().logInWithReadPermissions(activity, Collections
                             .singletonList("public_profile"));
-                    Log.d("Faceebook", "TOKEN CHANGED");
                     handleSignInResult(currentAccessToken);
                 }
             }
@@ -99,7 +98,6 @@ public class FacebookLogin {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
-        Log.d("Facebook", "FROM SIGN IN");
         mSigningIn = true;
         new UserEndpointActions(UserEndpointActions.GET_USER).execute(accessToken.getUserId());
     }
@@ -179,7 +177,6 @@ public class FacebookLogin {
                 FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d("Faceebook", "FROM SUCCESS");
                 handleSignInResult(loginResult.getAccessToken());
             }
 

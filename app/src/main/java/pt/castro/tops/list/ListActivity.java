@@ -2,12 +2,9 @@ package pt.castro.tops.list;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -18,8 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import com.facebook.appevents.AppEventsLogger;
@@ -44,7 +39,7 @@ import pt.castro.tops.communication.EndpointSearch;
 import pt.castro.tops.communication.EndpointUserVote;
 import pt.castro.tops.communication.EndpointsAsyncTask;
 import pt.castro.tops.communication.IConnectionObserver;
-import pt.castro.tops.communication.NetworkChangeReceiver;
+import pt.castro.tops.communication.NetworkChangeMonitor;
 import pt.castro.tops.communication.login.LoginActivity;
 import pt.castro.tops.details.DetailsActivity;
 import pt.castro.tops.events.EventBusHook;
@@ -55,7 +50,6 @@ import pt.castro.tops.events.place.PlaceAlreadyExistsEvent;
 import pt.castro.tops.events.place.PlacePickerEvent;
 import pt.castro.tops.events.place.ScoreChangeEvent;
 import pt.castro.tops.events.user.UserClickEvent;
-import pt.castro.tops.tools.ConnectionUtils;
 import pt.castro.tops.tools.LayoutUtils;
 import pt.castro.tops.tools.NotificationUtils;
 import pt.castro.tops.tools.PlaceUtils;
@@ -84,32 +78,30 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     private UserHolder mCurrentUser;
     private String mNextToken;
 
-    private boolean mConnectedState;
-    private NetworkChangeReceiver mConnectionMonitor;
     private SearchHelper mSearchHelper;
+    private NetworkChangeMonitor mConnectionMonitor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+        ButterKnife.bind(this);
 
         startLocationLayer();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window w = getWindow(); // in Activity's onCreate() for instance
-            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager
-                    .LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        if (LayoutUtils.isKitkatOrAbove()) {
+            LayoutUtils.setImmersiveMode(this);
+            setFabMargin();
         }
 
-        ButterKnife.bind(this);
         setToolbar();
-        setFabMargin();
 //        setBottomBar(savedInstanceState);
 
         mRecyclerViewManager = new RecyclerViewManager();
         mRecyclerViewManager.setRecyclerView(this, mainRecyclerView);
 
-        if (checkConnection()) {
+        mConnectionMonitor = new NetworkChangeMonitor(this);
+        if (mConnectionMonitor.checkConnection(this)) {
             getUserData();
         } else {
             notConnectedState();
@@ -117,14 +109,11 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     }
 
     private void setFabMargin() {
-        int fabMargin;
-        if (LayoutUtils.hasSoftKeys(this)) {
-            fabMargin = getResources().getDimensionPixelSize(R.dimen.margin_fab_soft_keys);
-        } else {
-            fabMargin = getResources().getDimensionPixelOffset(R.dimen.margin_m);
-        }
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) floatingActionButton
-                .getLayoutParams();
+        final int fabMargin = LayoutUtils.hasSoftKeys(this) ? getResources()
+                .getDimensionPixelSize(R.dimen.margin_fab_soft_keys) : getResources()
+                .getDimensionPixelOffset(R.dimen.margin_m);
+        final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams)
+                floatingActionButton.getLayoutParams();
         params.bottomMargin = fabMargin;
         floatingActionButton.setLayoutParams(params);
     }
@@ -163,7 +152,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
+            @NonNull int[] grantResults) {
         if (requestCode == 0) {
             if (mPermissionsManager.hasLocationPermission(this)) {
                 mLocationManager.setup(this);
@@ -182,11 +171,11 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         }
         mLocationManager.start();
         AppEventsLogger.activateApp(getApplication());
-        if (mConnectedState) {
+        if (mConnectionMonitor.isConnected()) {
             floatingActionButton.show();
 //            mBottomBar.show();
         }
-        registerConnectionMonitor();
+        mConnectionMonitor.registerConnectionMonitor(this);
         mRecyclerViewManager.resume();
     }
 
@@ -196,14 +185,14 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
-        unregisterConnectionMonitor();
+        mConnectionMonitor.unregisterConnectionMonitor(this);
     }
 
     @Override
     public void onStop() {
         mLocationManager.stop();
         super.onStop();
-        unregisterConnectionMonitor();
+        mConnectionMonitor.unregisterConnectionMonitor(this);
         mRecyclerViewManager.stop();
     }
 
@@ -213,7 +202,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
-        unregisterConnectionMonitor();
+        mConnectionMonitor.unregisterConnectionMonitor(this);
     }
 
     @Override
@@ -228,45 +217,35 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_logout) {
+            logOut();
+        } else if (item.getItemId() == R.id.action_refresh) {
+            if (mConnectionMonitor.isConnected()) {
+                EventBus.getDefault().post(new ERequestRefresh());
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onBackPressed() {
         if (!mSearchHelper.isIconified()) {
             mSearchHelper.resetSearchView();
         } else if (mCurrentUser == null) {
             startLoginActivity();
             CustomApplication.getPlacesManager().clear();
-            unregisterConnectionMonitor();
+            mConnectionMonitor.unregisterConnectionMonitor(this);
         } else {
             super.onBackPressed();
             CustomApplication.getPlacesManager().clear();
-            unregisterConnectionMonitor();
+            mConnectionMonitor.unregisterConnectionMonitor(this);
         }
-    }
-
-    @Override
-    public void onConnectionChange(boolean connected) {
-        if (!mConnectedState && connected) {
-            connectedState();
-            getUserData();
-        }
-        if (!connected) {
-            notConnectedState();
-        }
-        mConnectedState = connected;
     }
 
     @OnClick(R.id.floating_action_button)
-    void onClickFloatingActionButton() {
+    public void onClickFloatingActionButton() {
         EventBus.getDefault().post(new PlacePickerEvent());
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_logout) {
-            logOut();
-        } else if (item.getItemId() == R.id.action_refresh) {
-            EventBus.getDefault().post(new ListRefreshEvent());
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -292,6 +271,9 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
     @EventBusHook
     public void onEventMainThread(final ListRetrievedEvent listRetrievedEvent) {
+        if (mNextToken == null) {
+            mRecyclerViewManager.clear();
+        }
         mNextToken = listRetrievedEvent.getToken();
 
         // Iterates all retrieved items and adds votes when applied.
@@ -320,15 +302,29 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
         mRecyclerViewManager.setRefreshing(false);
-        setToolbarCollapsible(false);
+        LayoutUtils.setToolbarCollapsible(toolbar, false);
     }
 
-    private void setToolbarCollapsible(final boolean collapsible) {
-        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
-        params.setScrollFlags(collapsible ? AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL |
-                AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS |
-                AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP : 0);
-        toolbar.setCollapsible(collapsible);
+    @EventBusHook
+    public void onEventMainThread(final ListRefreshEvent listRefreshEvent) {
+        mSearchHelper.resetSearchView();
+        refreshList();
+    }
+
+    @EventBusHook
+    public void onEventMainThread(final PlaceAlreadyExistsEvent placeAlreadyExistsEvent) {
+        NotificationUtils.toastCustomText(this, R.string.place_exists);
+    }
+
+    @EventBusHook
+    public void onEventMainThread(final RecyclerViewManager.ELoadMore eLoadMore) {
+        if (!mSearchHelper.isIconified()) {
+            EndpointSearch endpointSearch = new EndpointSearch();
+            endpointSearch.setCursor(mNextToken);
+            endpointSearch.execute(mSearchHelper.getQuery());
+        } else {
+            getItems();
+        }
     }
 
     @EventBusHook
@@ -353,12 +349,6 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     }
 
     @EventBusHook
-    public void onEventMainThread(final ListRefreshEvent listRefreshEvent) {
-        mSearchHelper.resetSearchView();
-        refreshList();
-    }
-
-    @EventBusHook
     public void onEvent(final PlacePickerEvent placePickerEvent) {
         if (mCurrentUser == null) {
             NotificationUtils.toastLoggedAdd(this);
@@ -377,14 +367,9 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
     }
 
     @EventBusHook
-    public void onEventMainThread(final PlaceAlreadyExistsEvent placeAlreadyExistsEvent) {
-        NotificationUtils.toastCustomText(this, R.string.place_exists);
-    }
-
-    @EventBusHook
-    public void onEvent(final RecyclerViewManager.ERequestRefresh eRequestRefresh) {
-        if (!mConnectedState) {
-            if (!checkConnection()) {
+    public void onEvent(final ERequestRefresh eRequestRefresh) {
+        if (!mConnectionMonitor.isConnected()) {
+            if (!mConnectionMonitor.checkConnection(this)) {
                 notConnectedState();
             } else {
                 connectedState();
@@ -396,52 +381,24 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         }
     }
 
-    @EventBusHook
-    public void onEventMainThread(final RecyclerViewManager.ELoadMore eLoadMore) {
-        if (!mSearchHelper.isIconified()) {
-            EndpointSearch endpointSearch = new EndpointSearch();
-            endpointSearch.setCursor(mNextToken);
-            endpointSearch.execute(mSearchHelper.getQuery());
-        } else {
-            getItems();
-        }
-    }
-
-    private void registerConnectionMonitor() {
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        mConnectionMonitor = new NetworkChangeReceiver(this);
-        registerReceiver(mConnectionMonitor, filter);
-    }
-
-    private void unregisterConnectionMonitor() {
-        if (mConnectionMonitor != null) {
-            try {
-                unregisterReceiver(mConnectionMonitor);
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
-    }
-
     private void notConnectedState() {
         floatingActionButton.hide();
-        mRecyclerViewManager.setNotConnected();
+        mRecyclerViewManager.setConnected(false);
         mNextToken = null;
     }
 
     private void connectedState() {
-        mainRecyclerView.hideEmptyView();
+        mRecyclerViewManager.setConnected(true);
         floatingActionButton.show();
-    }
-
-    private boolean checkConnection() {
-        mConnectedState = ConnectionUtils.checkConnection(this);
-        return mConnectedState;
     }
 
     private void setToolbar() {
         setSupportActionBar(toolbar);
-        toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
-        toolbar.getLayoutParams().height = toolbar.getLayoutParams().height + getStatusBarHeight();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            toolbar.setPadding(0, LayoutUtils.getStatusBarHeight(getResources()), 0, 0);
+            toolbar.getLayoutParams().height = toolbar.getLayoutParams().height + LayoutUtils
+                    .getStatusBarHeight(getResources());
+        }
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
@@ -449,21 +406,12 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
         }
     }
 
-    public int getStatusBarHeight() {
-        int result = 0;
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
-    }
-
     private void refreshList() {
         // TODO: Instead of retrieving a new set of items, update the existing ones
         mNextToken = null;
-        setToolbarCollapsible(true);
+        LayoutUtils.setToolbarCollapsible(toolbar, true);
         CustomApplication.getPlacesManager().clear();
-        mRecyclerViewManager.setEmptyList(getString(R.string.loading));
+        mRecyclerViewManager.setRefreshing(true);
         getItems();
     }
 
@@ -483,16 +431,14 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
     private void getUserData() {
         mCurrentUser = CustomApplication.getUsersManager().getUser();
+        CustomApplication.getPlacesManager().clear();
         if (mCurrentUser == null) {
-            CustomApplication.getPlacesManager().clear();
             mRecyclerViewManager.setVoting(false);
-            getItems();
         } else {
-            CustomApplication.getPlacesManager().clear();
             mRecyclerViewManager.setVoting(true);
             setButton(true);
-            getItems();
         }
+        getItems();
     }
 
     private void startLoginActivity() {
@@ -535,11 +481,27 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
 
     @Override
     public void onSearchStart() {
-        mRecyclerViewManager.setEmptyList("Searching...");
+        mRecyclerViewManager.setRefreshing(true);
+    }
+
+    @Override
+    public void onSearchComplete() {
+        mNextToken = null;
     }
 
     @Override
     public void onSearchReset() {
         refreshList();
+    }
+
+    @Override
+    public void onConnect() {
+        connectedState();
+        getUserData();
+    }
+
+    @Override
+    public void onDisconnect() {
+        notConnectedState();
     }
 }

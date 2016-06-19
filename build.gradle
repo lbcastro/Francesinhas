@@ -24,5 +24,9 @@ allprojects {
         maven {
             url "https://github.com"
         }
+        jcenter()
+        maven {
+            url "http://dl.bintray.com/jjhesk/maven"
+        }
     }
 }

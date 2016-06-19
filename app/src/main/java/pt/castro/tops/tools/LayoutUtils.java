@@ -3,9 +3,12 @@ package pt.castro.tops.tools;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -207,5 +210,35 @@ public class LayoutUtils {
         float d = context.getResources().getDisplayMetrics().density;
         int margin = (int) (dp * d); // margin in pixels
         return margin;
+    }
+
+    public static void setToolbarCollapsible(final Toolbar toolbar, final boolean collapsible) {
+        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+        params.setScrollFlags(collapsible ? AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL |
+                AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS |
+                AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP : 0);
+        toolbar.setCollapsible(collapsible);
+    }
+
+    public static void setImmersiveMode(final Activity activity) {
+        activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+    }
+
+    public static boolean isKitkatOrAbove() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+    }
+
+    public static boolean isLollipopOrAbove() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
+    public static int getStatusBarHeight(final Resources resources) {
+        int result = 0;
+        int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = resources.getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 }

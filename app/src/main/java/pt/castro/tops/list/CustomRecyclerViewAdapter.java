@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.github.florent37.beautifulparallax.ParallaxViewController;
 import com.marshalchen.ultimaterecyclerview.UltimateViewAdapter;
-import com.marshalchen.ultimaterecyclerview.animators.internal.ViewHelper;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
+import jp.wasabeef.recyclerview.internal.ViewHelper;
 import pt.castro.francesinhas.backend.myApi.model.ItemHolder;
 import pt.castro.tops.CustomApplication;
 import pt.castro.tops.R;
@@ -46,7 +46,7 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
     private final List<LocalItemHolder> visibleItems;
     private ParallaxViewController parallaxViewController;
     private boolean votingEnabled;
-    private int mLastPosition;
+    private int mLastPosition = -1;
 
     public CustomRecyclerViewAdapter() {
         EventBus.getDefault().register(this);
@@ -76,14 +76,14 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
 
     public void clear() {
         synchronized (visibleItems) {
-            mLastPosition = 0;
+            mLastPosition = -1;
             visibleItems.clear();
             notifyDataSetChanged();
         }
     }
 
     public void reset() {
-        mLastPosition = 0;
+        mLastPosition = -1;
         flushFilter();
     }
 
@@ -127,7 +127,17 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
     }
 
     @Override
-    public ViewHolder getViewHolder(View view) {
+    public ViewHolder newFooterHolder(View view) {
+        return null;
+    }
+
+    @Override
+    public ViewHolder newHeaderHolder(View view) {
+        return null;
+    }
+
+    @Override
+    public ViewHolder newCustomViewHolder(View view) {
         return new ViewHolder(view);
     }
 

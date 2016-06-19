@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AnimationSet;
 import android.widget.TextView;
@@ -22,6 +23,7 @@ import pt.castro.tops.CustomApplication;
 import pt.castro.tops.R;
 import pt.castro.tops.list.ListActivity;
 import pt.castro.tops.tools.AnimationUtils;
+import pt.castro.tops.tools.LayoutUtils;
 import pt.castro.tops.tools.NotificationUtils;
 
 
@@ -48,6 +50,14 @@ public class LoginActivity extends AppCompatActivity implements LoginObserver {
         setAnimations();
 
         mLoginButtons = findViewById(R.id.votes_parent);
+        if (!LayoutUtils.hasSoftKeys(this)) {
+            final int margin = getResources().getDimensionPixelSize(R.dimen.margin_m);
+            final ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams)
+                    mLoginButtons.getLayoutParams();
+            params.bottomMargin = margin;
+            mLoginButtons.setLayoutParams(params);
+        }
+
         mProgressWheel = (ProgressWheel) findViewById(R.id.progress_wheel);
         if (mProgressWheel != null) {
             mProgressWheel.setVisibility(View.VISIBLE);

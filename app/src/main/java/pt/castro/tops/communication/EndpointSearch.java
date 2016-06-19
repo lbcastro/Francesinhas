@@ -48,7 +48,6 @@ public class EndpointSearch extends AsyncTask<String, Void, Void> {
             listRetrievedEvent.setToken(nextToken);
             EventBus.getDefault().post(listRetrievedEvent);
         } catch (IOException e) {
-            e.printStackTrace();
             EventBus.getDefault().post(new ConnectionFailedEvent());
         }
         return null;

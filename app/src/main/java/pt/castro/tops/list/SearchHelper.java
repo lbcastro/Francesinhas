@@ -90,6 +90,8 @@ public class SearchHelper {
             @Override
             public void run() {
                 searchThread = null;
+                mObserver.onSearchComplete();
+                mSearchView.clearFocus();
                 new EndpointSearch().execute(query);
                 CustomApplication.getPlacesManager().clear();
             }
@@ -102,9 +104,13 @@ public class SearchHelper {
     }
 
     public void resetSearchView() {
-        mSearchView.setQuery("", false);
-        mSearchView.setIconified(true);
-        mSearchView.clearFocus();
+        if (mSearchView.getQuery().length() > 0) {
+            mSearchView.setQuery("", false);
+        }
+        if (!mSearchView.isIconified()) {
+            mSearchView.setIconified(true);
+            mSearchView.clearFocus();
+        }
     }
 
     public String getQuery() {
@@ -113,6 +119,8 @@ public class SearchHelper {
 
     public interface ISearchObserver {
         void onSearchStart();
+
+        void onSearchComplete();
 
         void onSearchReset();
     }

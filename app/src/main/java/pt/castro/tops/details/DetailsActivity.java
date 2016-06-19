@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.facebook.appevents.AppEventsLogger;
 import com.flaviofaria.kenburnsview.KenBurnsView;
+import com.github.ppamorim.dragger.DraggerCallback;
 import com.github.ppamorim.dragger.DraggerPosition;
 import com.github.ppamorim.dragger.DraggerView;
 import com.squareup.picasso.Picasso;
@@ -50,7 +51,7 @@ import pt.castro.tops.tools.PhotoUtils;
 /**
  * Created by lourenco on 03/12/15.
  */
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity implements DraggerCallback {
 
     private static List<Segment> segments = new LinkedList<>();
 
@@ -101,7 +102,18 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
 
-        LayoutUtils.setTransparentStatusBar(this);
+        if (LayoutUtils.isLollipopOrAbove()) {
+            LayoutUtils.setTransparentStatusBar(this);
+        } else if (LayoutUtils.isKitkatOrAbove()) {
+            LayoutUtils.setImmersiveMode(this);
+        }
+
+        if (!LayoutUtils.hasSoftKeys(this) && LayoutUtils.isKitkatOrAbove()) {
+            final View nestedLinear = findViewById(R.id.nested_linear);
+            if (nestedLinear != null) {
+                nestedLinear.setPadding(0, 0, 0, 0);
+            }
+        }
 
         setActionBar();
         setDraggerView();
@@ -181,6 +193,11 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void setActionBar() {
         setSupportActionBar(toolbar);
+        if (LayoutUtils.isKitkatOrAbove() && !LayoutUtils.isLollipopOrAbove()) {
+            toolbar.setPadding(0, LayoutUtils.getStatusBarHeight(getResources()), 0, 0);
+            toolbar.getLayoutParams().height = toolbar.getLayoutParams().height + LayoutUtils
+                    .getStatusBarHeight(getResources());
+        }
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -322,14 +339,17 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private boolean hasContent(final String string) {
-        return string != null && !string.equals("n/a");
+        return string != null && !string.equals("n/a") && !string.isEmpty();
     }
 
     private void setMapView(final String address, final float latitude, final float longitude) {
 
+        mapView.measure(View.MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.MATCH_PARENT,
+                View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(R.dimen
+                .map_view_height, View.MeasureSpec.EXACTLY));
+
         Config config = new Config();
-        config.setImageSize((int) getResources().getDimension(R.dimen.map_view_height), (int)
-                (getResources().getDimension(R.dimen.map_view_height) * 1.5)).setZoom(16)
+        config.setImageSize(mapView.getMeasuredHeight(), mapView.getMeasuredWidth()).setZoom(16)
                 .setScale(2).setCenter(latitude, longitude);
 
         final Marker marker = config.addMarker();
@@ -363,5 +383,20 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onProgress(double v) {
+
+    }
+
+    @Override
+    public void notifyOpen() {
+
+    }
+
+    @Override
+    public void notifyClose() {
+        this.finish();
     }
 }

@@ -1,8 +1,11 @@
 package pt.castro.tops;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
@@ -29,7 +32,8 @@ import pt.castro.tops.tools.NotificationUtils;
         customReportContent = {ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME,
                 ReportField.ANDROID_VERSION, ReportField.PACKAGE_NAME, ReportField.REPORT_ID,
                 ReportField.BUILD, ReportField.STACK_TRACE},
-        mode = ReportingInteractionMode.SILENT)
+        mode = ReportingInteractionMode.SILENT,
+        resNotifText = R.string.place_exists)
 public class CustomApplication extends Application {
 
     private static PlacesManager mPlacesManager;
@@ -49,8 +53,9 @@ public class CustomApplication extends Application {
         ACRA.init(this);
         LeakCanary.install(this);
         FacebookSdk.sdkInitialize(getApplicationContext());
-        Picasso picasso = new Picasso.Builder(this).indicatorsEnabled(true).memoryCache(new LruCache(5000000))
-                .build();
+        AppEventsLogger.activateApp(this);
+        Picasso picasso = new Picasso.Builder(this).indicatorsEnabled(true).memoryCache(new
+                LruCache(5000000)).build();
         Picasso.setSingletonInstance(picasso);
         mPlacesManager = new PlacesManager();
         mUsersManager = new UsersManager();
@@ -62,5 +67,11 @@ public class CustomApplication extends Application {
         super.onTerminate();
         NotificationUtils.clear();
         EventBus.clearCaches();
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }

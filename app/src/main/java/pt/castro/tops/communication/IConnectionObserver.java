@@ -1,8 +1,10 @@
 package pt.castro.tops.communication;
 
 /**
- * Created by lourenco on 18/01/16.
+ * Created by lourenco on 09/06/16.
  */
 public interface IConnectionObserver {
-    void onConnectionChange(final boolean connected);
+    void onConnect();
+
+    void onDisconnect();
 }

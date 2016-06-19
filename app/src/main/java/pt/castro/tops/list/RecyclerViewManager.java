@@ -17,7 +17,6 @@ import pt.castro.francesinhas.backend.myApi.model.JsonMap;
 import pt.castro.francesinhas.backend.myApi.model.UserHolder;
 import pt.castro.tops.R;
 import pt.castro.tops.events.EventBusHook;
-import pt.castro.tops.events.list.ListRefreshEvent;
 import pt.castro.tops.list.decoration.CustomItemDecoration;
 
 /**
@@ -25,9 +24,10 @@ import pt.castro.tops.list.decoration.CustomItemDecoration;
  */
 public class RecyclerViewManager {
 
-    EndlessRecyclerViewScrollListener scrollListener;
     private UltimateRecyclerView mainRecyclerView;
     private CustomRecyclerViewAdapter recyclerViewAdapter;
+
+    private boolean refreshing;
 
     private static int getVote(UserHolder userHolder, String itemId) {
         if (userHolder == null) {
@@ -54,9 +54,12 @@ public class RecyclerViewManager {
     }
 
     public void add(final LocalItemHolder localItemHolder) {
-        mainRecyclerView.hideEmptyView();
         if (mainRecyclerView.getAdapter() == null) {
             mainRecyclerView.setAdapter(recyclerViewAdapter);
+        }
+        if (refreshing) {
+            mainRecyclerView.hideEmptyView();
+            refreshing = false;
         }
         recyclerViewAdapter.add(localItemHolder);
     }
@@ -64,18 +67,10 @@ public class RecyclerViewManager {
     public void setRecyclerView(final Context context, final UltimateRecyclerView recyclerView) {
         recyclerViewAdapter = new CustomRecyclerViewAdapter();
         mainRecyclerView = recyclerView;
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         mainRecyclerView.setLayoutManager(layoutManager);
-        mainRecyclerView.setDefaultSwipeToRefreshColorScheme(ContextCompat.getColor(context, R
-                .color.blue_dark));
 
-        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount) {
-                EventBus.getDefault().post(new ELoadMore());
-            }
-        };
-        mainRecyclerView.addOnScrollListener(scrollListener);
+
         mainRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -91,39 +86,49 @@ public class RecyclerViewManager {
             @Override
             public void onRefresh() {
                 EventBus.getDefault().post(new ERequestRefresh());
-                scrollListener.reset();
             }
         });
-//        mainRecyclerView.reenableLoadmore();
-//        mainRecyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
-//            @Override
-//            public void loadMore(int itemsCount, int maxLastVisiblePosition) {
-//
-//                EventBus.getDefault().post(new ELoadMore());
-//            }
-//        });
-//        recyclerViewAdapter.setCustomLoadMoreView(LayoutInflater.from(context).inflate(R.layout
-//                .custom_progress_bar, mainRecyclerView, false));
-        setEmptyList(context.getString(R.string.loading));
+        mainRecyclerView.setDefaultSwipeToRefreshColorScheme(ContextCompat.getColor(context, R
+                .color.blue_bright));
+        mainRecyclerView.setEmptyView(R.layout.empty_list, UltimateRecyclerView.EMPTY_CLEAR_ALL);
+        mainRecyclerView.hideEmptyView();
+        mainRecyclerView.setLoadMoreView(R.layout.custom_bottom_progressbar);
+        mainRecyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
+            @Override
+            public void loadMore(int itemsCount, int maxLastVisiblePosition) {
+                EventBus.getDefault().post(new ELoadMore());
+            }
+        });
         mainRecyclerView.addItemDecoration(new CustomItemDecoration());
+        mainRecyclerView.setAdapter(recyclerViewAdapter);
+        mainRecyclerView.setRefreshing(true);
     }
 
     public void setEmptyList(final String message) {
         recyclerViewAdapter.clear();
-        mainRecyclerView.setAdapter(null);
-        scrollListener.reset();
         final TextView emptyText = (TextView) mainRecyclerView.findViewById(R.id.empty_text);
         emptyText.setText(message);
         mainRecyclerView.showEmptyView();
     }
 
-    public void setNotConnected() {
-        setEmptyList(mainRecyclerView.getContext().getString(R.string.not_connected));
-        recyclerViewAdapter.clear();
+    public void setConnected(final boolean enabled) {
+        if (enabled) {
+            mainRecyclerView.enableDefaultSwipeRefresh(true);
+        } else {
+            recyclerViewAdapter.clear();
+            setEmptyList(mainRecyclerView.getContext().getString(R.string.not_connected));
+            mainRecyclerView.enableDefaultSwipeRefresh(false);
+        }
     }
 
     public void setRefreshing(final boolean refreshing) {
         mainRecyclerView.setRefreshing(refreshing);
+    }
+
+    public void clear() {
+        recyclerViewAdapter.clear();
+        recyclerViewAdapter.reset();
+        mainRecyclerView.scrollVerticallyToPosition(0);
     }
 
     public void setFilter(final String filter) {
@@ -135,17 +140,11 @@ public class RecyclerViewManager {
     }
 
     @EventBusHook
-    public void onEvent(final ListRefreshEvent listRefreshEvent) {
-        recyclerViewAdapter.reset();
-//        mainRecyclerView.reenableLoadmore();
-
+    public void onEvent(final ERequestRefresh listRefreshEvent) {
+        refreshing = true;
     }
 
     public class ELoadMore {
-
-    }
-
-    public class ERequestRefresh {
 
     }
 }

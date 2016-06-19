@@ -17,7 +17,7 @@
 
     <item
         android:id="@+id/options_menu_main_search"
-        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+        android:icon="@drawable/places_ic_search"
         android:iconifiedByDefault="true"
         android:title="@string/search"
         app:actionViewClass="android.support.v7.widget.SearchView"
