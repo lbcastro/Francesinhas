@@ -182,9 +182,7 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
             name = name + "<font color='gray'> " + itemHolder.getLocation().trim() +
                     "" + "</font>";
         } else {
-            name = name + "<font color='#9e9e9e'> " + String.format(Locale.getDefault(), " " +
-                    "<small> %skm</small>",
-                    distance) + "</font>";
+            name = name + "<font color='#9e9e9e'> " + String.format(Locale.getDefault(), " " + "<small> %skm</small>", distance) + "</font>";
         }
         holder.titleTextView.setText(Html.fromHtml(name), TextView.BufferType.SPANNABLE);
 
@@ -212,6 +210,16 @@ public class CustomRecyclerViewAdapter extends UltimateViewAdapter<CustomRecycle
             mLastPosition = adapterPosition;
         } else {
             ViewHelper.clear(holder.itemView);
+        }
+        if (adapterPosition == visibleItems.size() - 1) {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.cardView
+                    .getLayoutParams();
+            params.bottomMargin = holder.cardView.getContext().getResources()
+                    .getDimensionPixelSize(R.dimen.margin_row_size);
+        } else {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.cardView
+                    .getLayoutParams();
+            params.bottomMargin = 0;
         }
     }
 
