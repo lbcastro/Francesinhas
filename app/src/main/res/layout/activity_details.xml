@@ -30,8 +30,8 @@
         android:id="@+id/shadow_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:visibility="invisible"/>
+        android:background="#b4000000"
+        android:visibility="visible"/>
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/main_content"
