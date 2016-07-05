@@ -5,6 +5,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
@@ -69,8 +70,6 @@ public class RecyclerViewManager {
         mainRecyclerView = recyclerView;
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         mainRecyclerView.setLayoutManager(layoutManager);
-
-
         mainRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -101,7 +100,16 @@ public class RecyclerViewManager {
         });
         mainRecyclerView.addItemDecoration(new CustomItemDecoration());
         mainRecyclerView.setAdapter(recyclerViewAdapter);
-        mainRecyclerView.setRefreshing(true);
+
+        mainRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
+                .OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                setRefreshing(true);
+                mainRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
     }
 
     public void setEmptyList(final String message) {
@@ -122,6 +130,7 @@ public class RecyclerViewManager {
     }
 
     public void setRefreshing(final boolean refreshing) {
+        mainRecyclerView.enableDefaultSwipeRefresh(true);
         mainRecyclerView.setRefreshing(refreshing);
     }
 

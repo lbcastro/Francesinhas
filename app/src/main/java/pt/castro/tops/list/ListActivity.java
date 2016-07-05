@@ -286,6 +286,7 @@ public class ListActivity extends AppCompatActivity implements IConnectionObserv
                 // Item already exists
             }
         }
+        mRecyclerViewManager.setRefreshing(false);
     }
 
     @EventBusHook
